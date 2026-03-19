@@ -591,35 +591,46 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
   <div class="modal-box" style="width:min(420px,94vw);text-align:left;margin:auto;max-height:none">
     <div class="modal-title" style="text-align:center">⚙️ 设置 Settings</div>
 
-    <!-- EXPORT -->
-    <div style="margin-bottom:18px">
-      <div style="font-family:'Ma Shan Zheng',cursive;font-size:17px;color:var(--goldb);margin-bottom:7px">📤 导出 Export</div>
-      <div style="font-size:13px;color:var(--parch2);margin-bottom:9px;line-height:1.5">Copy this text and save it somewhere safe (notes app, email to yourself). Use it to restore progress on any device.</div>
-      <textarea id="export-box" readonly style="width:100%;height:80px;background:rgba(0,0,0,.6);border:1px solid rgba(201,162,39,.4);border-radius:6px;color:var(--parch);font-size:11px;padding:8px;resize:none;font-family:monospace;line-height:1.4" placeholder="Press Export to generate…"></textarea>
-      <button onclick="doExport()" class="btn-s" style="width:100%;margin-top:7px;font-size:15px;padding:9px 0">📋 Export &amp; Copy 复制</button>
-    </div>
+    <!-- PER-USER SAVE/LOAD/RESET — ETHAN -->
+    <div style="margin-bottom:18px;border:1px solid rgba(201,162,39,.25);border-radius:8px;padding:14px">
+      <div style="font-family:'Ma Shan Zheng',cursive;font-size:18px;color:var(--goldb);margin-bottom:10px">⚔️ Ethan</div>
 
-    <!-- IMPORT -->
-    <div style="margin-bottom:18px">
-      <div style="font-family:'Ma Shan Zheng',cursive;font-size:17px;color:var(--goldb);margin-bottom:7px">📥 导入 Import</div>
-      <div style="font-size:13px;color:var(--parch2);margin-bottom:9px;line-height:1.5">Paste a previously exported save code below to restore progress.</div>
-      <textarea id="import-box" style="width:100%;height:80px;background:rgba(0,0,0,.6);border:1px solid rgba(201,162,39,.4);border-radius:6px;color:var(--parch);font-size:11px;padding:8px;resize:none;font-family:monospace;line-height:1.4" placeholder="Paste save code here…"></textarea>
-      <div id="import-msg" style="font-size:12px;min-height:16px;margin:5px 0;color:var(--jadeb)"></div>
-      <button onclick="doImport()" class="btn-s" style="width:100%;font-size:15px;padding:9px 0">📥 Import 导入</button>
-    </div>
-
-    <!-- RESET TERRITORIES -->
-    <div style="margin-bottom:18px;border-top:1px solid rgba(200,50,50,.3);padding-top:16px">
-      <div style="font-family:'Ma Shan Zheng',cursive;font-size:17px;color:var(--redb);margin-bottom:7px">🗺️ 重置领土 Reset Territories</div>
-      <div style="font-size:13px;color:var(--parch2);margin-bottom:9px;line-height:1.5">Resets all conquered provinces back to neutral for the selected campaign. <strong style="color:var(--redb)">Character learning progress is kept.</strong> Type <strong style="color:var(--goldb)">reset</strong> to confirm.</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-        <button onclick="selectResetMode('ethan')" id="rb-ethan" class="btn-s" style="font-size:13px;padding:7px 14px;flex:1">Ethan</button>
-        <button onclick="selectResetMode('elliot')" id="rb-elliot" class="btn-s" style="font-size:13px;padding:7px 14px;flex:1">Elliot</button>
-        <button onclick="selectResetMode('coop')" id="rb-coop" class="btn-s" style="font-size:13px;padding:7px 14px;flex:1">Co-op</button>
+      <div style="font-size:13px;color:var(--parch2);margin-bottom:6px">📤 Export Ethan's progress to email or share:</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button onclick="doExportUser('ethan','email')" class="btn-s" style="flex:1;font-size:14px;padding:9px 0">📧 Email</button>
+        <button onclick="doExportUser('ethan','share')" class="btn-s" style="flex:1;font-size:14px;padding:9px 0">📤 Share</button>
       </div>
-      <input id="reset-confirm-input" type="text" placeholder="Type 'reset' to confirm" style="width:100%;background:rgba(0,0,0,.6);border:1px solid rgba(200,50,50,.5);border-radius:6px;color:var(--parch);font-size:14px;padding:9px 12px;margin-bottom:8px;box-sizing:border-box"/>
-      <div id="reset-msg" style="font-size:12px;min-height:16px;margin-bottom:6px;color:var(--redb)"></div>
-      <button onclick="doReset()" style="width:100%;background:linear-gradient(135deg,#5a1a1a,#8a2a2a);border:2px solid var(--redb);color:#ffaaaa;font-family:'Ma Shan Zheng',cursive;font-size:16px;padding:10px 0;border-radius:6px;cursor:pointer;letter-spacing:.1em">🗺️ 重置领土 Reset</button>
+
+      <div style="font-size:13px;color:var(--parch2);margin-bottom:6px">📥 Import Ethan's save code:</div>
+      <textarea id="import-box-ethan" style="width:100%;height:70px;background:rgba(0,0,0,.6);border:1px solid rgba(201,162,39,.4);border-radius:6px;color:var(--parch);font-size:12px;padding:8px;resize:none;font-family:monospace;line-height:1.4;box-sizing:border-box" placeholder="Paste Ethan's save code here…"></textarea>
+      <div id="import-msg-ethan" style="font-size:12px;min-height:16px;margin:4px 0;color:var(--jadeb)"></div>
+      <button onclick="doImportUser('ethan')" class="btn-s" style="width:100%;font-size:14px;padding:8px 0;margin-bottom:10px">📥 Import Ethan</button>
+
+      <div style="font-size:13px;color:rgba(200,80,80,.8);margin-bottom:6px">🗺️ Reset Ethan's territories (type <strong style="color:var(--goldb)">reset</strong> to confirm):</div>
+      <input id="reset-input-ethan" type="text" placeholder="Type 'reset' to confirm" style="width:100%;background:rgba(0,0,0,.6);border:1px solid rgba(200,50,50,.5);border-radius:6px;color:var(--parch);font-size:13px;padding:8px 10px;margin-bottom:6px;box-sizing:border-box"/>
+      <div id="reset-msg-ethan" style="font-size:12px;min-height:14px;margin-bottom:6px;color:var(--redb)"></div>
+      <button onclick="doResetUser('ethan')" style="width:100%;background:linear-gradient(135deg,#5a1a1a,#8a2a2a);border:2px solid var(--redb);color:#ffaaaa;font-family:'Ma Shan Zheng',cursive;font-size:15px;padding:9px 0;border-radius:6px;cursor:pointer">🗺️ Reset Ethan</button>
+    </div>
+
+    <!-- PER-USER SAVE/LOAD/RESET — ELLIOT -->
+    <div style="margin-bottom:18px;border:1px solid rgba(201,162,39,.25);border-radius:8px;padding:14px">
+      <div style="font-family:'Ma Shan Zheng',cursive;font-size:18px;color:var(--goldb);margin-bottom:10px">🐯 Elliot</div>
+
+      <div style="font-size:13px;color:var(--parch2);margin-bottom:6px">📤 Export Elliot's progress to email or share:</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button onclick="doExportUser('elliot','email')" class="btn-s" style="flex:1;font-size:14px;padding:9px 0">📧 Email</button>
+        <button onclick="doExportUser('elliot','share')" class="btn-s" style="flex:1;font-size:14px;padding:9px 0">📤 Share</button>
+      </div>
+
+      <div style="font-size:13px;color:var(--parch2);margin-bottom:6px">📥 Import Elliot's save code:</div>
+      <textarea id="import-box-elliot" style="width:100%;height:70px;background:rgba(0,0,0,.6);border:1px solid rgba(201,162,39,.4);border-radius:6px;color:var(--parch);font-size:12px;padding:8px;resize:none;font-family:monospace;line-height:1.4;box-sizing:border-box" placeholder="Paste Elliot's save code here…"></textarea>
+      <div id="import-msg-elliot" style="font-size:12px;min-height:16px;margin:4px 0;color:var(--jadeb)"></div>
+      <button onclick="doImportUser('elliot')" class="btn-s" style="width:100%;font-size:14px;padding:8px 0;margin-bottom:10px">📥 Import Elliot</button>
+
+      <div style="font-size:13px;color:rgba(200,80,80,.8);margin-bottom:6px">🗺️ Reset Elliot's territories (type <strong style="color:var(--goldb)">reset</strong> to confirm):</div>
+      <input id="reset-input-elliot" type="text" placeholder="Type 'reset' to confirm" style="width:100%;background:rgba(0,0,0,.6);border:1px solid rgba(200,50,50,.5);border-radius:6px;color:var(--parch);font-size:13px;padding:8px 10px;margin-bottom:6px;box-sizing:border-box"/>
+      <div id="reset-msg-elliot" style="font-size:12px;min-height:14px;margin-bottom:6px;color:var(--redb)"></div>
+      <button onclick="doResetUser('elliot')" style="width:100%;background:linear-gradient(135deg,#5a1a1a,#8a2a2a);border:2px solid var(--redb);color:#ffaaaa;font-family:'Ma Shan Zheng',cursive;font-size:15px;padding:9px 0;border-radius:6px;cursor:pointer">🗺️ Reset Elliot</button>
     </div>
 
     <!-- DIFFICULTY SETTINGS -->
@@ -729,8 +740,8 @@ function toggleMute() {
   musicMuted = !musicMuted;
   const btn = document.getElementById('mute-btn');
   btn.innerHTML = musicMuted
-    ? '<span style="position:relative;display:inline-flex;align-items:center;justify-content:center">🔊<svg style="position:absolute;width:22px;height:22px" viewBox="0 0 24 24"><line x1="3" y1="3" x2="21" y2="21" stroke="#ff4444" stroke-width="3" stroke-linecap="round"/><line x1="21" y1="3" x2="3" y2="21" stroke="#ff4444" stroke-width="3" stroke-linecap="round"/></svg></span>'
-    : '🔊';
+    ? '<span style="position:relative;display:inline-flex;align-items:center;justify-content:center">♪<svg style="position:absolute;width:22px;height:22px" viewBox="0 0 24 24"><line x1="3" y1="3" x2="21" y2="21" stroke="#ff4444" stroke-width="3" stroke-linecap="round"/><line x1="21" y1="3" x2="3" y2="21" stroke="#ff4444" stroke-width="3" stroke-linecap="round"/></svg></span>'
+    : '♪';
   btn.classList.toggle('muted', musicMuted);
   if (musicMuted) {
     stopMusic();
@@ -2932,22 +2943,19 @@ function setDifficulty(player, val) {
 }
 
 function openSaveModal() {
-  document.getElementById('export-box').value = '';
-  document.getElementById('import-box').value = '';
-  document.getElementById('import-msg').textContent = '';
-  document.getElementById('reset-confirm-input').value = '';
-  document.getElementById('reset-msg').textContent = '';
-  _resetMode = 'ethan';
-  // Highlight default reset mode button
-  ['ethan','elliot','coop'].forEach(m => {
-    document.getElementById('rb-'+m).style.borderColor = m===_resetMode ? 'var(--redb)' : '';
+  // Clear per-user fields (these are the actual IDs in the HTML)
+  ['ethan','elliot'].forEach(u => {
+    const ib = document.getElementById('import-box-'+u); if(ib) ib.value='';
+    const im = document.getElementById('import-msg-'+u); if(im) im.textContent='';
+    const ri = document.getElementById('reset-input-'+u); if(ri) ri.value='';
+    const rm = document.getElementById('reset-msg-'+u); if(rm) rm.textContent='';
   });
-  // Sync difficulty dropdowns
   const de = document.getElementById('diff-ethan');
-  const do_ = document.getElementById('diff-elliot');
+  const dol = document.getElementById('diff-elliot');
   if(de) de.value = String(playerDifficulty.ethan);
-  if(do_) do_.value = String(playerDifficulty.elliot);
-  document.getElementById('save-modal').classList.add('active');
+  if(dol) dol.value = String(playerDifficulty.elliot);
+  const sm = document.getElementById('save-modal');
+  if(sm) sm.classList.add('active');
 }
 
 function closeSaveModal() {
@@ -2955,84 +2963,111 @@ function closeSaveModal() {
 }
 
 function selectResetMode(mode) {
-  _resetMode = mode;
-  ['ethan','elliot','coop'].forEach(m => {
-    document.getElementById('rb-'+m).style.borderColor = m===mode ? 'var(--redb)' : '';
-  });
+  _resetMode = mode; // kept for compatibility but rb- buttons no longer exist
 }
 
-function doExport() {
+
+/* ══ Per-user export / import / reset ══ */
+function _buildUserSave(mode) {
+  // Per-user save: campaign + that user's roster slice + shared chars + diff
+  const rosters = JSON.parse(localStorage.getItem('skz_rosters') || '{}');
+  const userRoster = rosters[mode] || {roster:[], startHero:null};
+  return btoa(unescape(encodeURIComponent(JSON.stringify({
+    mode,
+    campaign: localStorage.getItem('skz_campaign_' + mode) || 'null',
+    roster:   JSON.stringify(userRoster),
+    chars:    localStorage.getItem('skz_prog') || '{}',
+    diff:     localStorage.getItem('skz_diff') || 'null',
+    exported: new Date().toISOString(),
+  }))));
+}
+
+function doExportUser(mode, method) {
   try {
-    const data = {
-      chars:    localStorage.getItem('skz_prog') || '{}',
-      ethan:    localStorage.getItem('skz_campaign_ethan') || 'null',
-      elliot:   localStorage.getItem('skz_campaign_elliot') || 'null',
-      coop:     localStorage.getItem('skz_campaign_coop') || 'null',
-      exported: new Date().toISOString(),
-    };
-    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
-    document.getElementById('export-box').value = encoded;
-    document.getElementById('export-box').select();
-    try { navigator.clipboard.writeText(encoded); } catch(e){}
-    document.querySelector('#save-modal .btn-s[onclick="doExport()"]') 
-      && (document.getElementById('export-box').placeholder = '');
-    // Visual feedback
-    const btn = document.querySelector('[onclick="doExport()"]');
-    const orig = btn.textContent;
-    btn.textContent = '✅ Copied!';
-    setTimeout(() => btn.textContent = orig, 2000);
-  } catch(e) {
-    alert('Export failed: ' + e.message);
-  }
+    const saveCode = _buildUserSave(mode);
+    const name = mode === 'ethan' ? 'Ethan' : 'Elliot';
+    if (method === 'email') {
+      const subj = encodeURIComponent('SanGuo Save - ' + name);
+      const bod  = encodeURIComponent(name + ' save code: ' + saveCode);
+      window.location.href = 'mailto:?subject=' + subj + '&body=' + bod;
+    } else if (navigator.share) {
+      navigator.share({ title: 'SanGuo Save', text: saveCode }).catch(function(){});
+    } else {
+      navigator.clipboard.writeText(saveCode).then(function() {
+        alert('Copied to clipboard!');
+      }).catch(function() {
+        alert('Save code: ' + saveCode.substring(0, 50) + '...');
+      });
+    }
+  } catch(e) { alert('Export failed: ' + e.message); }
 }
 
-function doImport() {
-  const raw = document.getElementById('import-box').value.trim();
-  const msg = document.getElementById('import-msg');
-  if (!raw) { msg.style.color='var(--redb)'; msg.textContent='Please paste a save code first.'; return; }
+function doImportUser(mode) {
+  const box = document.getElementById('import-box-' + mode);
+  const msg = document.getElementById('import-msg-' + mode);
+  const raw = box ? box.value.trim() : '';
+  if (!raw) { msg.style.color='var(--redb)'; msg.textContent='Paste a save code first.'; return; }
   try {
     const data = JSON.parse(decodeURIComponent(escape(atob(raw))));
-    if (!data.chars) throw new Error('Invalid save data format');
-    if (data.chars    !== 'null') localStorage.setItem('skz_prog', data.chars);
-    if (data.ethan    !== 'null') localStorage.setItem('skz_campaign_ethan', data.ethan);
-    if (data.elliot   !== 'null') localStorage.setItem('skz_campaign_elliot', data.elliot);
-    if (data.coop     !== 'null') localStorage.setItem('skz_campaign_coop', data.coop);
-    msg.style.color = 'var(--jadeb)';
-    msg.textContent = '✅ Import successful! Saved ' + (data.exported ? '(from ' + data.exported.slice(0,10) + ')' : '') + '.';
+    if (!data.mode) throw new Error('Invalid save — wrong format');
+    if (data.mode !== mode) throw new Error('Wrong player! This code is for ' + data.mode + ', not ' + mode);
+    // Restore campaign
+    if (data.campaign && data.campaign !== 'null') localStorage.setItem('skz_campaign_' + mode, data.campaign);
+    // Restore this user's roster slot only
+    if (data.roster) {
+      const rosters = JSON.parse(localStorage.getItem('skz_rosters') || '{}');
+      rosters[mode] = JSON.parse(data.roster);
+      localStorage.setItem('skz_rosters', JSON.stringify(rosters));
+      playerRosters[mode] = rosters[mode];
+    }
+    // Restore shared chars (merge — keep highest seen/correct counts)
+    if (data.chars && data.chars !== '{}') {
+      try {
+        const existing = JSON.parse(localStorage.getItem('skz_prog') || '{}');
+        const imported = JSON.parse(data.chars);
+        Object.keys(imported).forEach(hz => {
+          if (!existing[hz] || imported[hz].seen > existing[hz].seen) existing[hz] = imported[hz];
+        });
+        localStorage.setItem('skz_prog', JSON.stringify(existing));
+      } catch(e2) {}
+    }
+    // Restore difficulty if present
+    if (data.diff && data.diff !== 'null') {
+      const d = JSON.parse(data.diff);
+      if (d[mode]) { playerDifficulty[mode] = d[mode]; saveDifficulty(); }
+    }
     updateProfileStars();
+    saveRosters();
+    msg.style.color = 'var(--jadeb)';
+    msg.textContent = '✅ Imported! (from ' + (data.exported||'').slice(0,10) + ')';
+    if (box) box.value = '';
   } catch(e) {
     msg.style.color = 'var(--redb)';
-    msg.textContent = '❌ Invalid save code. Please check and try again.';
+    msg.textContent = '❌ ' + e.message;
   }
 }
 
-function doReset() {
-  const input = document.getElementById('reset-confirm-input').value.trim().toLowerCase();
-  const msg   = document.getElementById('reset-msg');
-  if (input !== 'reset') {
-    msg.textContent = '❌ Type exactly "reset" to confirm.';
+function doResetUser(mode) {
+  const input = document.getElementById('reset-input-' + mode);
+  const msg = document.getElementById('reset-msg-' + mode);
+  if (!input || input.value.trim().toLowerCase() !== 'reset') {
+    if(msg){msg.style.color='var(--redb)';msg.textContent='Type exactly "reset" to confirm.';}
     return;
   }
   try {
-    localStorage.removeItem('skz_campaign_' + _resetMode);
-    // Clear hero roster for this mode so they can re-pick
-    if (playerRosters[_resetMode]) {
-      playerRosters[_resetMode] = {roster:[], startHero:null};
-      saveRosters();
+    localStorage.removeItem('skz_campaign_' + mode);
+    if (playerRosters[mode]) { playerRosters[mode] = {roster:[], startHero:null}; saveRosters(); }
+    if (typeof campaignMode !== 'undefined' && campaignMode === mode) {
+      initProvState(); playerProvId = 5; defeatedGenerals = new Set();
     }
-    // Clear in-memory state if active campaign
-    if (typeof campaignMode !== 'undefined' && campaignMode === _resetMode) {
-      initProvState();
-      playerProvId = 5;
-      defeatedGenerals = new Set();
-    }
-    msg.style.color = 'var(--jadeb)';
-    msg.textContent = '✅ Reset for ' + (_resetMode==='coop'?'Co-op':_resetMode==='ethan'?'Ethan':'Elliot') + '. Choose a new hero to begin!';
-    document.getElementById('reset-confirm-input').value = '';
+    if(msg){msg.style.color='var(--jadeb)';msg.textContent='✅ Reset! Choose a new hero to begin.';}
+    if(input) input.value = '';
   } catch(e) {
-    msg.textContent = '❌ Reset failed: ' + e.message;
+    if(msg) msg.textContent = '❌ Reset failed: ' + e.message;
   }
 }
+
+
 
 function loadDifficulty(){
   try{const d=JSON.parse(localStorage.getItem('skz_diff')||'null');if(d)playerDifficulty={ethan:d.ethan||5,elliot:d.elliot||3};}catch(e){}
@@ -3040,18 +3075,18 @@ function loadDifficulty(){
 function saveDifficulty(){
   try{localStorage.setItem('skz_diff',JSON.stringify(playerDifficulty));}catch(e){}
 }
-loadDifficulty();
-loadRosters();
+try { loadDifficulty(); } catch(e) { console.warn('loadDifficulty failed:', e); }
+try { loadRosters(); } catch(e) { console.warn('loadRosters failed:', e); }
+try { initProvState(); } catch(e) { console.warn('initProvState failed:', e); }
+try { updateProfileStars(); } catch(e) { console.warn('updateProfileStars failed:', e); }
 // Init on first user interaction — browsers block autoplay until a gesture
-document.addEventListener('click',()=>{
-  if(!musicMuted && !currentAudio) playTitleMusic();
-},{once:true});
-window.speechSynthesis.getVoices();
-setTimeout(()=>window.speechSynthesis.getVoices(),500);
-updateProfileStars();
-initProvState();
+document.addEventListener('click', () => {
+  if (!musicMuted && !currentAudio) playTitleMusic();
+}, {once:true});
+try { window.speechSynthesis.getVoices(); } catch(e) {}
+setTimeout(() => { try { window.speechSynthesis.getVoices(); } catch(e) {} }, 500);
 
 </script>
-<button id="mute-btn" title="Toggle Music" onclick="toggleMute()">🔊</button>
+<button id="mute-btn" title="Toggle Music" onclick="toggleMute()">♪</button>
 </body>
 </html>
