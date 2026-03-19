@@ -235,10 +235,15 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
 </style>
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .then(reg => console.log('SW registered:', reg.scope))
-          .catch(err => console.warn('SW failed:', err));
+      window.addEventListener('load', function() {
+        var host = location.hostname;
+        var ok = host.indexOf('github.io') !== -1 || host === 'localhost' || host === '127.0.0.1' || host.indexOf('192.168.') === 0;
+        if (!ok) return;
+        var path = location.pathname;
+        var base = path.substring(0, path.lastIndexOf('/') + 1);
+        navigator.serviceWorker.register(base + 'sw.js', { scope: base })
+          .then(function(r){ console.log('SW ok:', r.scope); })
+          .catch(function(e){ console.warn('SW err:', e); });
       });
     }
   </script></head>
