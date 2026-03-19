@@ -2984,20 +2984,19 @@ function _buildUserSave(mode) {
 
 function doExportUser(mode, method) {
   try {
-    const saveCode = _buildUserSave(mode);
+    const code = _buildUserSave(mode);
     const name = mode === 'ethan' ? 'Ethan' : 'Elliot';
+    const subject = encodeURIComponent('三国汉字战 — ' + name + ' Save Data');
+    const body = encodeURIComponent(name + "'s save code:\n\n" + code + "\n\nPaste into Import " + name + " in Settings.");
     if (method === 'email') {
-      const subj = encodeURIComponent('SanGuo Save - ' + name);
-      const bod  = encodeURIComponent(name + ' save code: ' + saveCode);
-      window.location.href = 'mailto:?subject=' + subj + '&body=' + bod;
+      window.location.href = 'mailto:?subject=' + subject + '&body=' + body;
     } else if (navigator.share) {
-      navigator.share({ title: 'SanGuo Save', text: saveCode }).catch(function(){});
+      navigator.share({ title: '三国汉字战 ' + name + ' Save', text: code })
+        .catch(() => {});
     } else {
-      navigator.clipboard.writeText(saveCode).then(function() {
-        alert('Copied to clipboard!');
-      }).catch(function() {
-        alert('Save code: ' + saveCode.substring(0, 50) + '...');
-      });
+      navigator.clipboard.writeText(code).catch(() => {});
+      const btn = document.querySelector('[onclick="doExportUser(\''+mode+"\','share')"");
+      if (btn) { const o=btn.textContent; btn.textContent='✅ Copied!'; setTimeout(()=>btn.textContent=o,2000); }
     }
   } catch(e) { alert('Export failed: ' + e.message); }
 }
