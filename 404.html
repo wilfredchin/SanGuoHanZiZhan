@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script>
+  // GitHub Pages PWA offline redirect trick:
+  // When the PWA tries to open and gets a 404, this page redirects
+  // to the correct index.html URL while preserving the path
+  var path = window.location.pathname;
+  var search = window.location.search;
+  // Redirect to the repo root index.html
+  var repoRoot = path.substring(0, path.indexOf('/', 1) + 1) || '/';
+  window.location.replace(repoRoot + 'index.html' + search);
+</script>
+</head>
+<body>Loading...</body>
+</html>

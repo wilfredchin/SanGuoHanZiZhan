@@ -1,20 +1,19 @@
-const CACHE = 'sanguozhi-v6-r2';
+const CACHE = 'sanguozhi-v6-r3';
+const BASE = 'https://wilfredchin.github.io/SanGuoHanZiZhan/';
+const FILES = [
+  BASE + 'index.html',
+  BASE + 'manifest.json',
+  BASE + 'icon-192.png',
+  BASE + 'icon-512.png'
+];
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(cache => {
-      const BASE = self.registration.scope;
-      // Cache each file individually so one failure doesn't abort everything
-      const files = ['index.html', 'manifest.json', 'icon-192.png', 'icon-512.png'];
-      return Promise.all(
-        files.map(f =>
-          cache.add(BASE + f).catch(err => console.warn('[SW] Could not cache:', f, err))
-        )
-      );
-    }).then(() => {
-      console.log('[SW] Install complete');
-      return self.skipWaiting();
-    })
+    caches.open(CACHE).then(cache =>
+      Promise.all(FILES.map(f =>
+        cache.add(f).catch(err => console.warn('[SW] Could not cache:', f, err))
+      ))
+    ).then(() => self.skipWaiting())
   );
 });
 
@@ -27,18 +26,17 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Only handle same-origin requests
-  if (!e.request.url.startsWith(self.registration.scope)) return;
+  if (!e.request.url.startsWith(BASE)) return;
   e.respondWith(
     caches.match(e.request).then(cached => {
       if (cached) return cached;
       return fetch(e.request).then(response => {
         if (response && response.status === 200) {
           const clone = response.clone();
-          caches.open(CACHE).then(cache => cache.put(e.request, clone));
+          caches.open(CACHE).then(c => c.put(e.request, clone));
         }
         return response;
-      }).catch(() => caches.match(self.registration.scope + 'index.html'));
+      }).catch(() => caches.match(BASE + 'index.html'));
     })
   );
 });
