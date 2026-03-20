@@ -276,12 +276,16 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
         <span class="prof-name">Ethan 睿翔</span>
         <span class="prof-lv" id="prof-lv-ethan">赵云 Zhao Yun · Level 5</span>
         <div class="prof-stars" id="ethan-stars">⭐⭐⭐</div>
+        <div style="font-size:11px;color:var(--goldb);margin-top:2px" id="ethan-hero-lv"></div>
+        <div style="font-size:11px;color:var(--parch2);margin-top:1px" id="ethan-campaign-rating"></div>
       </div>
       <div class="prof-card" onclick="openHeroSelect('elliot')">
         <svg class="prof-av" width="64" height="80" viewBox="0 0 64 80" id="hero-svg-guanyu-prof"></svg>
         <span class="prof-name">Elliot 睿哲</span>
         <span class="prof-lv" id="prof-lv-elliot">关羽 Guan Yu · Level 3</span>
         <div class="prof-stars" id="elliot-stars">⭐⭐⭐</div>
+        <div style="font-size:11px;color:var(--goldb);margin-top:2px" id="elliot-hero-lv"></div>
+        <div style="font-size:11px;color:var(--parch2);margin-top:1px" id="elliot-campaign-rating"></div>
       </div>
     </div>
     <button class="btn-p" onclick="startCampaign('coop')" style="width:min(480px,88vw)">🤝 合作出战！ Co-op — Both Heroes!</button>
@@ -345,43 +349,59 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
       </defs>
       <!-- Sea background (East/South China Sea) -->
       <rect width="500" height="580" fill="url(#seaGrad)"/>
-      <!-- Land mass base (rough outline of eastern Han China) -->
+      <!-- Land mass base — covers everything, sea fill punched on top -->
       <path d="M0,0 L500,0 L500,580 L0,580 Z" fill="url(#mapbg)"/>
-      <!-- Eastern sea fill -->
-      <path d="M422,0 L500,0 L500,580 L432,580 L402,542 L412,482 L432,422 L442,352 L432,282 L452,202 L462,132 L442,82 L422,0Z"
+      <!-- Sea fill: single closed polygon tracing exactly the coastline dashes + canvas right/bottom edges.
+           North section wraps east of 辽东(max x:488) and 玄菟(max x:494) before curving inward.
+           South section curves SW under 建安/南海/苍梧/交趾 and continues west. -->
+      <path d="
+        M496,0
+        L496,60 L496,82 L494,112 L480,135 L462,152 L442,222 L452,282
+        L442,340 L432,388 L444,420 L444,448 L442,462 L448,508
+        L440,512 L415,512 L388,506 L378,516 L362,528
+        L348,538 L332,548 L318,552 L302,554 L288,552
+        L275,558 L258,568 L240,572 L208,572
+        L185,568 L165,564 L145,560 L120,558
+        L120,580 L500,580 L500,0 Z"
             fill="rgba(10,40,80,0.55)"/>
-      <!-- Coastline dashes -->
-      <path d="M422,0 L442,82 L462,132 L452,202 L432,282 L442,352 L432,422 L412,482 L402,542 L432,580"
-            fill="none" stroke="rgba(100,160,210,0.4)" stroke-width="1.2" stroke-dasharray="4,3"/>
-      <text x="450" y="100" font-size="7" fill="rgba(100,180,220,0.6)" font-style="italic">渤海</text>
-      <text x="452" y="200" font-size="7" fill="rgba(100,180,220,0.5)" font-style="italic">黄海</text>
-      <text x="445" y="350" font-size="7" fill="rgba(100,180,220,0.5)" font-style="italic">东海</text>
-      <text x="330" y="572" font-size="7" fill="rgba(100,180,220,0.5)" font-style="italic">南海</text>
+      <!-- Northern coastline dashes — wraps east of 辽东 and 玄菟 -->
+      <path d="M496,0 L496,60 L496,82 L494,112 L480,135 L462,152 L442,222 L452,282 L442,340 L432,388 L444,420 L444,448 L442,462 L448,508"
+            fill="none" stroke="rgba(100,160,210,0.5)" stroke-width="1.4" stroke-dasharray="4,3"/>
+      <!-- South coastline: curves SW below 建安, under 南海, under 苍梧/交趾, continues west -->
+      <path d="M448,508 L440,512 L415,512 L388,506 L378,516 L362,528 L348,538 L332,548 L318,552 L302,554 L288,552 L275,558 L258,568 L240,572 L208,572 L185,568 L165,564 L145,560 L120,558"
+            fill="none" stroke="rgba(100,160,210,0.5)" stroke-width="1.4" stroke-dasharray="4,3"/>
+      <text x="498" y="55" font-size="11" fill="rgba(100,180,220,0.7)" font-style="italic" font-family="'Ma Shan Zheng',cursive" text-anchor="end">渤海</text>
+      <text x="448" y="195" font-size="11" fill="rgba(100,180,220,0.65)" font-style="italic" font-family="'Ma Shan Zheng',cursive">黄海</text>
+      <text x="448" y="340" font-size="11" fill="rgba(100,180,220,0.65)" font-style="italic" font-family="'Ma Shan Zheng',cursive">东海</text>
 
       <!-- ── MAJOR RIVERS ── -->
-      <!-- Yellow River (黄河): flows east across north China -->
-      <path d="M55,210 Q80,195 110,200 Q145,205 170,215 Q200,225 225,218 Q255,210 280,220 Q310,232 340,228 Q365,225 390,238 Q410,248 415,270"
-            fill="none" stroke="rgba(150,200,255,0.65)" stroke-width="2.8" stroke-linecap="round"/>
-      <text x="155" y="210" font-size="7" fill="rgba(120,180,240,0.75)" font-style="italic" transform="rotate(-5,155,210)">黄河</text>
-      <!-- Yangtze River (长江): major east-west river in central China -->
-      <path d="M82,330 Q110,318 140,325 Q170,332 195,328 Q225,322 255,338 Q285,352 315,358 Q345,362 370,370 Q395,378 415,392"
-            fill="none" stroke="rgba(120,180,255,0.65)" stroke-width="3.2" stroke-linecap="round"/>
-      <text x="210" y="322" font-size="7" fill="rgba(100,160,240,0.75)" font-style="italic" transform="rotate(-3,210,322)">长江</text>
-      <!-- Wei River (渭河) in northwest -->
+      <!-- Yellow River (黄河): uniform width, ends exactly at coastline ~432,282 -->
+      <path d="M55,210 Q80,195 110,200 Q145,205 170,215 Q200,225 225,218 Q255,210 280,220 Q310,232 340,228 Q370,224 395,236 Q415,246 425,262 Q432,272 432,282"
+            fill="none" stroke="rgba(160,210,255,0.75)" stroke-width="2.8" stroke-linecap="round"/>
+      <!-- 黄河 label — east of 青州 (青州 right edge ~376,218), above river -->
+      <text x="400" y="213" font-size="12" fill="rgba(140,200,255,0.85)" font-style="italic" font-family="'Ma Shan Zheng',cursive" transform="rotate(-5,400,213)">黄河</text>
+
+      <!-- Yangtze River (长江): uniform width, ends exactly at coastline ~432,388 -->
+      <path d="M82,330 Q110,318 140,325 Q170,332 195,328 Q225,322 255,338 Q285,352 315,358 Q342,364 368,374 Q392,382 415,390 Q428,396 432,388"
+            fill="none" stroke="rgba(120,180,255,0.80)" stroke-width="3.2" stroke-linecap="round"/>
+      <!-- 长江 label — left of 丹阳 (丹阳 left edge x≈345), clear of all polygons -->
+      <text x="300" y="374" font-size="12" fill="rgba(120,180,255,0.85)" font-style="italic" font-family="'Ma Shan Zheng',cursive" transform="rotate(-3,300,374)">长江</text>
+
+      <!-- Wei River (渭河) -->
       <path d="M65,268 Q95,262 125,268 Q150,274 175,270 Q198,266 215,275"
-            fill="none" stroke="rgba(130,190,255,0.5)" stroke-width="1.8" stroke-linecap="round"/>
-      <text x="110" y="258" font-size="6" fill="rgba(120,175,235,0.6)" font-style="italic">渭河</text>
+            fill="none" stroke="rgba(130,190,255,0.55)" stroke-width="2" stroke-linecap="round"/>
+      <text x="95" y="255" font-size="11" fill="rgba(120,175,235,0.75)" font-style="italic" font-family="'Ma Shan Zheng',cursive">渭河</text>
       <!-- Han River (汉水) -->
       <path d="M118,310 Q140,320 165,330 Q185,338 210,340 Q235,342 255,338"
-            fill="none" stroke="rgba(130,190,255,0.5)" stroke-width="1.6" stroke-linecap="round"/>
-      <text x="155" y="315" font-size="6" fill="rgba(120,175,235,0.55)" font-style="italic">汉水</text>
+            fill="none" stroke="rgba(130,190,255,0.5)" stroke-width="1.8" stroke-linecap="round"/>
+      <text x="148" y="304" font-size="11" fill="rgba(120,175,235,0.70)" font-style="italic" font-family="'Ma Shan Zheng',cursive">汉水</text>
       <!-- Huai River -->
-      <path d="M235,280 Q268,272 298,278 Q325,284 355,280 Q378,277 400,285"
-            fill="none" stroke="rgba(130,190,255,0.45)" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M235,280 Q268,272 298,278 Q325,284 355,280 Q378,277 402,285"
+            fill="none" stroke="rgba(130,190,255,0.50)" stroke-width="1.8" stroke-linecap="round"/>
       <!-- Pearl River (珠江) -->
-      <path d="M200,480 Q228,468 255,472 Q285,476 310,470 Q340,464 365,470"
-            fill="none" stroke="rgba(130,190,255,0.45)" stroke-width="1.6" stroke-linecap="round"/>
-      <text x="255" y="461" font-size="6" fill="rgba(120,175,235,0.55)" font-style="italic">珠江</text>
+      <path d="M185,488 Q215,476 245,478 Q278,480 308,474 Q338,468 365,472 Q385,476 395,488"
+            fill="none" stroke="rgba(130,190,255,0.50)" stroke-width="2" stroke-linecap="round"/>
+      <text x="175" y="492" font-size="11" fill="rgba(120,175,235,0.70)" font-style="italic" font-family="'Ma Shan Zheng',cursive">珠江</text>
 
       <!-- ── MOUNTAIN RANGES ── -->
       <!-- Taihang Mountains (太行山) — north-central -->
@@ -390,20 +410,20 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
         <polygon points="192,182 198,169 204,182"/><polygon points="200,179 206,166 212,179"/>
         <polygon points="186,198 192,185 198,198"/><polygon points="194,195 200,182 206,195"/>
       </g>
-      <text x="178" y="176" font-size="6" fill="rgba(140,110,60,0.7)" font-style="italic" transform="rotate(85,178,176)">太行山</text>
+      <text x="172" y="145" font-size="11" fill="rgba(140,110,60,0.8)" font-style="italic" font-family="'Ma Shan Zheng',cursive" transform="rotate(85,172,145)">太行山</text>
       <!-- Qinling Mountains (秦岭) — central divider -->
       <g fill="rgba(110,85,35,0.58)" stroke="rgba(80,60,20,0.4)" stroke-width="0.5" filter="url(#mtn-shadow)">
         <polygon points="152,288 159,274 166,288"/><polygon points="162,285 169,271 176,285"/>
         <polygon points="174,283 181,269 188,283"/><polygon points="186,281 193,267 200,281"/>
         <polygon points="200,283 207,269 214,283"/><polygon points="212,285 219,271 226,285"/>
       </g>
-      <text x="163" y="299" font-size="6" fill="rgba(130,100,50,0.7)" font-style="italic">秦岭</text>
+      <text x="158" y="308" font-size="11" fill="rgba(130,100,50,0.8)" font-style="italic" font-family="'Ma Shan Zheng',cursive">秦岭</text>
       <!-- Qilian Mountains (祁连山) — northwest -->
       <g fill="rgba(120,95,40,0.5)" stroke="rgba(80,60,20,0.35)" stroke-width="0.5">
         <polygon points="48,238 55,224 62,238"/><polygon points="58,235 65,221 72,235"/>
         <polygon points="68,232 75,218 82,232"/>
       </g>
-      <text x="42" y="250" font-size="6" fill="rgba(130,100,50,0.65)" font-style="italic">祁连山</text>
+      <text x="36" y="262" font-size="11" fill="rgba(130,100,50,0.75)" font-style="italic" font-family="'Ma Shan Zheng',cursive">祁连山</text>
       <!-- Wuling Mountains (武陵山) — south-central -->
       <g fill="rgba(80,100,40,0.5)" stroke="rgba(60,80,20,0.35)" stroke-width="0.5">
         <polygon points="230,412 237,398 244,412"/><polygon points="240,409 247,395 254,409"/>
@@ -415,7 +435,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
         <polygon points="252,453 259,439 266,453"/><polygon points="267,451 274,437 281,451"/>
         <polygon points="283,453 290,439 297,453"/>
       </g>
-      <text x="240" y="467" font-size="6" fill="rgba(100,130,50,0.65)" font-style="italic">南岭</text>
+      <text x="234" y="478" font-size="11" fill="rgba(100,130,50,0.75)" font-style="italic" font-family="'Ma Shan Zheng',cursive">南岭</text>
       <!-- Greater Khingan / northern ranges -->
       <g fill="rgba(100,80,40,0.45)" stroke="rgba(80,60,20,0.35)" stroke-width="0.5">
         <polygon points="380,25 387,12 394,25"/><polygon points="392,22 399,9 406,22"/>
@@ -430,20 +450,19 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
 
       <!-- ── DESERT REGIONS ── -->
       <!-- Steppe label only -->
-      <text x="100" y="28" font-size="7" fill="rgba(180,150,80,0.4)" font-style="italic">漠北草原</text>
+      <text x="95" y="22" font-size="11" fill="rgba(180,150,80,0.55)" font-style="italic" font-family="'Ma Shan Zheng',cursive">漠北草原</text>
 
 
       <!-- Lake labels only (no fill to avoid colour confusion) -->
-      <text x="268" y="403" text-anchor="middle" font-size="6" fill="rgba(100,170,230,0.55)">洞庭湖</text>
-      <text x="352" y="382" text-anchor="middle" font-size="6" fill="rgba(100,170,230,0.55)">鄱阳湖</text>
+      <text x="268" y="415" text-anchor="middle" font-size="11" fill="rgba(100,170,230,0.7)" font-family="'Ma Shan Zheng',cursive">洞庭湖</text>
+      <text x="356" y="395" text-anchor="middle" font-size="11" fill="rgba(100,170,230,0.7)" font-family="'Ma Shan Zheng',cursive">鄱阳湖</text>
 
       <!-- provinces + adjacency lines rendered dynamically -->
       <g id="forts-layer"></g>
 
       <!-- ── HERO TOKEN ── -->
       <g id="hero-token" class="hero-token">
-        <circle r="14" fill="rgba(26,58,107,0.85)" stroke="#f0c040" stroke-width="2.5"/>
-        <svg id="hero-token-svg" x="-14" y="-14" width="28" height="28" viewBox="0 0 64 80" preserveAspectRatio="xMidYMid meet"></svg>
+        <svg id="hero-token-svg" x="-22" y="-22" width="44" height="44" viewBox="0 0 64 80" preserveAspectRatio="xMidYMid meet"></svg>
       </g>
 
       <!-- ── COMPASS ROSE ── bottom-right corner, big and clear -->
@@ -460,7 +479,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
     </svg>
 
     <!-- Map legend -->
-    <div style="z-index:40;position:absolute;top:50%;transform:translateY(-50%);left:8px;font-size:12px;font-family:'Noto Serif SC',serif;color:var(--parch2);background:rgba(0,0,0,.7);border:1px solid rgba(201,162,39,.3);border-radius:6px;padding:6px 9px;display:inline-flex;flex-direction:column;gap:4px;line-height:1;white-space:nowrap">
+    <div style="z-index:40;position:absolute;top:8px;left:120px;font-size:12px;font-family:'Noto Serif SC',serif;color:var(--parch2);background:rgba(0,0,0,.75);border:1px solid rgba(201,162,39,.3);border-radius:6px;padding:6px 9px;display:inline-flex;flex-direction:column;gap:4px;line-height:1;white-space:nowrap">
       <div style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:13px;height:13px;background:rgba(10,100,45,.9);border:2px solid rgba(45,210,108,.85);border-radius:2px;flex-shrink:0"></span>我的领土 Yours</div>
       <div style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:13px;height:13px;background:rgba(52,36,8,.9);border:2px solid rgba(155,120,38,.6);border-radius:2px;flex-shrink:0"></span>中立 Neutral</div>
       <div style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:13px;height:13px;background:rgba(95,72,15,.9);border:2px solid rgba(235,188,42,.95);border-radius:2px;flex-shrink:0"></span>可攻打 Can attack</div>
@@ -528,6 +547,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
       <div style="font-family:'Ma Shan Zheng',cursive;font-size:clamp(20px,5.5vw,28px);color:var(--goldb);text-shadow:0 0 20px rgba(201,162,39,.8);letter-spacing:.1em">恭喜你统一了中国！</div>
       <div style="font-size:13px;color:var(--parch2);margin-top:6px;letter-spacing:.05em">Congratulations — China is unified!</div>
     </div>
+    <!-- Hero level-up banner (hidden by default) -->
+    <div id="v-levelup" style="display:none;background:linear-gradient(135deg,rgba(201,162,39,0.25),rgba(201,162,39,0.08));border:2px solid var(--goldb);border-radius:10px;padding:12px 18px;text-align:center;width:100%;max-width:320px">
+      <div style="font-size:22px;margin-bottom:4px">⬆️ 将领升级！Hero Level Up!</div>
+      <div id="v-levelup-text" style="font-family:'Ma Shan Zheng',cursive;font-size:20px;color:var(--goldb)"></div>
+      <div id="v-levelup-perk" style="font-size:12px;color:var(--parch2);margin-top:4px"></div>
+    </div>
     <!-- New hero found banner (hidden by default) -->
     <div id="v-hero-found" style="display:none;background:linear-gradient(135deg,rgba(201,162,39,0.2),rgba(201,162,39,0.05));border:2px solid var(--goldb);border-radius:10px;padding:14px 18px;text-align:center;width:100%;max-width:320px">
       <div style="font-size:22px;margin-bottom:6px">🎉 新将领加入！ New Hero!</div>
@@ -541,6 +566,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
       <div class="stat-row"><span>答对 Correct</span><span class="stat-val" id="v-corr">0/0</span></div>
       <div class="stat-row"><span>最长连击 Best Streak</span><span class="stat-val" id="v-streak">0</span></div>
       <div class="stat-row"><span>得分 Score</span><span class="stat-val" id="v-score">0</span></div>
+      <div class="stat-row"><span>将领经验 Hero XP</span><span class="stat-val" id="v-xp">+0</span></div>
     </div>
     <button class="btn-p" onclick="returnToMap()">🗺️ 返回地图 Return to Map</button>
   </div>
@@ -765,6 +791,14 @@ function toggleMute() {
     }
   }
 }
+// Pause music when app goes to background, resume when it returns
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    if (currentAudio) currentAudio.pause();
+  } else {
+    if (currentAudio && !musicMuted) currentAudio.play().catch(() => {});
+  }
+});
 const HERO_SPRITES = {
   liubei: (svg, scale=1) => {
     svg.innerHTML = `<g transform="scale(${scale})">
@@ -1944,8 +1978,8 @@ const PROVINCES = [
    poly:'295,268 330,258 345,282 335,308 298,318 265,308 252,282 262,258',adj:[11,12,15,17,20,21]},
   {id:17, hz:'广陵', en:'Guangling (N. Jiangsu coast)', modernHz:'江苏沿海',x:375,y:296,terrain:'coast',    allegiance:'Wei',
    poly:'382,278 418,282 422,318 385,328 355,318 345,282',      adj:[12,16,21,22]},
-  {id:18, hz:'上郡', en:'Shangjun (N. Shaanxi)', modernHz:'陕西北部',    x:105,y:225, terrain:'steppe',   allegiance:'Neutral',
-   poly:'105,202 125,198 122,242 100,252 86,232 96,208',        adj:[13,14,19,23,41]},
+  {id:18, hz:'上郡', en:'Shangjun (N. Shaanxi)', modernHz:'陕西北部',    x:87,y:225, terrain:'steppe',   allegiance:'Neutral',
+   poly:'87,202 107,198 104,242 82,252 68,232 78,208',        adj:[13,14,19,23,41]},
   {id:19, hz:'河东', en:'Hedong (SW. Shanxi)', modernHz:'山西西南',       x:162,y:265, terrain:'mountain', allegiance:'Wei',
    poly:'150,248 178,242 172,272 162,292 138,298 124,278 124,258 140,248',adj:[14,15,18,20,23,24]},
   {id:20, hz:'南阳', en:'Nanyang (SW. Henan)', modernHz:'河南西南',       x:238,y:305, terrain:'plains',   allegiance:'Wei',
@@ -2085,23 +2119,27 @@ function renderProvinces() {
     poly.setAttribute('data-prov', prov.id);
 
     let fill, stroke, sw;
+    // Compute allegiance-based fill (used for neutral/adj provinces)
+    const alleg = prov.allegiance || 'Neutral';
+    let allegFill, allegHover;
+    if      (alleg==='Wei')  { allegFill='rgba(20,30,80,0.75)';  allegHover='rgba(30,45,110,0.92)'; }
+    else if (alleg==='Wu')   { allegFill='rgba(90,12,12,0.76)';  allegHover='rgba(115,15,15,0.88)'; }
+    else if (alleg==='Yuan') { allegFill='rgba(60,15,75,0.72)';  allegHover='rgba(85,20,105,0.90)'; }
+    else if (alleg==='Dong') { allegFill='rgba(45,45,45,0.72)';  allegHover='rgba(65,65,65,0.88)';  }
+    else                     { allegFill='rgba(52,36,8,0.68)';   allegHover='rgba(78,55,12,0.88)';  }
+
+    // For adj provinces: use allegiance fill but no gold stroke here (gold drawn in second pass)
     if (isCur)       { fill='rgba(8,128,52,0.92)';  stroke='rgba(30,255,130,1)';    sw=2.8; }
     else if (isOwned){ fill='rgba(10,100,45,0.86)'; stroke='rgba(45,210,108,0.88)'; sw=2.0; }
-    else if (isAdj)  { fill='rgba(95,72,15,0.82)';  stroke='rgba(235,188,42,0.95)'; sw=2.4; }
+    else if (isAdj)  { fill=allegFill;              stroke='none';                  sw=0;   }
     else if (isEnemy){ fill='rgba(90,12,12,0.76)';  stroke='rgba(190,40,40,0.76)';  sw=1.6; }
-    else {
-      // Neutral — colour by allegiance
-      const alleg = prov.allegiance || 'Neutral';
-      if      (alleg==='Wei')  { fill='rgba(20,30,80,0.75)';  stroke='rgba(80,110,210,0.65)'; sw=1.4; }
-      else if (alleg==='Wu')   { fill='rgba(90,12,12,0.76)';  stroke='rgba(190,40,40,0.76)';  sw=1.4; }
-      else if (alleg==='Yuan') { fill='rgba(60,15,75,0.72)';  stroke='rgba(160,60,200,0.65)'; sw=1.4; }
-      else if (alleg==='Dong') { fill='rgba(45,45,45,0.72)';  stroke='rgba(140,140,140,0.60)';sw=1.4; }
-      else                     { fill='rgba(52,36,8,0.68)';   stroke='rgba(155,120,38,0.45)'; sw=1.2; }
-    }
+    else             { fill=allegFill; stroke=
+        alleg==='Wei'?'rgba(80,110,210,0.65)':alleg==='Wu'?'rgba(190,40,40,0.76)':
+        alleg==='Yuan'?'rgba(160,60,200,0.65)':alleg==='Dong'?'rgba(140,140,140,0.60)':
+        'rgba(155,120,38,0.45)'; sw=1.2; }
 
-    const alleg = prov.allegiance || 'Neutral';
-    const hoverFill = isCur?'rgba(10,148,60,0.96)':isOwned?'rgba(12,118,52,0.94)':isAdj?'rgba(118,90,18,0.94)':isEnemy?'rgba(115,15,15,0.88)':
-      alleg==='Wei'?'rgba(30,45,110,0.92)':alleg==='Wu'?'rgba(115,15,15,0.88)':alleg==='Yuan'?'rgba(85,20,105,0.90)':alleg==='Dong'?'rgba(65,65,65,0.88)':'rgba(78,55,12,0.88)';
+    const hoverFill = isCur?'rgba(10,148,60,0.96)':isOwned?'rgba(12,118,52,0.94)':
+      isEnemy?'rgba(115,15,15,0.88)':allegHover;
     poly.setAttribute('fill', fill);
     poly.setAttribute('stroke', stroke);
     poly.setAttribute('stroke-width', sw);
@@ -2125,7 +2163,7 @@ function renderProvinces() {
     lbl.textContent = prov.hz;
     layer.appendChild(lbl);
 
-    // ── Conquest type icon — shown on all non-current provinces ──
+    // ── Conquest type icon ──
     {
       const ptIcon = document.createElementNS(SVG_NS,'text');
       const pt = getProvType(prov.id);
@@ -2146,6 +2184,20 @@ function renderProvinces() {
     }
   });
 
+  // ── Second pass: gold border outlines drawn ON TOP for all frontier provinces ──
+  frontier.forEach(provId => {
+    const prov = PROVINCES[provId];
+    if (!prov) return;
+    const outline = document.createElementNS(SVG_NS,'polygon');
+    outline.setAttribute('points', prov.poly);
+    outline.setAttribute('fill', 'none');
+    outline.setAttribute('stroke', 'rgba(235,188,42,0.95)');
+    outline.setAttribute('stroke-width', '3.0');
+    outline.setAttribute('stroke-linejoin', 'round');
+    outline.setAttribute('pointer-events', 'none');
+    layer.appendChild(outline);
+  });
+
   // ── Move hero token to top ──
   const svg = document.getElementById('map-svg');
   const tok = document.getElementById('hero-token');
@@ -2157,12 +2209,15 @@ function getAdjacentTo(provId) {
   return new Set(prov ? prov.adj : []);
 }
 
-// Returns Set of province IDs attackable from ANY owned territory
+// Returns Set of province IDs accessible (attackable or practicable) from player's territory
 function getFrontier() {
   const frontier = new Set();
   PROVINCES.forEach(p => {
     const st = provState[p.id] || 'neutral';
     if (st === 'owned' || p.id === playerProvId) {
+      // All owned provinces are themselves accessible for practice
+      if (p.id !== playerProvId) frontier.add(p.id);
+      // Unowned neighbours are attackable
       p.adj.forEach(nid => {
         const nst = provState[nid] || 'neutral';
         if (nst !== 'owned' && nid !== playerProvId) frontier.add(nid);
@@ -2182,12 +2237,13 @@ function updateHeroTokenSprite() {
   if (!svg) return;
   const roster = playerRosters[campaignMode];
   const key = (roster && roster.startHero) || (campaignMode==='elliot'?'guanyu':'zhaoyun');
-  // Draw just the head portion (top 35px of the 80px sprite, scaled)
   svg.innerHTML = '';
   const g = document.createElementNS('http://www.w3.org/2000/svg','g');
-  g.setAttribute('transform','translate(-14,-14) scale(0.44)');
+  // Scale 64x80 sprite into 44x44 token — show full figure
+  g.setAttribute('transform','translate(-22,-22) scale(0.6875)');
   const tmp = document.createElementNS('http://www.w3.org/2000/svg','svg');
   if (HERO_SPRITES[key]) HERO_SPRITES[key](tmp);
+  else if (ENEMY_SPRITES[key]) ENEMY_SPRITES[key](tmp);
   g.innerHTML = tmp.innerHTML;
   svg.appendChild(g);
 }
@@ -2213,6 +2269,64 @@ function initMap() {
   document.getElementById('fp-close-btn').addEventListener('click', e => {
     e.stopPropagation(); closeFortPanel();
   });
+
+  // ── Pinch-to-zoom on map ──
+  const wrap = document.getElementById('map-canvas-wrap');
+  const svg  = document.getElementById('map-svg');
+  let _vbX=0, _vbY=0, _vbW=500, _vbH=580;
+  let _pinchDist0 = null, _pinchVb0 = null, _pinchMid0 = null;
+
+  function getSVGPoint(clientX, clientY) {
+    const rect = wrap.getBoundingClientRect();
+    const scaleX = _vbW / rect.width;
+    const scaleY = _vbH / rect.height;
+    return { x: _vbX + (clientX - rect.left) * scaleX,
+             y: _vbY + (clientY - rect.top)  * scaleY };
+  }
+
+  function clampVB(x, y, w, h) {
+    const minW = 120, maxW = 500;
+    w = Math.min(maxW, Math.max(minW, w));
+    h = w * (580/500);
+    x = Math.min(Math.max(x, 0), 500 - w);
+    y = Math.min(Math.max(y, 0), 580 - h);
+    return {x, y, w, h};
+  }
+
+  function applyVB(x, y, w, h) {
+    const c = clampVB(x, y, w, h);
+    _vbX=c.x; _vbY=c.y; _vbW=c.w; _vbH=c.h;
+    svg.setAttribute('viewBox', c.x+' '+c.y+' '+c.w+' '+c.h);
+  }
+
+  wrap.addEventListener('touchstart', e => {
+    if (e.touches.length === 2) {
+      e.preventDefault();
+      const t0 = e.touches[0], t1 = e.touches[1];
+      _pinchDist0 = Math.hypot(t1.clientX-t0.clientX, t1.clientY-t0.clientY);
+      _pinchVb0 = {x:_vbX, y:_vbY, w:_vbW, h:_vbH};
+      _pinchMid0 = getSVGPoint((t0.clientX+t1.clientX)/2, (t0.clientY+t1.clientY)/2);
+    }
+  }, {passive:false});
+
+  wrap.addEventListener('touchmove', e => {
+    if (e.touches.length === 2 && _pinchDist0 !== null) {
+      e.preventDefault();
+      const t0 = e.touches[0], t1 = e.touches[1];
+      const dist = Math.hypot(t1.clientX-t0.clientX, t1.clientY-t0.clientY);
+      const scale = _pinchDist0 / dist;
+      const newW = _pinchVb0.w * scale;
+      const newH = newW * (580/500);
+      // Keep the pinch midpoint fixed in SVG space
+      const newX = _pinchMid0.x - (_pinchMid0.x - _pinchVb0.x) * (newW / _pinchVb0.w);
+      const newY = _pinchMid0.y - (_pinchMid0.y - _pinchVb0.y) * (newH / _pinchVb0.h);
+      applyVB(newX, newY, newW, newH);
+    }
+  }, {passive:false});
+
+  wrap.addEventListener('touchend', e => {
+    if (e.touches.length < 2) { _pinchDist0 = null; }
+  }, {passive:true});
 }
 
 function selectProvince(provId) {
@@ -2281,7 +2395,7 @@ function startBattleFromMap() {
   if (!prov) return;
   const isPlayer = selectedProvId === playerProvId;
   const frontier = getFrontier();
-  if (!frontier.has(selectedProvId) && !isPlayer) return;
+  if (!frontier.has(selectedProvId) && !isPlayer && _sp !== 'owned') return;
 
   const fort = {
     id: 'p'+selectedProvId,
@@ -2660,6 +2774,7 @@ function goProfile() {
   const lo = document.getElementById('prof-lv-elliot');
   if(le) le.textContent = (ethanHero.name + ' · Level ' + playerDifficulty.ethan);
   if(lo) lo.textContent = (elliotHero.name + ' · Level ' + playerDifficulty.elliot);
+  updateAllProfileExtras();
   showScr('scr-profile');
 }
 
@@ -2832,6 +2947,8 @@ function startBattle(fort, mode) {
   G.retryQueue = [];
   // Carry in any pending retry from the previous battle
   if (G.pendingRetry) { G.retryQueue.push(G.pendingRetry); G.pendingRetry = null; }
+  // Apply hero passives (e.g. L3 = start with 1 streak)
+  applyHeroPassives(mode);
   renderHeroBars();
   spawnEnemy(fort.provId);
   if (!musicMuted) playBattleMusic(G.wave||1);
@@ -3078,7 +3195,7 @@ function handleAns(chosen,correct){
     G.seenChars[correct].correct++;
     G.streak++;G.totalCorrect++;
     if(G.streak>G.bestStreak)G.bestStreak=G.streak;
-    const dmg=1+Math.floor(G.streak/3);
+    const dmg=1+Math.min(Math.floor(G.streak/3),3);
     G.score+=dmg*10;
     document.getElementById('streak-n').textContent=G.streak;
     document.getElementById('score-n').textContent=G.score;
@@ -3231,6 +3348,21 @@ function showVictory(){
   document.getElementById('v-corr').textContent = G.totalCorrect+'/'+G.totalAnswered;
   document.getElementById('v-streak').textContent = G.bestStreak;
   document.getElementById('v-score').textContent = G.score;
+  // Award hero XP and show level-up if applicable
+  document.getElementById('v-levelup').style.display = 'none';
+  const _xpResult = (campaignMode !== 'coop') ? awardHeroXP(campaignMode, G.score, G.bestStreak) : null;
+  if (_xpResult) {
+    document.getElementById('v-xp').textContent = '+' + _xpResult.xpGained + (_xpResult.xpGained > Math.floor(G.score/10) ? ' ×2 🔥' : '');
+    if (_xpResult.leveledUp) {
+      const hero = ALL_HEROES.find(h=>h.key===_xpResult.heroKey);
+      document.getElementById('v-levelup').style.display = 'block';
+      document.getElementById('v-levelup-text').textContent = (hero?hero.name:_xpResult.heroKey) + ' → Level ' + _xpResult.newLevel;
+      document.getElementById('v-levelup-perk').textContent = HERO_LEVEL_PERKS[_xpResult.newLevel] || '';
+      setTimeout(() => speakChinese('将领升级！'), 800);
+    }
+  } else {
+    document.getElementById('v-xp').textContent = '—';
+  }
   // Check for campaign completion (all provinces owned)
   const totalOwned = Object.values(provState).filter(v => v === 'owned').length;
   const unifBanner = document.getElementById('v-unification');
@@ -3284,7 +3416,27 @@ function showDefeat(){
 }
 
 function showCampaignVictory() {
-  alert('🏆 天下一统！You have conquered all ' + PROVINCES.length + ' provinces!\n\nCampaign Complete! You can restart from the profile screen.');
+  // Calculate campaign rating
+  const _mode = campaignMode;
+  if (_mode !== 'coop') {
+    // Accumulate total score across all battles via the campaign save
+    const saved = loadCampaign(_mode);
+    const totalScore = (saved && saved.totalScore) || G.score;
+    const globalBest = (saved && saved.globalBestStreak) || G.bestStreak;
+    const rating = calcCampaignRating(_mode, totalScore, globalBest);
+    saveCampaignRating(_mode, rating);
+    // Show on victory screen
+    const unifBanner = document.getElementById('v-unification');
+    if (unifBanner) {
+      const stars = '⭐'.repeat(rating.stars) + '☆'.repeat(5-rating.stars);
+      unifBanner.innerHTML = `
+        <div style="font-size:28px;margin-bottom:6px">👑</div>
+        <div style="font-family:'Ma Shan Zheng',cursive;font-size:clamp(18px,5vw,26px);color:var(--goldb);letter-spacing:.1em">恭喜你统一了中国！</div>
+        <div style="font-size:13px;color:var(--parch2);margin-top:6px">China is unified! Campaign Rating:</div>
+        <div style="font-size:26px;margin-top:4px">${stars}</div>
+        <div style="font-size:11px;color:var(--parch2);margin-top:4px">掌握 ${rating.masteryPct}% · 最佳连击 ${rating.globalBestStreak} · 总分 ${rating.totalScore}</div>`;
+    }
+  }
   clearCampaign(campaignMode);
 }
 
@@ -3535,6 +3687,150 @@ function doResetUser(mode) {
 }
 
 
+
+/* ═══════════════════════════════════════════════════════════
+   HERO LEVELLING SYSTEM (Option C)
+   XP per battle = floor(score/10), doubled if bestStreak >= 6
+   Level thresholds: 1→2: 50, 2→3: 120, 3→4: 250, 4→5: 450
+   Passives: L3 = start with 1 free streak, L5 = token glow
+═══════════════════════════════════════════════════════════ */
+const HERO_XP_THRESHOLDS = [0, 50, 120, 250, 450]; // xp needed to reach level 2,3,4,5
+const HERO_LEVEL_PERKS = {
+  1: 'Learning the way of the sword…',
+  2: '将领出师 Hero Trained',
+  3: '连击起手 Start with 1 streak bonus',
+  4: '身经百战 Battle-Hardened',
+  5: '无双将领 Peerless General — golden token',
+};
+
+function loadHeroLevels() {
+  try { return JSON.parse(localStorage.getItem('skz_hero_levels')||'{}'); } catch(e) { return {}; }
+}
+function saveHeroLevels(data) {
+  try { localStorage.setItem('skz_hero_levels', JSON.stringify(data)); } catch(e) {}
+}
+
+function getHeroLevel(mode, heroKey) {
+  const data = loadHeroLevels();
+  return (data[mode] && data[mode][heroKey]) || {level:1, xp:0};
+}
+
+function heroLevelFromXP(xp) {
+  let lv = 1;
+  for (let i = 0; i < HERO_XP_THRESHOLDS.length; i++) {
+    if (xp >= HERO_XP_THRESHOLDS[i]) lv = i + 1;
+  }
+  return Math.min(lv, 5);
+}
+
+function xpForNextLevel(lv) {
+  return lv < 5 ? HERO_XP_THRESHOLDS[lv] : null; // lv is 1-based; threshold[lv] = xp for lv+1
+}
+
+// Returns {xpGained, leveledUp, newLevel, heroKey}
+function awardHeroXP(mode, score, bestStreak) {
+  const roster = playerRosters[mode];
+  const heroKey = roster && roster.startHero;
+  if (!heroKey || mode === 'coop') return null;
+
+  const data = loadHeroLevels();
+  if (!data[mode]) data[mode] = {};
+  if (!data[mode][heroKey]) data[mode][heroKey] = {level:1, xp:0};
+
+  const state = data[mode][heroKey];
+  const xpGain = Math.floor(score / 10) * (bestStreak >= 6 ? 2 : 1);
+  const oldLevel = heroLevelFromXP(state.xp);
+  state.xp += xpGain;
+  const newLevel = heroLevelFromXP(state.xp);
+  state.level = newLevel;
+  saveHeroLevels(data);
+  return {xpGained: xpGain, leveledUp: newLevel > oldLevel, newLevel, heroKey};
+}
+
+// Apply L3 passive: start with 1 streak if hero level >= 3
+function applyHeroPassives(mode) {
+  if (mode === 'coop') return;
+  const roster = playerRosters[mode];
+  const heroKey = roster && roster.startHero;
+  if (!heroKey) return;
+  const {level} = getHeroLevel(mode, heroKey);
+  if (level >= 3) { G.streak = 1; G.bestStreak = Math.max(G.bestStreak, 1); }
+}
+
+function updateProfileHeroLevel(mode) {
+  const roster = playerRosters[mode];
+  const heroKey = roster && roster.startHero;
+  const el = document.getElementById(mode+'-hero-lv');
+  if (!el) return;
+  if (!heroKey) { el.textContent = ''; return; }
+  const data = loadHeroLevels();
+  const state = (data[mode] && data[mode][heroKey]) || {level:1, xp:0};
+  const lv = state.level || heroLevelFromXP(state.xp);
+  const hero = ALL_HEROES.find(h=>h.key===heroKey);
+  const name = hero ? hero.name : heroKey;
+  const nextXP = xpForNextLevel(lv);
+  const bar = nextXP ? ` (${state.xp}/${nextXP} XP)` : ' ★ MAX';
+  const stars = '★'.repeat(lv) + '☆'.repeat(5-lv);
+  el.textContent = name + ' Lv' + lv + ' ' + stars + bar;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CAMPAIGN RATING SYSTEM (Option D)
+   Rated 1–5 stars at campaign completion based on:
+   - Total campaign score (accumulated across battles)
+   - Mastery: % chars seen correctly ≥3 times at ≥70% accuracy
+   - Best streak achieved across entire campaign
+   Saved as skz_campaign_rating_{mode}
+═══════════════════════════════════════════════════════════ */
+function loadCampaignRating(mode) {
+  try { return JSON.parse(localStorage.getItem('skz_campaign_rating_'+mode)||'null'); } catch(e) { return null; }
+}
+function saveCampaignRating(mode, rating) {
+  try { localStorage.setItem('skz_campaign_rating_'+mode, JSON.stringify(rating)); } catch(e) {}
+}
+
+function calcCampaignRating(mode, totalScore, globalBestStreak) {
+  const prog = loadProgress();
+  const pool = CHARACTER_DB_FULL.filter(c => charToNumericLevel(c) <= playerDifficulty[mode]);
+  const mastered = pool.filter(c => { const s=prog[c.hz]; return s&&s.seen>=3&&s.correct/s.seen>=0.7; }).length;
+  const masteryPct = pool.length > 0 ? mastered / pool.length : 0;
+
+  // Score out of 5: weighted sum
+  let pts = 0;
+  // Mastery (0-2 pts)
+  if (masteryPct >= 0.8) pts += 2;
+  else if (masteryPct >= 0.5) pts += 1.5;
+  else if (masteryPct >= 0.25) pts += 1;
+  else if (masteryPct >= 0.1) pts += 0.5;
+  // Score (0-2 pts) — rough benchmarks
+  if (totalScore >= 5000) pts += 2;
+  else if (totalScore >= 2500) pts += 1.5;
+  else if (totalScore >= 1000) pts += 1;
+  else if (totalScore >= 400) pts += 0.5;
+  // Best streak (0-1 pt)
+  if (globalBestStreak >= 12) pts += 1;
+  else if (globalBestStreak >= 9) pts += 0.75;
+  else if (globalBestStreak >= 6) pts += 0.5;
+  else if (globalBestStreak >= 3) pts += 0.25;
+
+  const stars = Math.min(5, Math.max(1, Math.round(pts)));
+  return { stars, masteryPct: Math.round(masteryPct*100), totalScore, globalBestStreak };
+}
+
+function updateProfileCampaignRating(mode) {
+  const el = document.getElementById(mode+'-campaign-rating');
+  if (!el) return;
+  const r = loadCampaignRating(mode);
+  if (!r) { el.textContent = ''; return; }
+  el.textContent = '🏆 Campaign: ' + '⭐'.repeat(r.stars) + '☆'.repeat(5-r.stars);
+}
+
+function updateAllProfileExtras() {
+  ['ethan','elliot'].forEach(mode => {
+    updateProfileHeroLevel(mode);
+    updateProfileCampaignRating(mode);
+  });
+}
 
 function loadDifficulty(){
   try{const d=JSON.parse(localStorage.getItem('skz_diff')||'null');if(d)playerDifficulty={ethan:d.ethan||5,elliot:d.elliot||3};}catch(e){}
