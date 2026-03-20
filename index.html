@@ -460,11 +460,15 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
     </svg>
 
     <!-- Map legend -->
-    <div class="map-legend" style="z-index:40;position:absolute;bottom:70px;left:8px;font-size:13px;line-height:2">
-      <div style="display:flex;align-items:center;gap:7px"><span style="display:inline-block;width:15px;height:15px;background:rgba(10,100,45,.9);border:2px solid rgba(45,210,108,.85);border-radius:2px;flex-shrink:0"></span>我的领土 Yours</div>
-      <div style="display:flex;align-items:center;gap:7px"><span style="display:inline-block;width:15px;height:15px;background:rgba(88,10,10,.9);border:2px solid rgba(190,40,40,.8);border-radius:2px;flex-shrink:0"></span>敌方 Enemy</div>
-      <div style="display:flex;align-items:center;gap:7px"><span style="display:inline-block;width:15px;height:15px;background:rgba(52,36,8,.9);border:2px solid rgba(155,120,38,.6);border-radius:2px;flex-shrink:0"></span>中立 Neutral</div>
-      <div style="display:flex;align-items:center;gap:7px"><span style="display:inline-block;width:15px;height:15px;background:rgba(95,72,15,.9);border:2px solid rgba(235,188,42,.95);border-radius:2px;flex-shrink:0"></span>可攻打 Can attack</div>
+    <div style="z-index:40;position:absolute;top:50%;transform:translateY(-50%);left:8px;font-size:12px;font-family:'Noto Serif SC',serif;color:var(--parch2);background:rgba(0,0,0,.7);border:1px solid rgba(201,162,39,.3);border-radius:6px;padding:6px 9px;display:inline-flex;flex-direction:column;gap:4px;line-height:1;white-space:nowrap">
+      <div style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:13px;height:13px;background:rgba(10,100,45,.9);border:2px solid rgba(45,210,108,.85);border-radius:2px;flex-shrink:0"></span>我的领土 Yours</div>
+      <div style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:13px;height:13px;background:rgba(52,36,8,.9);border:2px solid rgba(155,120,38,.6);border-radius:2px;flex-shrink:0"></span>中立 Neutral</div>
+      <div style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:13px;height:13px;background:rgba(95,72,15,.9);border:2px solid rgba(235,188,42,.95);border-radius:2px;flex-shrink:0"></span>可攻打 Can attack</div>
+      <div style="height:1px;background:rgba(201,162,39,.3)"></div>
+      <div style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:13px;height:13px;background:rgba(20,30,80,.85);border:2px solid rgba(80,110,210,.75);border-radius:2px;flex-shrink:0"></span>魏 Wei</div>
+      <div style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:13px;height:13px;background:rgba(90,12,12,.85);border:2px solid rgba(190,40,40,.85);border-radius:2px;flex-shrink:0"></span>吴 Wu</div>
+      <div style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:13px;height:13px;background:rgba(60,15,75,.82);border:2px solid rgba(160,60,200,.75);border-radius:2px;flex-shrink:0"></span>袁 Yuan</div>
+      <div style="display:flex;align-items:center;gap:6px"><span style="display:inline-block;width:13px;height:13px;background:rgba(45,45,45,.82);border:2px solid rgba(140,140,140,.70);border-radius:2px;flex-shrink:0"></span>董 Dong</div>
     </div>
   </div>
 </div>
@@ -518,6 +522,12 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
   <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;padding:22px;padding-top:56px;background:radial-gradient(ellipse at center,#1a1200,#0d0a04 70%)">
     <div class="res-icon">🏆</div>
     <div class="res-title">大胜！ 胜利！</div>
+    <!-- Campaign complete banner (hidden by default) -->
+    <div id="v-unification" style="display:none;background:linear-gradient(135deg,rgba(201,162,39,0.25),rgba(201,162,39,0.08));border:2px solid var(--goldb);border-radius:10px;padding:14px 18px;text-align:center;width:100%;max-width:320px">
+      <div style="font-size:28px;margin-bottom:6px">👑</div>
+      <div style="font-family:'Ma Shan Zheng',cursive;font-size:clamp(20px,5.5vw,28px);color:var(--goldb);text-shadow:0 0 20px rgba(201,162,39,.8);letter-spacing:.1em">恭喜你统一了中国！</div>
+      <div style="font-size:13px;color:var(--parch2);margin-top:6px;letter-spacing:.05em">Congratulations — China is unified!</div>
+    </div>
     <!-- New hero found banner (hidden by default) -->
     <div id="v-hero-found" style="display:none;background:linear-gradient(135deg,rgba(201,162,39,0.2),rgba(201,162,39,0.05));border:2px solid var(--goldb);border-radius:10px;padding:14px 18px;text-align:center;width:100%;max-width:320px">
       <div style="font-size:22px;margin-bottom:6px">🎉 新将领加入！ New Hero!</div>
@@ -757,282 +767,632 @@ function toggleMute() {
 }
 const HERO_SPRITES = {
   liubei: (svg, scale=1) => {
-    svg.innerHTML = `
-    <g transform="scale(${scale})">
-      <!-- Body robe - blue/gold Liu Bei -->
-      <rect x="18" y="38" width="28" height="30" rx="3" fill="#1a3a8a"/>
-      <rect x="22" y="38" width="20" height="3" fill="#c9a227"/>
-      <rect x="18" y="42" width="4" height="20" fill="#c9a227"/>
-      <rect x="42" y="42" width="4" height="20" fill="#c9a227"/>
+    svg.innerHTML = `<g transform="scale(${scale})">
+      <!-- Body robe - royal blue -->
+      <rect x="17" y="37" width="30" height="32" rx="4" fill="#1a3a8a"/>
+      <!-- Robe front panel -->
+      <path d="M32,37 L26,37 L26,69 L32,69 Z" fill="#1e44a0"/>
+      <path d="M32,37 L38,37 L38,69 L32,69 Z" fill="#1e44a0"/>
+      <!-- Gold collar V -->
+      <path d="M26,37 L32,46 L38,37" fill="none" stroke="#c9a227" stroke-width="2.5"/>
+      <!-- Gold trim sides -->
+      <rect x="17" y="37" width="3" height="32" fill="#c9a227" opacity="0.7"/>
+      <rect x="44" y="37" width="3" height="32" fill="#c9a227" opacity="0.7"/>
       <!-- Belt -->
-      <rect x="18" y="54" width="28" height="4" fill="#c9a227"/>
+      <rect x="17" y="56" width="30" height="5" rx="1" fill="#8a6a00"/>
+      <ellipse cx="32" cy="58" rx="5" ry="3" fill="#c9a227"/>
       <!-- Legs -->
-      <rect x="21" y="68" width="8" height="10" rx="2" fill="#0d2060"/>
-      <rect x="35" y="68" width="8" height="10" rx="2" fill="#0d2060"/>
+      <rect x="20" y="61" width="10" height="13" rx="2" fill="#0d2060"/>
+      <rect x="34" y="61" width="10" height="13" rx="2" fill="#0d2060"/>
       <!-- Boots -->
-      <rect x="20" y="76" width="10" height="5" rx="2" fill="#2a1a0a"/>
-      <rect x="34" y="76" width="10" height="5" rx="2" fill="#2a1a0a"/>
-      <!-- Arms -->
-      <rect x="10" y="40" width="8" height="20" rx="3" fill="#1a3a8a"/>
-      <rect x="46" y="40" width="8" height="20" rx="3" fill="#1a3a8a"/>
+      <rect x="19" y="71" width="12" height="5" rx="2" fill="#2a1a0a"/>
+      <rect x="33" y="71" width="12" height="5" rx="2" fill="#2a1a0a"/>
+      <!-- Left arm -->
+      <rect x="7" y="38" width="10" height="22" rx="4" fill="#1a3a8a"/>
+      <rect x="7" y="38" width="3" height="22" rx="2" fill="#c9a227" opacity="0.5"/>
+      <!-- Right arm -->
+      <rect x="47" y="38" width="10" height="22" rx="4" fill="#1a3a8a"/>
+      <rect x="54" y="38" width="3" height="22" rx="2" fill="#c9a227" opacity="0.5"/>
       <!-- Hands -->
-      <ellipse cx="14" cy="62" rx="5" ry="4" fill="#f5c07a"/>
-      <ellipse cx="50" cy="62" rx="5" ry="4" fill="#f5c07a"/>
-      <!-- Sword in right hand -->
-      <rect x="47" y="55" width="3" height="22" rx="1" fill="#aaa"/>
-      <rect x="44" y="58" width="9" height="2" fill="#c9a227"/>
+      <ellipse cx="12" cy="62" rx="5" ry="4" fill="#f0b878"/>
+      <ellipse cx="52" cy="62" rx="5" ry="4" fill="#f0b878"/>
+      <!-- Twin swords -->
+      <rect x="49" y="44" width="2.5" height="26" rx="1" fill="#c8c8d8"/>
+      <rect x="46" y="50" width="9" height="2" rx="1" fill="#c9a227"/>
+      <path d="M50.5,44 L48,38 L53,38 Z" fill="#c0c8e0"/>
+      <rect x="53" y="48" width="2.5" height="26" rx="1" fill="#c8c8d8"/>
+      <rect x="50" y="54" width="9" height="2" rx="1" fill="#c9a227"/>
+      <path d="M54.5,48 L52,42 L57,42 Z" fill="#c0c8e0"/>
       <!-- Head -->
-      <ellipse cx="32" cy="24" rx="13" ry="14" fill="#f5c07a"/>
-      <!-- Hair / Hat -->
-      <path d="M19,20 Q20,8 32,7 Q44,8 45,20 Z" fill="#1a1008"/>
-      <rect x="22" y="18" width="20" height="5" rx="2" fill="#2a1a8a"/>
-      <rect x="26" y="14" width="12" height="5" rx="2" fill="#c9a227"/>
-      <!-- Face -->
-      <ellipse cx="27" cy="23" rx="2" ry="2.5" fill="#2a1a0a"/>
-      <ellipse cx="37" cy="23" rx="2" ry="2.5" fill="#2a1a0a"/>
-      <path d="M28,30 Q32,33 36,30" stroke="#7a3a1a" stroke-width="1.5" fill="none"/>
-      <!-- Beard hint -->
-      <path d="M26,32 Q32,38 38,32" stroke="#3a2a1a" stroke-width="1" fill="none" opacity="0.6"/>
+      <ellipse cx="32" cy="22" rx="13" ry="14" fill="#f0b878"/>
+      <!-- Black topknot hairdo -->
+      <path d="M19,18 Q20,6 32,5 Q44,6 45,18 Z" fill="#1a1008"/>
+      <path d="M26,8 Q32,4 38,8 L36,14 Q32,11 28,14 Z" fill="#2a2010"/>
+      <!-- Gold headband -->
+      <rect x="19" y="17" width="26" height="4" rx="2" fill="#2a1a8a"/>
+      <rect x="25" y="13" width="14" height="5" rx="2" fill="#c9a227"/>
+      <ellipse cx="32" cy="13" rx="3" ry="3" fill="#c0392b"/>
+      <!-- Eyes - kind -->
+      <ellipse cx="27" cy="21" rx="2.2" ry="2.5" fill="#1a1008"/>
+      <ellipse cx="37" cy="21" rx="2.2" ry="2.5" fill="#1a1008"/>
+      <ellipse cx="27.5" cy="20.5" rx="0.8" ry="1" fill="#fff" opacity="0.6"/>
+      <ellipse cx="37.5" cy="20.5" rx="0.8" ry="1" fill="#fff" opacity="0.6"/>
+      <!-- Gentle brows -->
+      <path d="M24,18 Q27.5,16.5 30,18" stroke="#2a1a0a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M34,18 Q36.5,16.5 40,18" stroke="#2a1a0a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <!-- Warm smile -->
+      <path d="M28,28 Q32,32 36,28" stroke="#7a3a1a" stroke-width="1.5" fill="none"/>
+      <!-- Thin moustache -->
+      <path d="M28,25 Q30,23 32,24 Q34,23 36,25" stroke="#3a2010" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <!-- Short beard solid -->
+      <path d="M26,28 Q32,35 38,28 Q38,32 32,36 Q26,32 26,28Z" fill="#2a1808" opacity="0.6"/>
     </g>`;
   },
+
   guanyu: (svg, scale=1) => {
-    svg.innerHTML = `
-    <g transform="scale(${scale})">
-      <!-- Body - green armor -->
-      <rect x="18" y="36" width="28" height="32" rx="3" fill="#1a4a1a"/>
-      <!-- Armor plates -->
-      <rect x="20" y="38" width="24" height="8" rx="2" fill="#2a6a2a"/>
-      <rect x="22" y="47" width="20" height="8" rx="2" fill="#2a6a2a"/>
-      <rect x="24" y="56" width="16" height="6" rx="2" fill="#2a6a2a"/>
-      <!-- Armor trim gold -->
-      <rect x="18" y="36" width="28" height="3" fill="#c9a227"/>
-      <rect x="18" y="46" width="28" height="2" fill="#c9a227"/>
-      <rect x="18" y="55" width="28" height="2" fill="#c9a227"/>
+    svg.innerHTML = `<g transform="scale(${scale})">
+      <!-- Body - dark green battle armor -->
+      <rect x="17" y="36" width="30" height="32" rx="3" fill="#183a18"/>
+      <!-- Chest plate layered armor -->
+      <rect x="19" y="38" width="26" height="9" rx="2" fill="#245a24"/>
+      <rect x="19" y="47" width="26" height="8" rx="2" fill="#1e4e1e"/>
+      <rect x="21" y="55" width="22" height="7" rx="2" fill="#245a24"/>
+      <!-- Gold trim lines -->
+      <rect x="17" y="36" width="30" height="3" rx="1" fill="#c9a227"/>
+      <rect x="17" y="46" width="30" height="2" fill="#c9a227"/>
+      <rect x="17" y="54" width="30" height="2" fill="#c9a227"/>
       <!-- Belt -->
-      <rect x="18" y="62" width="28" height="5" fill="#7a1a1a"/>
+      <rect x="17" y="62" width="30" height="5" rx="1" fill="#7a1a1a"/>
+      <ellipse cx="32" cy="64" rx="5" ry="3" fill="#c9a227"/>
       <!-- Legs -->
-      <rect x="21" y="67" width="8" height="11" rx="2" fill="#0d3a0d"/>
-      <rect x="35" y="67" width="8" height="11" rx="2" fill="#0d3a0d"/>
+      <rect x="20" y="67" width="10" height="13" rx="2" fill="#0d2a0d"/>
+      <rect x="34" y="67" width="10" height="13" rx="2" fill="#0d2a0d"/>
       <!-- Boots -->
-      <rect x="20" y="76" width="10" height="5" rx="2" fill="#1a0a0a"/>
-      <rect x="34" y="76" width="10" height="5" rx="2" fill="#1a0a0a"/>
-      <!-- Arms -->
-      <rect x="9" y="38" width="9" height="22" rx="3" fill="#1a4a1a"/>
-      <rect x="46" y="38" width="9" height="22" rx="3" fill="#1a4a1a"/>
+      <rect x="19" y="77" width="12" height="5" rx="2" fill="#0a0808"/>
+      <rect x="33" y="77" width="12" height="5" rx="2" fill="#0a0808"/>
+      <!-- Left arm full -->
+      <rect x="7" y="37" width="10" height="26" rx="4" fill="#183a18"/>
+      <rect x="7" y="37" width="10" height="3" rx="2" fill="#c9a227"/>
+      <!-- Right arm full -->
+      <rect x="47" y="37" width="10" height="26" rx="4" fill="#183a18"/>
+      <rect x="47" y="37" width="10" height="3" rx="2" fill="#c9a227"/>
       <!-- Hands -->
-      <ellipse cx="13" cy="62" rx="5" ry="4" fill="#f5c07a"/>
-      <ellipse cx="51" cy="62" rx="5" ry="4" fill="#f5c07a"/>
+      <ellipse cx="12" cy="65" rx="5" ry="4" fill="#c04040"/>
+      <ellipse cx="52" cy="65" rx="5" ry="4" fill="#c04040"/>
       <!-- Green Dragon Crescent Blade -->
-      <rect x="49" y="38" width="3" height="28" rx="1" fill="#888"/>
-      <path d="M52,38 Q62,28 58,42 Z" fill="#2a6a2a" stroke="#c9a227" stroke-width="0.8"/>
-      <!-- Head - long beard Guan Yu -->
-      <ellipse cx="32" cy="22" rx="12" ry="13" fill="#f5c07a"/>
-      <!-- Helmet -->
-      <path d="M20,19 Q21,6 32,5 Q43,6 44,19 Z" fill="#1a4a1a"/>
-      <path d="M22,19 Q23,9 32,8 Q41,9 42,19 Z" fill="#c9a227" opacity="0.7"/>
-      <rect x="18" y="18" width="28" height="4" fill="#c9a227"/>
+      <rect x="50" y="30" width="3" height="36" rx="1.5" fill="#909090"/>
+      <path d="M51.5,30 Q64,22 60,36 Q56,44 51.5,40 Z" fill="#2a6a2a" stroke="#c9a227" stroke-width="1"/>
+      <ellipse cx="51.5" cy="40" rx="3" ry="3" fill="#c9a227"/>
+      <!-- Head - iconic RED face -->
+      <ellipse cx="32" cy="21" rx="13" ry="14" fill="#c03030"/>
+      <!-- Green helmet -->
+      <path d="M19,17 Q20,4 32,3 Q44,4 45,17 Z" fill="#183a18"/>
+      <path d="M21,17 Q22,8 32,7 Q42,8 43,17 Z" fill="#c9a227" opacity="0.55"/>
+      <rect x="17" y="16" width="30" height="4" rx="1" fill="#c9a227"/>
       <!-- Top ornament -->
-      <rect x="30" y="3" width="4" height="8" fill="#c9a227"/>
-      <ellipse cx="32" cy="3" rx="4" ry="3" fill="#c0392b"/>
-      <!-- Eyes -->
-      <ellipse cx="27" cy="21" rx="2" ry="2.5" fill="#1a0a0a"/>
-      <ellipse cx="37" cy="21" rx="2" ry="2.5" fill="#1a0a0a"/>
-      <!-- Phoenix eyes (slight slant) -->
-      <line x1="24" y1="19" x2="30" y2="20" stroke="#2a1a0a" stroke-width="1.2"/>
-      <line x1="34" y1="20" x2="40" y2="19" stroke="#2a1a0a" stroke-width="1.2"/>
+      <rect x="30" y="1" width="4" height="9" fill="#c9a227"/>
+      <ellipse cx="32" cy="1" rx="4" ry="3.5" fill="#c0392b"/>
+      <!-- Phoenix eyes - long slanted -->
+      <ellipse cx="27" cy="20" rx="2.5" ry="2.8" fill="#0a0505"/>
+      <ellipse cx="37" cy="20" rx="2.5" ry="2.8" fill="#0a0505"/>
+      <ellipse cx="27.8" cy="19.3" rx="0.9" ry="1.1" fill="#fff" opacity="0.5"/>
+      <ellipse cx="37.8" cy="19.3" rx="0.9" ry="1.1" fill="#fff" opacity="0.5"/>
+      <path d="M23,17.5 Q27,16 30,18" stroke="#1a0808" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M34,18 Q37,16 41,17.5" stroke="#1a0808" stroke-width="2" fill="none" stroke-linecap="round"/>
       <!-- Mouth -->
-      <path d="M29,28 Q32,31 35,28" stroke="#7a3a1a" stroke-width="1.5" fill="none"/>
-      <!-- Long beard -->
-      <path d="M22,30 Q26,42 24,52 M29,31 Q32,45 30,55 M36,31 Q38,43 40,52" stroke="#3a2010" stroke-width="2" fill="none" opacity="0.85"/>
+      <path d="M29,27 Q32,30 35,27" stroke="#7a1a1a" stroke-width="1.8" fill="none"/>
+      <!-- THICK solid black beard - iconic Guan Yu -->
+      <path d="M22,28 Q20,36 21,46 Q22,54 26,58 Q29,61 32,62 Q35,61 38,58 Q42,54 43,46 Q44,36 42,28 Q38,26 32,26 Q26,26 22,28Z" fill="#0a0808"/>
+      <!-- Beard highlight for depth -->
+      <path d="M27,30 Q25,40 26,50 Q28,56 32,58 Q36,56 38,50 Q39,40 37,30 Q34,28 32,28 Q30,28 27,30Z" fill="#1a1010" opacity="0.7"/>
+      <!-- Moustache flowing into beard -->
+      <path d="M26,27 Q29,24 32,25 Q35,24 38,27" stroke="#0a0808" stroke-width="3" fill="none" stroke-linecap="round"/>
     </g>`;
   },
+
   zhangfei: (svg, scale=1) => {
-    svg.innerHTML = `
-    <g transform="scale(${scale})">
-      <!-- Body - black armor -->
-      <rect x="17" y="35" width="30" height="33" rx="3" fill="#1a1a1a"/>
-      <!-- Shoulder plates -->
-      <rect x="12" y="35" width="10" height="8" rx="3" fill="#2a2a2a"/>
-      <rect x="42" y="35" width="10" height="8" rx="3" fill="#2a2a2a"/>
-      <rect x="12" y="35" width="10" height="3" fill="#c0392b"/>
-      <rect x="42" y="35" width="10" height="3" fill="#c0392b"/>
-      <!-- Chest armor -->
-      <rect x="20" y="38" width="24" height="18" rx="2" fill="#282828"/>
-      <rect x="22" y="40" width="20" height="4" fill="#3a3a3a"/>
+    svg.innerHTML = `<g transform="scale(${scale})">
+      <!-- Body - black battle armor -->
+      <rect x="17" y="36" width="30" height="32" rx="3" fill="#151515"/>
+      <!-- Chest ridged armor plates -->
+      <rect x="19" y="38" width="26" height="7" rx="2" fill="#222"/>
+      <rect x="19" y="45" width="26" height="7" rx="2" fill="#1e1e1e"/>
+      <rect x="21" y="52" width="22" height="7" rx="2" fill="#222"/>
+      <!-- Red trim -->
+      <rect x="17" y="36" width="30" height="3" rx="1" fill="#c0392b"/>
+      <rect x="17" y="44" width="30" height="2" fill="#8a1a1a"/>
+      <rect x="17" y="51" width="30" height="2" fill="#8a1a1a"/>
+      <!-- Shoulder pauldrons -->
+      <rect x="9" y="35" width="12" height="9" rx="4" fill="#1e1e1e"/>
+      <rect x="43" y="35" width="12" height="9" rx="4" fill="#1e1e1e"/>
+      <rect x="9" y="35" width="12" height="3" rx="2" fill="#c0392b"/>
+      <rect x="43" y="35" width="12" height="3" rx="2" fill="#c0392b"/>
       <!-- Belt -->
-      <rect x="17" y="63" width="30" height="5" fill="#7a1a1a"/>
-      <ellipse cx="32" cy="65" rx="5" ry="3" fill="#c9a227"/>
+      <rect x="17" y="62" width="30" height="5" rx="1" fill="#7a1a1a"/>
+      <ellipse cx="32" cy="64" rx="6" ry="3.5" fill="#c9a227"/>
       <!-- Legs -->
-      <rect x="20" y="68" width="9" height="11" rx="2" fill="#111"/>
-      <rect x="35" y="68" width="9" height="11" rx="2" fill="#111"/>
+      <rect x="20" y="67" width="10" height="12" rx="2" fill="#111"/>
+      <rect x="34" y="67" width="10" height="12" rx="2" fill="#111"/>
       <!-- Boots -->
-      <rect x="19" y="76" width="11" height="5" rx="2" fill="#0a0a0a"/>
-      <rect x="34" y="76" width="11" height="5" rx="2" fill="#0a0a0a"/>
-      <!-- Arms -->
-      <rect x="8" y="36" width="9" height="24" rx="3" fill="#1a1a1a"/>
-      <rect x="47" y="36" width="9" height="24" rx="3" fill="#1a1a1a"/>
-      <!-- Hands -->
-      <ellipse cx="12" cy="62" rx="5" ry="4" fill="#e8a060"/>
-      <ellipse cx="52" cy="62" rx="5" ry="4" fill="#e8a060"/>
-      <!-- Serpent Spear (Zhang Fei weapon) -->
-      <rect x="50" y="28" width="3" height="34" rx="1" fill="#aaa"/>
-      <path d="M51.5,28 L46,20 L57,20 Z" fill="#c0392b"/>
-      <!-- Head - big fierce face -->
-      <ellipse cx="32" cy="21" rx="13" ry="14" fill="#e8a060"/>
-      <!-- Helmet black -->
-      <path d="M19,18 Q20,5 32,4 Q44,5 45,18 Z" fill="#111"/>
-      <rect x="18" y="17" width="28" height="4" fill="#c0392b"/>
-      <rect x="26" y="3" width="12" height="7" rx="2" fill="#222"/>
+      <rect x="19" y="76" width="12" height="5" rx="2" fill="#080808"/>
+      <rect x="33" y="76" width="12" height="5" rx="2" fill="#080808"/>
+      <!-- Left arm -->
+      <rect x="6" y="37" width="11" height="26" rx="4" fill="#151515"/>
+      <rect x="6" y="37" width="11" height="3" rx="2" fill="#c0392b"/>
+      <!-- Right arm -->
+      <rect x="47" y="37" width="11" height="26" rx="4" fill="#151515"/>
+      <rect x="47" y="37" width="11" height="3" rx="2" fill="#c0392b"/>
+      <!-- Hands - big -->
+      <ellipse cx="11" cy="65" rx="6" ry="5" fill="#d08050"/>
+      <ellipse cx="53" cy="65" rx="6" ry="5" fill="#d08050"/>
+      <!-- Serpent Spear - held left -->
+      <rect x="8" y="4" width="3.5" height="60" rx="1.5" fill="#8a7a5a"/>
+      <path d="M9.75,4 L5,16 L14.5,16 Z" fill="#c0c8d8"/>
+      <ellipse cx="9.75" cy="16" rx="4" ry="3" fill="#c9a227"/>
+      <!-- Head - big fierce -->
+      <ellipse cx="32" cy="21" rx="13" ry="14" fill="#d08050"/>
+      <!-- Black spiked helmet -->
+      <path d="M19,17 Q20,4 32,3 Q44,4 45,17 Z" fill="#111"/>
+      <path d="M27,3 Q32,0 37,3 L36,8 Q32,6 28,8 Z" fill="#222"/>
+      <rect x="17" y="16" width="30" height="4" rx="1" fill="#c0392b"/>
       <ellipse cx="32" cy="3" rx="4" ry="3" fill="#c9a227"/>
-      <!-- Face: fierce eyes -->
-      <ellipse cx="27" cy="20" rx="2.5" ry="3" fill="#050505"/>
-      <ellipse cx="37" cy="20" rx="2.5" ry="3" fill="#050505"/>
-      <!-- Fierce brows -->
-      <line x1="23" y1="17" x2="30" y2="19" stroke="#111" stroke-width="2.2"/>
-      <line x1="34" y1="19" x2="41" y2="17" stroke="#111" stroke-width="2.2"/>
-      <!-- Open roaring mouth -->
-      <path d="M27,27 Q32,32 37,27" stroke="#5a1a1a" stroke-width="2" fill="#7a1a1a"/>
-      <!-- Beard stubble -->
-      <rect x="24" y="29" width="3" height="2" rx="1" fill="#3a2a1a" opacity="0.7"/>
-      <rect x="29" y="31" width="3" height="2" rx="1" fill="#3a2a1a" opacity="0.7"/>
-      <rect x="34" y="31" width="3" height="2" rx="1" fill="#3a2a1a" opacity="0.7"/>
-      <rect x="38" y="29" width="3" height="2" rx="1" fill="#3a2a1a" opacity="0.7"/>
+      <!-- Fierce wide eyes -->
+      <ellipse cx="27" cy="20" rx="3" ry="3.2" fill="#050505"/>
+      <ellipse cx="37" cy="20" rx="3" ry="3.2" fill="#050505"/>
+      <ellipse cx="28" cy="19" rx="1.1" ry="1.3" fill="#fff" opacity="0.5"/>
+      <ellipse cx="38" cy="19" rx="1.1" ry="1.3" fill="#fff" opacity="0.5"/>
+      <!-- Fierce slanted brows -->
+      <path d="M22,16 Q27,14 30,17" stroke="#111" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M34,17 Q37,14 42,16" stroke="#111" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <!-- Roaring open mouth -->
+      <path d="M26,27 Q32,33 38,27" stroke="#5a1a1a" stroke-width="2" fill="#6a1a1a"/>
+      <!-- Thick black beard blocks -->
+      <rect x="23" y="28" width="18" height="10" rx="3" fill="#111"/>
+      <rect x="24" y="36" width="16" height="6" rx="2" fill="#0a0a0a"/>
     </g>`;
   },
+
   zhaoyun: (svg, scale=1) => {
     svg.innerHTML = `<g transform="scale(${scale})">
-      <rect x="18" y="36" width="28" height="32" rx="3" fill="#d0d8e8"/>
-      <rect x="10" y="36" width="12" height="10" rx="3" fill="#b0b8c8"/>
-      <rect x="42" y="36" width="12" height="10" rx="3" fill="#b0b8c8"/>
-      <rect x="10" y="36" width="12" height="3" fill="#c9a227"/>
-      <rect x="42" y="36" width="12" height="3" fill="#c9a227"/>
-      <rect x="20" y="39" width="24" height="18" rx="2" fill="#c0c8d8"/>
-      <rect x="18" y="39" width="28" height="3" fill="#c9a227"/>
-      <rect x="18" y="52" width="28" height="2" fill="#c9a227"/>
-      <path d="M26,43 Q32,40 38,43 Q34,48 32,47 Q30,48 26,43Z" fill="rgba(30,60,120,0.5)"/>
-      <rect x="18" y="62" width="28" height="5" fill="#7a7a9a"/>
-      <rect x="21" y="67" width="9" height="12" rx="2" fill="#b0b8c8"/>
-      <rect x="34" y="67" width="9" height="12" rx="2" fill="#b0b8c8"/>
-      <rect x="20" y="77" width="11" height="4" rx="2" fill="#2a2a3a"/>
-      <rect x="33" y="77" width="11" height="4" rx="2" fill="#2a2a3a"/>
-      <rect x="7" y="37" width="11" height="23" rx="3" fill="#d0d8e8"/>
-      <rect x="46" y="37" width="11" height="23" rx="3" fill="#d0d8e8"/>
-      <ellipse cx="12" cy="62" rx="5" ry="4" fill="#f0c890"/>
-      <ellipse cx="52" cy="62" rx="5" ry="4" fill="#f0c890"/>
-      <rect x="50" y="20" width="3" height="40" rx="1" fill="#aabbc8"/>
-      <path d="M51.5,20 L45,10 L58,10 Z" fill="#c8d8f0"/>
-      <rect x="48" y="28" width="7" height="2" fill="#c9a227"/>
-      <ellipse cx="32" cy="21" rx="12" ry="13" fill="#f0c890"/>
-      <path d="M20,17 Q21,4 32,3 Q43,4 44,17 Z" fill="#c0c8d8"/>
-      <rect x="18" y="16" width="28" height="4" fill="#c9a227"/>
-      <rect x="30" y="1" width="4" height="8" fill="#c0c8d8"/>
-      <path d="M32,1 Q28,-2 26,2 Q30,0 32,1Z" fill="#c0392b"/>
-      <path d="M32,1 Q36,-2 38,2 Q34,0 32,1Z" fill="#c0392b"/>
-      <ellipse cx="27.5" cy="20" rx="2" ry="2.4" fill="#1a1a2a"/>
-      <ellipse cx="36.5" cy="20" rx="2" ry="2.4" fill="#1a1a2a"/>
-      <line x1="24" y1="17.5" x2="30" y2="19" stroke="#2a1a0a" stroke-width="1.3"/>
-      <line x1="34" y1="19" x2="40" y2="17.5" stroke="#2a1a0a" stroke-width="1.3"/>
+      <!-- Body - silver/white dragon armor -->
+      <rect x="17" y="36" width="30" height="32" rx="3" fill="#c8d0e0"/>
+      <!-- Chest plate -->
+      <rect x="19" y="38" width="26" height="10" rx="2" fill="#d8e0f0"/>
+      <rect x="19" y="48" width="26" height="8" rx="2" fill="#c0c8d8"/>
+      <rect x="21" y="56" width="22" height="6" rx="2" fill="#d8e0f0"/>
+      <!-- Dragon emblem on chest -->
+      <path d="M27,42 Q32,39 37,42 Q34,47 32,46 Q30,47 27,42Z" fill="rgba(30,60,120,0.5)"/>
+      <!-- Gold trim -->
+      <rect x="17" y="36" width="30" height="3" rx="1" fill="#c9a227"/>
+      <rect x="17" y="47" width="30" height="2" fill="#c9a227"/>
+      <rect x="17" y="55" width="30" height="2" fill="#c9a227"/>
+      <!-- Shoulder plates -->
+      <rect x="9" y="35" width="12" height="9" rx="4" fill="#b0b8c8"/>
+      <rect x="43" y="35" width="12" height="9" rx="4" fill="#b0b8c8"/>
+      <rect x="9" y="35" width="12" height="3" rx="2" fill="#c9a227"/>
+      <rect x="43" y="35" width="12" height="3" rx="2" fill="#c9a227"/>
+      <!-- Belt -->
+      <rect x="17" y="62" width="30" height="5" rx="1" fill="#7a7a9a"/>
+      <ellipse cx="32" cy="64" rx="5" ry="3" fill="#c9a227"/>
+      <!-- Legs -->
+      <rect x="20" y="67" width="10" height="12" rx="2" fill="#a8b0c0"/>
+      <rect x="34" y="67" width="10" height="12" rx="2" fill="#a8b0c0"/>
+      <!-- Boots -->
+      <rect x="19" y="76" width="12" height="5" rx="2" fill="#1a1a2a"/>
+      <rect x="33" y="76" width="12" height="5" rx="2" fill="#1a1a2a"/>
+      <!-- Left arm -->
+      <rect x="6" y="37" width="11" height="26" rx="4" fill="#c8d0e0"/>
+      <rect x="6" y="37" width="11" height="3" rx="2" fill="#c9a227"/>
+      <!-- Right arm -->
+      <rect x="47" y="37" width="11" height="26" rx="4" fill="#c8d0e0"/>
+      <rect x="47" y="37" width="11" height="3" rx="2" fill="#c9a227"/>
+      <!-- Hands -->
+      <ellipse cx="11" cy="65" rx="5" ry="4" fill="#f0c890"/>
+      <ellipse cx="53" cy="65" rx="5" ry="4" fill="#f0c890"/>
+      <!-- Dragon Spear -->
+      <rect x="50" y="12" width="3" height="52" rx="1.5" fill="#a0b0c0"/>
+      <path d="M51.5,12 L46,2 L57,2 Z" fill="#c8d8f0" stroke="#c9a227" stroke-width="0.8"/>
+      <rect x="47" y="20" width="9" height="2.5" rx="1" fill="#c9a227"/>
+      <!-- Head -->
+      <ellipse cx="32" cy="21" rx="13" ry="14" fill="#f0c890"/>
+      <!-- Silver helmet -->
+      <path d="M19,17 Q20,4 32,3 Q44,4 45,17 Z" fill="#c0c8d8"/>
+      <path d="M22,17 Q23,8 32,7 Q41,8 42,17 Z" fill="#d8e0f0" opacity="0.7"/>
+      <rect x="17" y="16" width="30" height="4" rx="1" fill="#c9a227"/>
+      <rect x="29" y="1" width="6" height="9" fill="#c0c8d8"/>
+      <path d="M32,1 Q28,-2 25,2 Q29,0 32,1Z" fill="#c0392b"/>
+      <path d="M32,1 Q36,-2 39,2 Q35,0 32,1Z" fill="#c0392b"/>
+      <!-- Eyes -->
+      <ellipse cx="27.5" cy="20" rx="2.2" ry="2.5" fill="#1a1a2a"/>
+      <ellipse cx="36.5" cy="20" rx="2.2" ry="2.5" fill="#1a1a2a"/>
+      <ellipse cx="28.2" cy="19.3" rx="0.8" ry="1" fill="#fff" opacity="0.5"/>
+      <ellipse cx="37.2" cy="19.3" rx="0.8" ry="1" fill="#fff" opacity="0.5"/>
+      <path d="M24,17 Q27.5,15.5 30,17" stroke="#2a1a0a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M34,17 Q36.5,15.5 40,17" stroke="#2a1a0a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
       <path d="M29,26 Q32,29 35,26" stroke="#7a3a1a" stroke-width="1.5" fill="none"/>
     </g>`;
   },
+
   huangzhong: (svg, scale=1) => {
     svg.innerHTML = `<g transform="scale(${scale})">
-      <rect x="18" y="38" width="28" height="30" rx="3" fill="#5a3a10"/>
-      <rect x="20" y="38" width="24" height="4" fill="#c9a227"/>
-      <rect x="18" y="54" width="28" height="3" fill="#c9a227"/>
-      <rect x="22" y="48" width="6" height="5" rx="1" fill="#7a5a18"/>
-      <rect x="30" y="48" width="6" height="5" rx="1" fill="#7a5a18"/>
-      <rect x="21" y="68" width="8" height="10" rx="2" fill="#3a2808"/>
-      <rect x="35" y="68" width="8" height="10" rx="2" fill="#3a2808"/>
-      <rect x="20" y="76" width="10" height="5" rx="2" fill="#1a1208"/>
-      <rect x="34" y="76" width="10" height="5" rx="2" fill="#1a1208"/>
-      <ellipse cx="32" cy="24" rx="11" ry="12" fill="#c8926a"/>
-      <rect x="23" y="19" width="7" height="2.5" rx="1" fill="#e8e0d0"/>
-      <rect x="34" y="19" width="7" height="2.5" rx="1" fill="#e8e0d0"/>
-      <ellipse cx="27" cy="23" rx="2" ry="2" fill="#2a1a08"/>
-      <ellipse cx="37" cy="23" rx="2" ry="2" fill="#2a1a08"/>
-      <path d="M24,30 Q20,42 22,54 Q26,58 32,60 Q38,58 42,54 Q44,42 40,30 Q37,28 32,29 Q27,28 24,30Z" fill="#e8e0d8" opacity="0.9"/>
-      <path d="M21,16 Q21,6 32,5 Q43,6 43,16 L42,18 Q32,14 22,18Z" fill="#888"/>
-      <rect x="20" y="16" width="24" height="4" rx="1" fill="#aaa"/>
-      <path d="M14,20 Q8,32 14,44" stroke="#8B5E3C" stroke-width="2" fill="none"/>
-      <rect x="44" y="25" width="5" height="18" rx="2" fill="#6B3A1A"/>
+      <!-- Body - brown leather archer armor -->
+      <rect x="17" y="37" width="30" height="32" rx="3" fill="#5a3a10"/>
+      <!-- Leather straps / armor detail -->
+      <rect x="19" y="39" width="26" height="6" rx="2" fill="#6a4818"/>
+      <rect x="19" y="45" width="26" height="6" rx="2" fill="#5a3a10"/>
+      <rect x="21" y="51" width="22" height="7" rx="2" fill="#6a4818"/>
+      <!-- Gold trim -->
+      <rect x="17" y="37" width="30" height="3" rx="1" fill="#c9a227"/>
+      <rect x="17" y="44" width="30" height="2" fill="#c9a227"/>
+      <rect x="17" y="50" width="30" height="2" fill="#c9a227"/>
+      <!-- Belt -->
+      <rect x="17" y="63" width="30" height="5" rx="1" fill="#3a2808"/>
+      <ellipse cx="32" cy="65" rx="5" ry="3" fill="#c9a227"/>
+      <!-- Legs -->
+      <rect x="20" y="68" width="10" height="11" rx="2" fill="#3a2808"/>
+      <rect x="34" y="68" width="10" height="11" rx="2" fill="#3a2808"/>
+      <!-- Boots -->
+      <rect x="19" y="76" width="12" height="5" rx="2" fill="#1a1208"/>
+      <rect x="33" y="76" width="12" height="5" rx="2" fill="#1a1208"/>
+      <!-- Left arm - bow arm raised -->
+      <rect x="5" y="34" width="12" height="26" rx="4" fill="#5a3a10"/>
+      <rect x="5" y="34" width="12" height="3" rx="2" fill="#c9a227"/>
+      <!-- Right arm - drawing arm -->
+      <rect x="47" y="40" width="12" height="22" rx="4" fill="#5a3a10"/>
+      <rect x="47" y="40" width="12" height="3" rx="2" fill="#c9a227"/>
+      <!-- Hands -->
+      <ellipse cx="11" cy="62" rx="5" ry="4" fill="#c8926a"/>
+      <ellipse cx="53" cy="64" rx="5" ry="4" fill="#c8926a"/>
+      <!-- Bow held in left hand -->
+      <path d="M9,38 Q2,55 9,68" stroke="#6B3A1A" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M9,38 Q12,53 9,68" stroke="#c9a227" stroke-width="1" fill="none"/>
+      <!-- Bowstring -->
+      <line x1="9" y1="38" x2="9" y2="68" stroke="#e8d8b8" stroke-width="1.2"/>
+      <!-- Arrow nocked -->
+      <line x1="9" y1="53" x2="50" y2="53" stroke="#8B5E3C" stroke-width="1.5"/>
+      <path d="M50,53 L56,50 L54,53 L56,56 Z" fill="#c9a227"/>
+      <!-- White-haired elder head -->
+      <ellipse cx="32" cy="23" rx="12" ry="13" fill="#c8926a"/>
+      <!-- White hair swept back -->
+      <path d="M20,20 Q20,8 32,6 Q44,8 44,20 Z" fill="#e8e8e8"/>
+      <path d="M22,20 Q22,12 32,10 Q42,12 42,20 Z" fill="#f5f5f5" opacity="0.7"/>
+      <!-- Helmet band -->
+      <rect x="19" y="19" width="26" height="4" rx="2" fill="#aaa" stroke="#c9a227" stroke-width="0.8"/>
+      <!-- White brow eyebrows -->
+      <rect x="23" y="21" width="7" height="2.5" rx="1" fill="#e8e8e8"/>
+      <rect x="34" y="21" width="7" height="2.5" rx="1" fill="#e8e8e8"/>
+      <!-- Eyes -->
+      <ellipse cx="27" cy="25" rx="2.2" ry="2.2" fill="#1a1008"/>
+      <ellipse cx="37" cy="25" rx="2.2" ry="2.2" fill="#1a1008"/>
+      <ellipse cx="27.8" cy="24.3" rx="0.8" ry="0.9" fill="#fff" opacity="0.5"/>
+      <ellipse cx="37.8" cy="24.3" rx="0.8" ry="0.9" fill="#fff" opacity="0.5"/>
+      <!-- Mouth determined -->
+      <path d="M28,31 Q32,33 36,31" stroke="#7a3a1a" stroke-width="1.5" fill="none"/>
+      <!-- White beard solid block -->
+      <path d="M24,33 Q22,40 23,50 Q25,56 32,58 Q39,56 41,50 Q42,40 40,33 Q37,31 32,31 Q27,31 24,33Z" fill="#e8e8e0"/>
+      <path d="M27,35 Q25,42 26,50 Q28,54 32,56 Q36,54 38,50 Q39,42 37,35 Q34,33 32,33 Q30,33 27,35Z" fill="#f5f5f0" opacity="0.7"/>
     </g>`;
   },
 
   machao: (svg, scale=1) => {
     svg.innerHTML = `<g transform="scale(${scale})">
-      <rect x="18" y="38" width="28" height="30" rx="3" fill="#d8d0c0"/>
-      <rect x="20" y="38" width="24" height="4" fill="#c9a227"/>
-      <ellipse cx="32" cy="50" rx="10" ry="8" fill="#c0b898" stroke="#c9a227" stroke-width="1"/>
-      <ellipse cx="18" cy="42" rx="5" ry="4" fill="#b8b0a0" stroke="#c9a227" stroke-width="1"/>
-      <ellipse cx="46" cy="42" rx="5" ry="4" fill="#b8b0a0" stroke="#c9a227" stroke-width="1"/>
-      <rect x="21" y="68" width="8" height="10" rx="2" fill="#a0988a"/>
-      <rect x="35" y="68" width="8" height="10" rx="2" fill="#a0988a"/>
-      <rect x="20" y="76" width="10" height="5" rx="2" fill="#2a2218"/>
-      <rect x="34" y="76" width="10" height="5" rx="2" fill="#2a2218"/>
-      <ellipse cx="32" cy="24" rx="11" ry="12" fill="#d8a870"/>
-      <path d="M23,19 Q27,17 29,19" stroke="#3a2010" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <path d="M35,19 Q37,17 41,19" stroke="#3a2010" stroke-width="2" fill="none" stroke-linecap="round"/>
-      <ellipse cx="27" cy="23" rx="2.2" ry="2.2" fill="#1a0808"/>
-      <ellipse cx="37" cy="23" rx="2.2" ry="2.2" fill="#1a0808"/>
-      <path d="M27,30 Q32,34 37,30" stroke="#3a2010" stroke-width="1.5" fill="none"/>
-      <path d="M21,14 Q21,4 32,3 Q43,4 43,14 L42,16 Q32,11 22,16Z" fill="#e8e0d0"/>
-      <rect x="20" y="14" width="24" height="4" rx="1" fill="#d0c8b8" stroke="#c9a227" stroke-width="0.8"/>
-      <path d="M28,5 Q32,0 36,5 Q34,8 32,8 Q30,8 28,5Z" fill="#cc2222"/>
-      <rect x="50" y="10" width="3" height="68" rx="1" fill="#8B5E3C"/>
-      <polygon points="51.5,4 48,12 55,12" fill="#c0c0c0"/>
+      <!-- Body - white/silver cavalry armor -->
+      <rect x="17" y="37" width="30" height="32" rx="3" fill="#d8d0c0"/>
+      <!-- Chest scale armor -->
+      <rect x="19" y="39" width="26" height="8" rx="2" fill="#e0d8c8"/>
+      <rect x="19" y="47" width="26" height="7" rx="2" fill="#d0c8b8"/>
+      <rect x="21" y="54" width="22" height="7" rx="2" fill="#e0d8c8"/>
+      <!-- Gold trim -->
+      <rect x="17" y="37" width="30" height="3" rx="1" fill="#c9a227"/>
+      <rect x="17" y="46" width="30" height="2" fill="#c9a227"/>
+      <rect x="17" y="53" width="30" height="2" fill="#c9a227"/>
+      <!-- Round shoulder plates -->
+      <ellipse cx="16" cy="42" rx="7" ry="6" fill="#c8c0b0" stroke="#c9a227" stroke-width="1.5"/>
+      <ellipse cx="48" cy="42" rx="7" ry="6" fill="#c8c0b0" stroke="#c9a227" stroke-width="1.5"/>
+      <!-- Belt -->
+      <rect x="17" y="63" width="30" height="5" rx="1" fill="#5a4a20"/>
+      <ellipse cx="32" cy="65" rx="5" ry="3" fill="#c9a227"/>
+      <!-- Legs -->
+      <rect x="20" y="68" width="10" height="11" rx="2" fill="#a8a090"/>
+      <rect x="34" y="68" width="10" height="11" rx="2" fill="#a8a090"/>
+      <!-- Boots -->
+      <rect x="19" y="76" width="12" height="5" rx="2" fill="#2a2218"/>
+      <rect x="33" y="76" width="12" height="5" rx="2" fill="#2a2218"/>
+      <!-- Left arm full length -->
+      <rect x="5" y="37" width="12" height="27" rx="5" fill="#d8d0c0"/>
+      <ellipse cx="11" cy="42" rx="7" ry="5" fill="#c8c0b0" stroke="#c9a227" stroke-width="1"/>
+      <!-- Right arm full length -->
+      <rect x="47" y="37" width="12" height="27" rx="5" fill="#d8d0c0"/>
+      <ellipse cx="53" cy="42" rx="7" ry="5" fill="#c8c0b0" stroke="#c9a227" stroke-width="1"/>
+      <!-- Hands -->
+      <ellipse cx="11" cy="66" rx="5" ry="4" fill="#d8a870"/>
+      <ellipse cx="53" cy="66" rx="5" ry="4" fill="#d8a870"/>
+      <!-- Spear - Lightning Spear -->
+      <rect x="50" y="8" width="3.5" height="60" rx="1.5" fill="#8B5E3C"/>
+      <path d="M51.75,8 L47,20 L56.5,20 Z" fill="#d0d0e0" stroke="#c9a227" stroke-width="0.8"/>
+      <ellipse cx="51.75" cy="20" rx="3.5" ry="2.5" fill="#c9a227"/>
+      <!-- Head -->
+      <ellipse cx="32" cy="22" rx="12" ry="13" fill="#d8a870"/>
+      <!-- White helmet - Ma Chao signature -->
+      <path d="M20,18 Q21,5 32,4 Q43,5 44,18 Z" fill="#e8e0d0"/>
+      <path d="M22,18 Q23,9 32,8 Q41,9 42,18 Z" fill="#f5f0e8" opacity="0.8"/>
+      <rect x="19" y="17" width="26" height="4" rx="2" fill="#d0c8b8" stroke="#c9a227" stroke-width="0.8"/>
+      <!-- Red plume on top -->
+      <path d="M27,4 Q32,0 37,4 Q35,8 32,8 Q29,8 27,4Z" fill="#cc2222"/>
+      <rect x="30" y="1" width="4" height="5" fill="#cc2222"/>
+      <!-- Eyes fierce -->
+      <ellipse cx="27" cy="21" rx="2.3" ry="2.5" fill="#1a0808"/>
+      <ellipse cx="37" cy="21" rx="2.3" ry="2.5" fill="#1a0808"/>
+      <ellipse cx="27.8" cy="20.3" rx="0.8" ry="1" fill="#fff" opacity="0.5"/>
+      <ellipse cx="37.8" cy="20.3" rx="0.8" ry="1" fill="#fff" opacity="0.5"/>
+      <!-- Fierce brows -->
+      <path d="M23,18 Q27,16 30,18" stroke="#3a2010" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M34,18 Q37,16 41,18" stroke="#3a2010" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- Mouth -->
+      <path d="M28,28 Q32,32 36,28" stroke="#3a2010" stroke-width="1.5" fill="none"/>
+      <!-- Thin moustache -->
+      <path d="M27,26 Q30,24 32,25 Q34,24 37,26" stroke="#2a1808" stroke-width="1.8" fill="none" stroke-linecap="round"/>
     </g>`;
   },
 
   zhugeliang: (svg, scale=1) => {
-    svg.innerHTML = `
-    <g transform="scale(${scale})">
-      <!-- Body - scholar white robe -->
-      <rect x="18" y="37" width="28" height="34" rx="4" fill="#e8e0d0"/>
-      <rect x="22" y="37" width="20" height="3" fill="#c9a227"/>
-      <!-- Robe inner lining -->
-      <path d="M28,37 L28,71 M36,37 L36,71" stroke="#c9a227" stroke-width="1" opacity="0.5"/>
-      <!-- Sash -->
-      <rect x="18" y="56" width="28" height="4" fill="#7a1a8a"/>
-      <!-- Wide sleeves -->
-      <path d="M18,40 Q5,48 8,62 L18,58 Z" fill="#e8e0d0"/>
-      <path d="M46,40 Q59,48 56,62 L46,58 Z" fill="#e8e0d0"/>
-      <!-- Hands with feather fan -->
-      <ellipse cx="11" cy="60" rx="4" ry="3" fill="#f5c07a"/>
-      <ellipse cx="53" cy="60" rx="4" ry="3" fill="#f5c07a"/>
-      <!-- Feather fan -->
-      <path d="M53,60 Q62,48 58,40 M53,60 Q65,52 63,42 M53,60 Q64,56 65,46" stroke="#c8e0c8" stroke-width="2" fill="none"/>
-      <ellipse cx="53" cy="60" rx="4" ry="3" fill="#c9a227" opacity="0.5"/>
+    svg.innerHTML = `<g transform="scale(${scale})">
+      <!-- Body - scholar white robe with silk texture -->
+      <rect x="17" y="37" width="30" height="33" rx="4" fill="#f0ece0"/>
+      <!-- Robe front overlap -->
+      <path d="M32,37 L27,43 L27,70 L32,70 Z" fill="#e8e4d8"/>
+      <path d="M32,37 L37,43 L37,70 L32,70 Z" fill="#ece8dc"/>
+      <!-- Gold collar -->
+      <path d="M27,37 L32,45 L37,37" fill="none" stroke="#c9a227" stroke-width="2"/>
+      <!-- Purple sash -->
+      <rect x="17" y="56" width="30" height="5" rx="2" fill="#7a1a8a"/>
+      <ellipse cx="32" cy="58" rx="4" ry="2.5" fill="#c9a227"/>
       <!-- Legs -->
-      <rect x="22" y="71" width="8" height="9" rx="2" fill="#c8c0b0"/>
-      <rect x="34" y="71" width="8" height="9" rx="2" fill="#c8c0b0"/>
+      <rect x="21" y="70" width="9" height="10" rx="2" fill="#d8d4c8"/>
+      <rect x="34" y="70" width="9" height="10" rx="2" fill="#d8d4c8"/>
       <!-- Shoes -->
-      <rect x="21" y="78" width="10" height="4" rx="2" fill="#3a2a1a"/>
-      <rect x="33" y="78" width="10" height="4" rx="2" fill="#3a2a1a"/>
-      <!-- Head - refined scholar -->
-      <ellipse cx="32" cy="22" rx="12" ry="13" fill="#f5c07a"/>
-      <!-- Tall Daoist hat (Zhuge Liang signature) -->
-      <path d="M22,18 L24,6 L40,6 L42,18 Z" fill="#1a1a3a"/>
-      <rect x="18" y="17" width="28" height="4" rx="1" fill="#2a2a5a"/>
-      <rect x="24" y="4" width="16" height="3" fill="#c9a227"/>
-      <!-- Tassel from hat -->
-      <line x1="32" y1="4" x2="28" y2="0" stroke="#c0392b" stroke-width="1.5"/>
-      <ellipse cx="27" cy="0" rx="2" ry="2" fill="#c0392b"/>
-      <!-- Refined face -->
-      <ellipse cx="28" cy="21" rx="1.8" ry="2.2" fill="#1a1a2a"/>
-      <ellipse cx="36" cy="21" rx="1.8" ry="2.2" fill="#1a1a2a"/>
-      <!-- Thin elegant brows -->
-      <line x1="25" y1="18" x2="31" y2="19.5" stroke="#2a1a0a" stroke-width="1.2"/>
-      <line x1="33" y1="19.5" x2="39" y2="18" stroke="#2a1a0a" stroke-width="1.2"/>
+      <rect x="20" y="78" width="11" height="4" rx="2" fill="#2a2010"/>
+      <rect x="33" y="78" width="11" height="4" rx="2" fill="#2a2010"/>
+      <!-- Wide sleeve left -->
+      <path d="M17,39 Q2,50 5,64 L17,60 Z" fill="#f0ece0"/>
+      <path d="M17,39 Q4,50 6,62 L17,58 Z" fill="#e8e4d8" opacity="0.7"/>
+      <!-- Wide sleeve right -->
+      <path d="M47,39 Q62,50 59,64 L47,60 Z" fill="#f0ece0"/>
+      <path d="M47,39 Q60,50 58,62 L47,58 Z" fill="#e8e4d8" opacity="0.7"/>
+      <!-- Left hand holding feather fan -->
+      <ellipse cx="8" cy="62" rx="5" ry="4" fill="#f5c07a"/>
+      <!-- Right hand -->
+      <ellipse cx="56" cy="62" rx="5" ry="4" fill="#f5c07a"/>
+      <!-- Feather fan elegant -->
+      <path d="M56,62 Q65,50 62,40" stroke="#c8e0c8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M56,62 Q68,54 67,43" stroke="#d0e8c8" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M56,62 Q67,58 68,47" stroke="#c8e0c8" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <path d="M62,40 Q65,43 67,43 Q66,46 68,47" stroke="#a0b890" stroke-width="1" fill="none"/>
+      <!-- Head -->
+      <ellipse cx="32" cy="21" rx="12" ry="13" fill="#f5c07a"/>
+      <!-- Tall Daoist crown hat -->
+      <path d="M21,17 L24,4 L40,4 L43,17 Z" fill="#1a1a3a"/>
+      <path d="M25,4 Q32,1 39,4 L38,7 Q32,5 26,7 Z" fill="#2a2a4a"/>
+      <rect x="17" y="16" width="30" height="4" rx="2" fill="#2a2a5a"/>
+      <rect x="23" y="3" width="18" height="3" rx="1" fill="#c9a227"/>
+      <!-- Hat tassel -->
+      <line x1="32" y1="3" x2="27" y2="-2" stroke="#c0392b" stroke-width="2"/>
+      <ellipse cx="27" cy="-2" rx="2.5" ry="2.5" fill="#c0392b"/>
+      <!-- Eyes refined -->
+      <ellipse cx="28" cy="20" rx="2" ry="2.3" fill="#1a1a2a"/>
+      <ellipse cx="36" cy="20" rx="2" ry="2.3" fill="#1a1a2a"/>
+      <ellipse cx="28.7" cy="19.3" rx="0.7" ry="0.9" fill="#fff" opacity="0.5"/>
+      <ellipse cx="36.7" cy="19.3" rx="0.7" ry="0.9" fill="#fff" opacity="0.5"/>
+      <!-- Elegant brows -->
+      <path d="M25,17 Q28.5,15.5 31,17" stroke="#2a1a0a" stroke-width="1.3" fill="none" stroke-linecap="round"/>
+      <path d="M33,17 Q35.5,15.5 39,17" stroke="#2a1a0a" stroke-width="1.3" fill="none" stroke-linecap="round"/>
       <!-- Gentle smile -->
-      <path d="M29,27 Q32,30 35,27" stroke="#7a3a1a" stroke-width="1.2" fill="none"/>
-      <!-- Thin beard/moustache -->
-      <path d="M29,29 Q32,32 35,29" stroke="#3a2a1a" stroke-width="1" fill="none" opacity="0.5"/>
+      <path d="M29,26 Q32,29 35,26" stroke="#7a3a1a" stroke-width="1.3" fill="none"/>
+      <!-- Thin goatee solid -->
+      <path d="M29,27 Q30,29 32,31 Q34,29 35,27 Q33,26 32,27 Q31,26 29,27Z" fill="#2a1a0a"/>
+      <path d="M30,29 Q32,35 32,37 Q32,35 34,29" stroke="#2a1a0a" stroke-width="2" fill="none" stroke-linecap="round"/>
+    </g>`;
+  },
+
+  jiangwei: (svg, scale=1) => {
+    svg.innerHTML = `<g transform="scale(${scale})">
+      <!-- Body - teal/cyan Shu armor, young general -->
+      <rect x="17" y="36" width="30" height="32" rx="3" fill="#1a5a5a"/>
+      <!-- Chest plate -->
+      <rect x="19" y="38" width="26" height="9" rx="2" fill="#226a6a"/>
+      <rect x="19" y="47" width="26" height="8" rx="2" fill="#1e6060"/>
+      <rect x="21" y="55" width="22" height="7" rx="2" fill="#226a6a"/>
+      <!-- Gold trim -->
+      <rect x="17" y="36" width="30" height="3" rx="1" fill="#c9a227"/>
+      <rect x="17" y="46" width="30" height="2" fill="#c9a227"/>
+      <rect x="17" y="54" width="30" height="2" fill="#c9a227"/>
+      <!-- Shoulder plates -->
+      <rect x="9" y="35" width="12" height="9" rx="4" fill="#1a5050"/>
+      <rect x="43" y="35" width="12" height="9" rx="4" fill="#1a5050"/>
+      <rect x="9" y="35" width="12" height="3" rx="2" fill="#c9a227"/>
+      <rect x="43" y="35" width="12" height="3" rx="2" fill="#c9a227"/>
+      <!-- Belt -->
+      <rect x="17" y="62" width="30" height="5" rx="1" fill="#2a4a2a"/>
+      <ellipse cx="32" cy="64" rx="5" ry="3" fill="#c9a227"/>
+      <!-- Legs -->
+      <rect x="20" y="67" width="10" height="12" rx="2" fill="#124848"/>
+      <rect x="34" y="67" width="10" height="12" rx="2" fill="#124848"/>
+      <!-- Boots -->
+      <rect x="19" y="76" width="12" height="5" rx="2" fill="#0a1a1a"/>
+      <rect x="33" y="76" width="12" height="5" rx="2" fill="#0a1a1a"/>
+      <!-- Left arm -->
+      <rect x="6" y="37" width="11" height="26" rx="4" fill="#1a5a5a"/>
+      <rect x="6" y="37" width="11" height="3" rx="2" fill="#c9a227"/>
+      <!-- Right arm -->
+      <rect x="47" y="37" width="11" height="26" rx="4" fill="#1a5a5a"/>
+      <rect x="47" y="37" width="11" height="3" rx="2" fill="#c9a227"/>
+      <!-- Hands -->
+      <ellipse cx="11" cy="65" rx="5" ry="4" fill="#f0c080"/>
+      <ellipse cx="53" cy="65" rx="5" ry="4" fill="#f0c080"/>
+      <!-- Jiang Wei's signature long spear -->
+      <rect x="50" y="4" width="3" height="60" rx="1.5" fill="#7a6a4a"/>
+      <path d="M51.5,4 L46,14 L57,14 Z" fill="#d0d8e8" stroke="#c9a227" stroke-width="0.8"/>
+      <rect x="48" y="14" width="7" height="2.5" rx="1" fill="#c9a227"/>
+      <!-- Young head -->
+      <ellipse cx="32" cy="21" rx="12" ry="13" fill="#f0c080"/>
+      <!-- Teal helmet with white plume -->
+      <path d="M20,17 Q21,4 32,3 Q43,4 44,17 Z" fill="#1a5a5a"/>
+      <path d="M22,17 Q23,8 32,7 Q41,8 42,17 Z" fill="#226a6a" opacity="0.7"/>
+      <rect x="17" y="16" width="30" height="4" rx="1" fill="#c9a227"/>
+      <!-- White plume -->
+      <rect x="30" y="0" width="4" height="10" fill="#f0f0f0"/>
+      <path d="M32,0 Q28,-3 26,1 Q30,-1 32,0Z" fill="#e8e8e8"/>
+      <path d="M32,0 Q36,-3 38,1 Q34,-1 32,0Z" fill="#e8e8e8"/>
+      <!-- Young keen eyes -->
+      <ellipse cx="27.5" cy="20" rx="2.2" ry="2.5" fill="#1a1a0a"/>
+      <ellipse cx="36.5" cy="20" rx="2.2" ry="2.5" fill="#1a1a0a"/>
+      <ellipse cx="28.2" cy="19.3" rx="0.8" ry="1" fill="#fff" opacity="0.6"/>
+      <ellipse cx="37.2" cy="19.3" rx="0.8" ry="1" fill="#fff" opacity="0.6"/>
+      <!-- Sharp brows - determined young general -->
+      <path d="M24,17 Q27.5,15 30,17" stroke="#2a1a0a" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <path d="M34,17 Q36.5,15 40,17" stroke="#2a1a0a" stroke-width="2" fill="none" stroke-linecap="round"/>
+      <!-- Resolute mouth -->
+      <path d="M29,26 Q32,28 35,26" stroke="#7a3a1a" stroke-width="1.5" fill="none"/>
+      <!-- No beard - young general -->
+    </g>`;
+  },
+
+  weiyan: (svg, scale=1) => {
+    svg.innerHTML = `<g transform="scale(${scale})">
+      <!-- Body - dark red fierce armor -->
+      <rect x="17" y="36" width="30" height="32" rx="3" fill="#5a1010"/>
+      <!-- Jagged chest armor plates -->
+      <rect x="19" y="38" width="26" height="8" rx="2" fill="#6a1818"/>
+      <rect x="19" y="46" width="26" height="8" rx="2" fill="#5a1212"/>
+      <rect x="21" y="54" width="22" height="8" rx="2" fill="#6a1818"/>
+      <!-- Dark gold trim -->
+      <rect x="17" y="36" width="30" height="3" rx="1" fill="#b08820"/>
+      <rect x="17" y="45" width="30" height="2" fill="#b08820"/>
+      <rect x="17" y="53" width="30" height="2" fill="#b08820"/>
+      <!-- Shoulder plates - spiked look -->
+      <rect x="8" y="34" width="13" height="10" rx="4" fill="#4a0e0e"/>
+      <rect x="43" y="34" width="13" height="10" rx="4" fill="#4a0e0e"/>
+      <rect x="8" y="34" width="13" height="3" rx="2" fill="#b08820"/>
+      <rect x="43" y="34" width="13" height="3" rx="2" fill="#b08820"/>
+      <!-- Spike on each shoulder -->
+      <path d="M14,34 L14,28 L17,34 Z" fill="#b08820"/>
+      <path d="M50,34 L50,28 L47,34 Z" fill="#b08820"/>
+      <!-- Belt -->
+      <rect x="17" y="62" width="30" height="5" rx="1" fill="#3a0808"/>
+      <ellipse cx="32" cy="64" rx="6" ry="3.5" fill="#b08820"/>
+      <!-- Legs -->
+      <rect x="20" y="67" width="10" height="12" rx="2" fill="#3a0808"/>
+      <rect x="34" y="67" width="10" height="12" rx="2" fill="#3a0808"/>
+      <!-- Boots -->
+      <rect x="19" y="76" width="12" height="5" rx="2" fill="#1a0505"/>
+      <rect x="33" y="76" width="12" height="5" rx="2" fill="#1a0505"/>
+      <!-- Left arm -->
+      <rect x="5" y="37" width="12" height="27" rx="4" fill="#5a1010"/>
+      <rect x="5" y="37" width="12" height="3" rx="2" fill="#b08820"/>
+      <!-- Right arm -->
+      <rect x="47" y="37" width="12" height="27" rx="4" fill="#5a1010"/>
+      <rect x="47" y="37" width="12" height="3" rx="2" fill="#b08820"/>
+      <!-- Hands -->
+      <ellipse cx="11" cy="66" rx="5" ry="4" fill="#c07050"/>
+      <ellipse cx="53" cy="66" rx="5" ry="4" fill="#c07050"/>
+      <!-- Big dao sword -->
+      <rect x="50" y="22" width="4" height="46" rx="2" fill="#808090"/>
+      <path d="M52,22 Q60,15 58,28 Q55,30 52,28 Z" fill="#909098" stroke="#b08820" stroke-width="0.8"/>
+      <rect x="47" y="32" width="10" height="3" rx="1.5" fill="#b08820"/>
+      <!-- Head - fierce dark complexion -->
+      <ellipse cx="32" cy="21" rx="13" ry="14" fill="#c07850"/>
+      <!-- Dark menacing helmet -->
+      <path d="M19,17 Q20,4 32,3 Q44,4 45,17 Z" fill="#3a0808"/>
+      <path d="M22,17 Q23,8 32,7 Q41,8 42,17 Z" fill="#4a1010" opacity="0.8"/>
+      <rect x="17" y="16" width="30" height="4" rx="1" fill="#b08820"/>
+      <!-- Two horn ornaments -->
+      <path d="M22,16 L19,8 L25,14 Z" fill="#b08820"/>
+      <path d="M42,16 L45,8 L39,14 Z" fill="#b08820"/>
+      <!-- Fierce eyes - Wei Yan scowl -->
+      <ellipse cx="27" cy="20" rx="2.5" ry="2.8" fill="#050505"/>
+      <ellipse cx="37" cy="20" rx="2.5" ry="2.8" fill="#050505"/>
+      <ellipse cx="27.8" cy="19.2" rx="0.9" ry="1.1" fill="#fff" opacity="0.4"/>
+      <ellipse cx="37.8" cy="19.2" rx="0.9" ry="1.1" fill="#fff" opacity="0.4"/>
+      <!-- Heavy angry brows -->
+      <path d="M22,16 Q27,13.5 30,16.5" stroke="#1a0808" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M34,16.5 Q37,13.5 42,16" stroke="#1a0808" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- Snarling mouth -->
+      <path d="M27,27 Q32,31 37,27" stroke="#5a1a1a" stroke-width="2" fill="#4a1010"/>
+      <!-- Thick black beard solid -->
+      <path d="M23,28 Q21,36 22,46 Q24,54 32,57 Q40,54 42,46 Q43,36 41,28 Q38,26 32,26 Q26,26 23,28Z" fill="#0a0808"/>
+      <path d="M26,30 Q24,38 25,46 Q27,52 32,55 Q37,52 39,46 Q40,38 38,30 Q35,28 32,28 Q29,28 26,30Z" fill="#151010" opacity="0.7"/>
+    </g>`;
+  },
+  courtlady: (svg, scale=1) => {
+    svg.innerHTML = `<g transform="scale(${scale})">
+      <!-- Flowing hanfu robe - rose/crimson silk -->
+      <rect x="18" y="40" width="28" height="30" rx="5" fill="#c03060"/>
+      <!-- Outer robe overlap panels -->
+      <path d="M32,40 L25,47 L25,70 L32,70 Z" fill="#d04070"/>
+      <path d="M32,40 L39,47 L39,70 L32,70 Z" fill="#c83868"/>
+      <!-- Gold collar -->
+      <path d="M25,40 L32,50 L39,40" fill="none" stroke="#c9a227" stroke-width="2"/>
+      <!-- Sash belt -->
+      <rect x="18" y="57" width="28" height="4" rx="2" fill="#7a1a3a"/>
+      <ellipse cx="32" cy="59" rx="5" ry="2.5" fill="#c9a227"/>
+      <!-- Skirt lower flow -->
+      <path d="M18,61 Q14,68 16,75 L20,72 L18,61 Z" fill="#c03060" opacity="0.8"/>
+      <path d="M46,61 Q50,68 48,75 L44,72 L46,61 Z" fill="#c03060" opacity="0.8"/>
+      <rect x="20" y="61" width="24" height="12" rx="3" fill="#b02858"/>
+      <!-- Skirt hem gold trim -->
+      <rect x="18" y="70" width="28" height="2" rx="1" fill="#c9a227" opacity="0.8"/>
+      <!-- Feet / slippers -->
+      <ellipse cx="26" cy="74" rx="5" ry="3" fill="#7a1a3a"/>
+      <ellipse cx="38" cy="74" rx="5" ry="3" fill="#7a1a3a"/>
+      <!-- Left sleeve wide flowing -->
+      <path d="M18,42 Q4,52 6,66 L18,61 Z" fill="#c83868"/>
+      <path d="M18,42 Q5,53 7,64 L18,59 Z" fill="#d04070" opacity="0.5"/>
+      <!-- Right sleeve wide flowing -->
+      <path d="M46,42 Q60,52 58,66 L46,61 Z" fill="#c83868"/>
+      <path d="M46,42 Q59,53 57,64 L46,59 Z" fill="#d04070" opacity="0.5"/>
+      <!-- Hands delicate -->
+      <ellipse cx="9" cy="64" rx="4" ry="3" fill="#f5c8a0"/>
+      <ellipse cx="55" cy="64" rx="4" ry="3" fill="#f5c8a0"/>
+      <!-- Fan in right hand -->
+      <path d="M55,64 Q63,54 60,46" stroke="#c9a227" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <path d="M55,64 Q65,56 64,47" stroke="#e8d080" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+      <path d="M55,64 Q65,60 66,51" stroke="#c9a227" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <path d="M60,46 Q63,47 64,47 Q64,49 66,51" stroke="#a08020" stroke-width="1" fill="none"/>
+      <!-- Head - beautiful oval face -->
+      <ellipse cx="32" cy="20" rx="11" ry="13" fill="#f5c8a0"/>
+      <!-- Elaborate court hairstyle - phoenix crown -->
+      <path d="M21,17 Q22,4 32,3 Q42,4 43,17 Z" fill="#1a1008"/>
+      <path d="M24,10 Q32,5 40,10 L38,14 Q32,10 26,14 Z" fill="#2a1810"/>
+      <!-- Crown ornament -->
+      <rect x="28" y="1" width="8" height="5" rx="2" fill="#c9a227"/>
+      <ellipse cx="32" cy="1" rx="5" ry="3" fill="#c9a227"/>
+      <!-- Hairpin left -->
+      <line x1="23" y1="10" x2="19" y2="4" stroke="#c9a227" stroke-width="1.5"/>
+      <ellipse cx="19" cy="4" rx="2.5" ry="2" fill="#c0392b"/>
+      <!-- Hairpin right -->
+      <line x1="41" y1="10" x2="45" y2="4" stroke="#c9a227" stroke-width="1.5"/>
+      <ellipse cx="45" cy="4" rx="2.5" ry="2" fill="#c0392b"/>
+      <!-- Pearl pendant on forehead -->
+      <ellipse cx="32" cy="15" rx="2" ry="2" fill="#f0e8ff" stroke="#c9a227" stroke-width="0.5"/>
+      <!-- Elegant eyes long phoenix shape -->
+      <ellipse cx="28" cy="19" rx="2.2" ry="1.8" fill="#1a1008"/>
+      <ellipse cx="36" cy="19" rx="2.2" ry="1.8" fill="#1a1008"/>
+      <ellipse cx="28.8" cy="18.5" rx="0.8" ry="0.7" fill="#fff" opacity="0.6"/>
+      <ellipse cx="36.8" cy="18.5" rx="0.8" ry="0.7" fill="#fff" opacity="0.6"/>
+      <!-- Eyeliner flick -->
+      <path d="M25.5,19.5 Q28,17.5 30.5,19" stroke="#1a1008" stroke-width="1" fill="none" stroke-linecap="round"/>
+      <path d="M33.5,19 Q36,17.5 38.5,19.5" stroke="#1a1008" stroke-width="1" fill="none" stroke-linecap="round"/>
+      <!-- Fine brows arched -->
+      <path d="M25,17 Q28,15 31,16.5" stroke="#2a1008" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <path d="M33,16.5 Q36,15 39,17" stroke="#2a1008" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <!-- Red lips bow shape -->
+      <path d="M29,24 Q32,22 35,24 Q33,27 32,27 Q31,27 29,24Z" fill="#c03030"/>
+      <!-- Rosy cheeks -->
+      <ellipse cx="24" cy="22" rx="3" ry="2" fill="#e07080" opacity="0.35"/>
+      <ellipse cx="40" cy="22" rx="3" ry="2" fill="#e07080" opacity="0.35"/>
     </g>`;
   },
 };
-
-/* Enemy sprites */
 const ENEMY_SPRITES = {
   soldier: (svg) => {
     svg.innerHTML = `
@@ -1131,11 +1491,16 @@ const ENEMY_SPRITES = {
       <!-- Wispy beard -->
       <path d="M27,28 Q24,36 26,42 M32,29 Q32,38 30,44 M37,28 Q40,36 38,42" stroke="#c8b8e8" stroke-width="1.5" fill="none" opacity="0.6"/>
     </g>`;
+  },
+  courtlady: (svg) => {
+    // Reuse HERO_SPRITES courtlady for enemy rendering
+    if (HERO_SPRITES.courtlady) HERO_SPRITES.courtlady(svg, 1);
   }
 };
 
 function drawHeroInSvg(svgEl, heroKey) {
   if (HERO_SPRITES[heroKey]) HERO_SPRITES[heroKey](svgEl);
+  else if (ENEMY_SPRITES[heroKey]) ENEMY_SPRITES[heroKey](svgEl);
 }
 
 
@@ -1543,88 +1908,103 @@ const CHARACTER_DB_FULL=[...CHARACTER_DB,...EXTRA_CHARS.filter(c=>!_allHz.has(c.
 // owner: 'neutral' | 'player' | 'enemy'
 const PROVINCES = [
   // terrain: 'plains'|'mountain'|'forest'|'steppe'|'coast'|'river'
-  {id:0,  hz:'辽东', en:'Liaodong (Liaoning E.)', modernHz:'辽宁东部',  x:432,y:48,  terrain:'plains',
+  {id:0,  hz:'辽东', en:'Liaodong (Liaoning E.)', modernHz:'辽宁东部',  x:432,y:48,  terrain:'plains',  allegiance:'Neutral',
    poly:'398,18 462,18 488,58 455,80 395,65',                   adj:[1,2]},
-  {id:1,  hz:'辽西', en:'Liaoxi (Liaoning W.)', modernHz:'辽宁西部',    x:358,y:52,  terrain:'plains',
+  {id:1,  hz:'辽西', en:'Liaoxi (Liaoning W.)', modernHz:'辽宁西部',    x:358,y:52,  terrain:'plains',  allegiance:'Neutral',
    poly:'305,22 398,18 395,65 352,78 300,62 288,36',            adj:[0,2,3]},
-  {id:2,  hz:'玄菟', en:'Xuantu (N. Korea border)', modernHz:'朝鲜北部',x:455,y:92,  terrain:'mountain',
+  {id:2,  hz:'玄菟', en:'Xuantu (N. Korea border)', modernHz:'朝鲜北部',x:455,y:92,  terrain:'mountain', allegiance:'Neutral',
    poly:'455,80 488,58 494,112 458,120 422,102',                adj:[0,1,3,4]},
-  {id:3,  hz:'渔阳', en:'Yuyang (Beijing N.)', modernHz:'北京北部',     x:328,y:82,  terrain:'steppe',
-   poly:'288,36 352,78 355,102 305,108 268,88 268,46',          adj:[1,2,4,5]},
-  {id:4,  hz:'右北平',en:'Youbeiping (Hebei NE.)', modernHz:'河北东北', x:395,y:118, terrain:'plains',
+  {id:3,  hz:'渔阳', en:'Yuyang (Beijing N.)', modernHz:'北京北部',     x:328,y:82,  terrain:'steppe',   allegiance:'Yuan',
+   poly:'288,36 352,78 355,102 305,108 268,88 268,46',          adj:[1,2,4,5,41]},
+  {id:4,  hz:'右北平',en:'Youbeiping (Hebei NE.)', modernHz:'河北东北', x:395,y:118, terrain:'plains',   allegiance:'Yuan',
    poly:'355,78 422,102 458,120 432,148 375,142 340,118 355,102',adj:[2,3,5,6]},
-  {id:5,  hz:'平原', en:'Pingyuan (Shandong NW.)', modernHz:'山东西北',  x:282,y:120, terrain:'plains',
+  {id:5,  hz:'平原', en:'Pingyuan (Shandong NW.)', modernHz:'山东西北',  x:282,y:120, terrain:'plains',   allegiance:'Yuan',
    poly:'268,88 305,108 340,118 320,148 275,152 248,128 252,96',adj:[3,4,6,7,8]},
-  {id:6,  hz:'北平', en:'Beiping (Beijing)', modernHz:'北京',        x:358,y:160, terrain:'plains',
+  {id:6,  hz:'北平', en:'Beiping (Beijing)', modernHz:'北京',        x:358,y:160, terrain:'plains',   allegiance:'Neutral',
    poly:'340,118 375,142 372,178 330,182 295,162 320,148',      adj:[4,5,7,9]},
-  {id:7,  hz:'冀州', en:'Jizhou (Hebei)', modernHz:'河北',           x:262,y:158, terrain:'plains',
+  {id:7,  hz:'冀州', en:'Jizhou (Hebei)', modernHz:'河北',           x:262,y:158, terrain:'plains',   allegiance:'Yuan',
    poly:'252,128 275,152 295,162 275,188 238,192 212,172 222,140',adj:[5,6,8,9,10]},
-  {id:8,  hz:'青州', en:'Qingzhou (Shandong)', modernHz:'山东',      x:342,y:200, terrain:'coast',
+  {id:8,  hz:'青州', en:'Qingzhou (Shandong)', modernHz:'山东',      x:342,y:200, terrain:'coast',    allegiance:'Wei',
    poly:'320,148 330,182 372,178 376,218 340,228 305,212 282,182 295,162',adj:[5,7,9,11,12]},
-  {id:9,  hz:'并州', en:'Bingzhou (Shanxi)', modernHz:'山西',         x:208,y:186, terrain:'mountain',
-   poly:'212,172 238,192 228,222 192,232 162,212 168,182 182,166',adj:[6,7,10,13,14]},
-  {id:10, hz:'上党', en:'Shangdang (S. Shanxi)', modernHz:'山西南部',    x:238,y:218, terrain:'mountain',
+  {id:9,  hz:'并州', en:'Bingzhou (Shanxi)', modernHz:'山西',         x:208,y:186, terrain:'mountain', allegiance:'Dong',
+   poly:'212,172 238,192 228,222 192,232 162,212 168,182 182,166',adj:[6,7,8,10,13,14]},
+  {id:10, hz:'上党', en:'Shangdang (S. Shanxi)', modernHz:'山西南部',    x:238,y:218, terrain:'mountain', allegiance:'Dong',
    poly:'238,192 275,188 270,222 245,242 212,242 192,232 228,222',adj:[7,9,11,14,15]},
-  {id:11, hz:'兖州', en:'Yanzhou (W. Shandong)', modernHz:'山东西部',    x:295,y:238, terrain:'plains',
+  {id:11, hz:'兖州', en:'Yanzhou (W. Shandong)', modernHz:'山东西部',    x:295,y:238, terrain:'plains',   allegiance:'Wei',
    poly:'282,182 305,212 340,228 330,258 295,268 262,258 242,242 270,222 275,188',adj:[8,10,12,15,16]},
-  {id:12, hz:'徐州', en:'Xuzhou (N. Jiangsu)', modernHz:'江苏北部',      x:360,y:250, terrain:'plains',
+  {id:12, hz:'徐州', en:'Xuzhou (N. Jiangsu)', modernHz:'江苏北部',      x:360,y:250, terrain:'plains',   allegiance:'Wei',
    poly:'376,218 392,248 382,278 345,282 330,258 340,228',      adj:[8,11,16,17]},
-  {id:13, hz:'雁门', en:'Yanmen (N. Shanxi)', modernHz:'山西北部',        x:162,y:165, terrain:'mountain',
+  {id:13, hz:'雁门', en:'Yanmen (N. Shanxi)', modernHz:'山西北部',        x:162,y:165, terrain:'mountain', allegiance:'Neutral',
    poly:'142,148 182,148 182,166 168,182 142,178 128,160',      adj:[9,14,18]},
-  {id:14, hz:'太原', en:'Taiyuan (C. Shanxi)', modernHz:'山西中部',      x:175,y:218, terrain:'mountain',
-   poly:'162,188 192,188 192,232 172,248 145,242 138,218 148,198',adj:[9,10,13,15,18,19]},
-  {id:15, hz:'司隶', en:'Sili — Luoyang (Henan W.)', modernHz:'河南西部',x:225,y:260, terrain:'plains',
+  {id:14, hz:'太原', en:'Taiyuan (C. Shanxi)', modernHz:'山西中部',      x:152,y:218, terrain:'mountain', allegiance:'Neutral',
+   poly:'140,188 170,188 170,232 150,248 122,242 116,218 126,198',adj:[9,10,13,15,18,19]},
+  {id:15, hz:'司隶', en:'Sili — Luoyang (Henan W.)', modernHz:'河南西部',x:225,y:260, terrain:'plains',   allegiance:'Wei',
    poly:'212,242 242,242 262,258 252,282 222,288 192,272 182,252 198,242',adj:[10,11,14,16,19,20]},
-  {id:16, hz:'豫州', en:'Yuzhou (Henan)', modernHz:'河南',            x:298,y:280, terrain:'plains',
+  {id:16, hz:'豫州', en:'Yuzhou (Henan)', modernHz:'河南',            x:298,y:280, terrain:'plains',   allegiance:'Wei',
    poly:'295,268 330,258 345,282 335,308 298,318 265,308 252,282 262,258',adj:[11,12,15,17,20,21]},
-  {id:17, hz:'广陵', en:'Guangling (N. Jiangsu coast)', modernHz:'江苏沿海',x:375,y:296,terrain:'coast',
+  {id:17, hz:'广陵', en:'Guangling (N. Jiangsu coast)', modernHz:'江苏沿海',x:375,y:296,terrain:'coast',    allegiance:'Wei',
    poly:'382,278 418,282 422,318 385,328 355,318 345,282',      adj:[12,16,21,22]},
-  {id:18, hz:'上郡', en:'Shangjun (N. Shaanxi)', modernHz:'陕西北部',    x:145,y:225, terrain:'steppe',
-   poly:'128,202 148,198 145,242 122,252 108,232 118,208',      adj:[13,14,19,23]},
-  {id:19, hz:'河东', en:'Hedong (SW. Shanxi)', modernHz:'山西西南',       x:184,y:265, terrain:'mountain',
-   poly:'172,248 198,242 192,272 182,292 158,298 145,278 145,258 162,248',adj:[14,15,18,20,23,24]},
-  {id:20, hz:'南阳', en:'Nanyang (SW. Henan)', modernHz:'河南西南',       x:238,y:305, terrain:'plains',
+  {id:18, hz:'上郡', en:'Shangjun (N. Shaanxi)', modernHz:'陕西北部',    x:105,y:225, terrain:'steppe',   allegiance:'Neutral',
+   poly:'105,202 125,198 122,242 100,252 86,232 96,208',        adj:[13,14,19,23,41]},
+  {id:19, hz:'河东', en:'Hedong (SW. Shanxi)', modernHz:'山西西南',       x:162,y:265, terrain:'mountain', allegiance:'Wei',
+   poly:'150,248 178,242 172,272 162,292 138,298 124,278 124,258 140,248',adj:[14,15,18,20,23,24]},
+  {id:20, hz:'南阳', en:'Nanyang (SW. Henan)', modernHz:'河南西南',       x:238,y:305, terrain:'plains',   allegiance:'Wei',
    poly:'222,288 252,282 265,308 252,332 225,340 198,328 192,302 208,292',adj:[15,16,19,21,24,25]},
-  {id:21, hz:'庐江', en:'Lujiang (Anhui/Jiangxi)', modernHz:'安徽·江西',   x:330,y:332, terrain:'river',
+  {id:21, hz:'庐江', en:'Lujiang (Anhui/Jiangxi)', modernHz:'安徽·江西',   x:330,y:332, terrain:'river',    allegiance:'Wei',
    poly:'298,318 335,308 355,318 358,348 330,362 298,358 282,332 298,318',adj:[16,17,20,22,25,26]},
-  {id:22, hz:'吴郡', en:'Wujun (Jiangsu/Shanghai)', modernHz:'上海·江苏',  x:395,y:352, terrain:'coast',
+  {id:22, hz:'吴郡', en:'Wujun (Jiangsu/Shanghai)', modernHz:'上海·江苏',  x:395,y:352, terrain:'coast',    allegiance:'Wu',
    poly:'385,328 418,318 435,358 412,378 380,372 358,348 385,328',adj:[17,21,26]},
-  {id:23, hz:'安定', en:'Anding (SE. Gansu/Ningxia)', modernHz:'甘肃东南·宁夏',x:115,y:265, terrain:'steppe',
-   poly:'102,248 128,248 145,258 145,278 122,288 98,278 96,258',adj:[18,19,24,27]},
-  {id:24, hz:'弘农', en:'Hongnong (W. Henan)', modernHz:'河南西部',       x:170,y:305, terrain:'mountain',
+  {id:23, hz:'安定', en:'Anding (SE. Gansu/Ningxia)', modernHz:'甘肃东南·宁夏',x:98,y:265, terrain:'steppe',   allegiance:'Neutral',
+   poly:'84,248 110,248 128,258 128,278 105,288 82,278 80,258',  adj:[18,19,24,27,41]},
+  {id:24, hz:'弘农', en:'Hongnong (W. Henan)', modernHz:'河南西部',       x:170,y:305, terrain:'mountain', allegiance:'Wei',
    poly:'158,298 182,292 192,302 182,328 160,338 138,322 135,302 148,295',adj:[19,20,23,25,27,28]},
-  {id:25, hz:'江夏', en:'Jiangxia (Hubei E.)', modernHz:'湖北东部',        x:258,y:350, terrain:'river',
+  {id:25, hz:'江夏', en:'Jiangxia (Hubei E.)', modernHz:'湖北东部',        x:258,y:350, terrain:'river',    allegiance:'Neutral',
    poly:'252,332 282,332 298,358 288,382 260,388 230,378 225,350 238,338',adj:[20,21,24,26,28,29]},
-  {id:26, hz:'丹阳', en:'Danyang (Anhui/Zhejiang)', modernHz:'安徽·浙江',   x:368,y:378, terrain:'mountain',
-   poly:'358,348 380,372 412,378 408,408 375,418 348,402 345,378 358,362',adj:[21,22,25,29,30]},
-  {id:27, hz:'天水', en:'Tianshui (SE. Gansu)', modernHz:'甘肃东南',       x:108,y:310, terrain:'mountain',
+  {id:26, hz:'丹阳', en:'Danyang (Anhui/Zhejiang)', modernHz:'安徽·浙江',   x:368,y:378, terrain:'mountain', allegiance:'Wu',
+   poly:'358,348 380,372 412,378 408,408 375,418 348,402 345,378 358,362',adj:[21,22,25,29,30,45]},
+  {id:27, hz:'天水', en:'Tianshui (SE. Gansu)', modernHz:'甘肃东南',       x:108,y:310, terrain:'mountain', allegiance:'Wei',
    poly:'96,292 128,288 135,302 122,322 98,330 82,314 88,298',   adj:[23,24,28,31]},
-  {id:28, hz:'汉中', en:'Hanzhong (S. Shaanxi)', modernHz:'陕西南部',      x:165,y:348, terrain:'river',
+  {id:28, hz:'汉中', en:'Hanzhong (S. Shaanxi)', modernHz:'陕西南部',      x:165,y:348, terrain:'river',    allegiance:'Neutral',
    poly:'138,322 160,338 182,328 185,355 165,372 138,365 120,348 125,332',adj:[24,25,27,29,31,32]},
-  {id:29, hz:'荆州', en:'Jingzhou (Hubei/Hunan N.)', modernHz:'湖北·湖南北', x:262,y:400, terrain:'river',
-   poly:'260,388 288,382 315,392 315,422 285,432 252,424 238,402 248,388',adj:[25,26,28,30,32,33]},
-  {id:30, hz:'会稽', en:'Kuaiji (Zhejiang)', modernHz:'浙江',           x:405,y:420, terrain:'coast',
-   poly:'408,408 432,412 442,448 418,458 382,452 375,424 388,412',adj:[26,29,33]},
-  {id:31, hz:'武都', en:'Wudu (S. Gansu)', modernHz:'甘肃南部',             x:115,y:365, terrain:'mountain',
+  {id:29, hz:'荆州', en:'Jingzhou (Hubei/Hunan N.)', modernHz:'湖北·湖南北', x:262,y:400, terrain:'river',    allegiance:'Neutral',
+   poly:'260,388 288,382 315,392 315,422 285,432 252,424 238,402 248,388',adj:[25,26,28,30,32,33,45]},
+  {id:30, hz:'会稽', en:'Kuaiji (Zhejiang)', modernHz:'浙江',           x:405,y:420, terrain:'coast',    allegiance:'Wu',
+   poly:'408,408 432,412 442,448 418,458 382,452 375,424 388,412',adj:[26,29,33,45,46]},
+  {id:31, hz:'武都', en:'Wudu (S. Gansu)', modernHz:'甘肃南部',             x:115,y:365, terrain:'mountain', allegiance:'Neutral',
    poly:'98,350 122,344 125,365 112,385 90,382 82,362 90,350',   adj:[27,28,32,34]},
-  {id:32, hz:'梓潼', en:'Zitong (N. Sichuan)', modernHz:'四川北部',         x:165,y:400, terrain:'mountain',
-   poly:'138,372 165,372 185,382 182,412 158,424 132,415 120,395 130,378',adj:[28,29,31,33,34,35]},
-  {id:33, hz:'武陵', en:'Wuling (W. Hunan)', modernHz:'湖南西部',            x:272,y:438, terrain:'mountain',
-   poly:'252,424 285,432 315,422 318,452 292,466 260,462 242,442 248,428',adj:[29,30,32,35,36]},
-  {id:34, hz:'巴郡', en:'Bajun (Chongqing)', modernHz:'重庆',            x:145,y:438, terrain:'mountain',
-   poly:'120,418 148,415 160,428 155,455 128,462 105,452 105,430 115,420',adj:[31,32,35,37]},
-  {id:35, hz:'零陵', en:'Lingling (S. Hunan/Guangxi N.)', modernHz:'湖南南部·广西北',x:248,y:472,terrain:'mountain',
-   poly:'242,442 260,462 292,466 288,494 260,502 230,494 216,472 228,452',adj:[32,33,34,36,37,38]},
-  {id:36, hz:'桂阳', en:'Guiyang (SE. Hunan)', modernHz:'湖南东南',           x:315,y:472, terrain:'mountain',
-   poly:'318,452 345,452 362,472 348,494 318,502 292,494 288,472 292,466',adj:[33,35,38,39]},
-  {id:37, hz:'巴西', en:'Baxi (N. Sichuan)', modernHz:'四川北部',             x:135,y:475, terrain:'mountain',
-   poly:'105,458 128,455 155,465 148,495 125,504 98,496 90,472 98,460',   adj:[34,35,38,40]},
-  {id:38, hz:'苍梧', en:'Cangwu (Guangxi)', modernHz:'广西',               x:260,y:515, terrain:'forest',
-   poly:'230,494 260,502 288,494 295,525 268,538 238,530 218,512 222,496',adj:[35,36,37,39,40]},
-  {id:39, hz:'南海', en:'Nanhai (Guangdong)', modernHz:'广东',              x:348,y:512, terrain:'coast',
-   poly:'348,494 375,494 386,522 362,540 335,535 318,512 325,496 340,494',adj:[36,38,40]},
-  {id:40, hz:'交趾', en:'Jiaozhi (N. Vietnam)', modernHz:'越南北部',            x:232,y:552, terrain:'forest',
-   poly:'218,528 248,522 268,538 275,562 250,572 222,566 208,549 212,532',adj:[37,38,39]},
+  {id:32, hz:'梓潼', en:'Zitong (N. Sichuan)', modernHz:'四川北部',         x:165,y:400, terrain:'mountain', allegiance:'Neutral',
+   poly:'138,372 165,372 185,382 182,412 158,424 132,415 120,395 130,378',adj:[28,29,31,33,34,35,42]},
+  {id:33, hz:'武陵', en:'Wuling (W. Hunan)', modernHz:'湖南西部',            x:272,y:438, terrain:'mountain', allegiance:'Neutral',
+   poly:'252,424 285,432 315,422 318,452 292,466 260,462 242,442 248,428',adj:[29,30,32,35,36,42,45]},
+  {id:34, hz:'巴郡', en:'Bajun (Chongqing)', modernHz:'重庆',            x:145,y:438, terrain:'mountain', allegiance:'Neutral',
+   poly:'120,418 148,415 160,428 155,455 128,462 105,452 105,430 115,420',adj:[31,32,35,37,42]},
+  {id:35, hz:'零陵', en:'Lingling (S. Hunan/Guangxi N.)', modernHz:'湖南南部·广西北',x:248,y:472,terrain:'mountain', allegiance:'Neutral',
+   poly:'242,442 260,462 292,466 288,494 260,502 230,494 216,472 228,452',adj:[32,33,34,36,37,38,42]},
+  {id:36, hz:'桂阳', en:'Guiyang (SE. Hunan)', modernHz:'湖南东南',           x:315,y:472, terrain:'mountain', allegiance:'Wu',
+   poly:'318,452 345,452 362,472 348,494 318,502 292,494 288,472 292,466',adj:[33,35,38,39,45]},
+  {id:37, hz:'巴西', en:'Baxi (N. Sichuan)', modernHz:'四川北部',             x:135,y:475, terrain:'mountain', allegiance:'Neutral',
+   poly:'105,458 128,455 155,465 148,495 125,504 98,496 90,472 98,460',   adj:[34,35,38,40,43,47]},
+  {id:38, hz:'苍梧', en:'Cangwu (Guangxi)', modernHz:'广西',               x:260,y:515, terrain:'forest',   allegiance:'Wu',
+   poly:'230,494 260,502 288,494 295,525 268,538 238,530 218,512 222,496',adj:[35,36,37,39,40,43,44]},
+  {id:39, hz:'南海', en:'Nanhai (Guangdong)', modernHz:'广东',              x:348,y:512, terrain:'coast',    allegiance:'Neutral',
+   poly:'348,494 375,494 386,522 362,540 335,535 318,512 325,496 340,494',adj:[36,38,40,45,46]},
+  {id:40, hz:'交趾', en:'Jiaozhi (N. Vietnam)', modernHz:'越南北部',            x:232,y:552, terrain:'forest',   allegiance:'Neutral',
+   poly:'218,528 248,522 268,538 275,562 250,572 222,566 208,549 212,532',adj:[37,38,39,44]},
+  // ── 7 NEW PROVINCES ──
+  {id:41, hz:'西域', en:'Xinjiang (Western Regions)', modernHz:'新疆',           x:42,y:115,  terrain:'steppe',   allegiance:'Neutral',
+   poly:'0,0 100,0 108,60 102,125 98,185 60,240 20,222 0,180 0,0',        adj:[3,18,23]},
+  {id:42, hz:'蜀郡', en:'Shujun (C. Sichuan)', modernHz:'四川中部',              x:195,y:438, terrain:'river',    allegiance:'Neutral',
+   poly:'160,425 185,418 210,428 215,452 198,465 172,462 158,448 160,432',  adj:[32,34,33,35]},
+  {id:43, hz:'贵州', en:'Guizhou', modernHz:'贵州',                              x:122,y:520, terrain:'forest',   allegiance:'Neutral',
+   poly:'90,498 128,492 155,500 158,524 145,542 112,546 88,530 88,510',    adj:[37,38,44,47]},
+  {id:44, hz:'郁林', en:'Yulin (W. Guangxi)', modernHz:'广西西部',               x:196,y:552, terrain:'forest',   allegiance:'Neutral',
+   poly:'162,542 145,542 158,524 175,528 208,522 218,528 212,549 208,566 185,572 165,562',adj:[38,40,43,47]},
+  {id:45, hz:'豫章', en:'Yuzhang (Jiangxi)', modernHz:'江西',                    x:338,y:432, terrain:'river',    allegiance:'Wu',
+   poly:'315,392 348,392 375,418 362,452 335,456 308,442 308,418',         adj:[26,29,30,33,36,39,46]},
+  {id:46, hz:'建安', en:'Jian\'an (Fujian)', modernHz:'福建',                    x:415,y:478, terrain:'coast',    allegiance:'Wu',
+   poly:'382,452 418,448 442,462 438,500 415,512 388,506 378,482',         adj:[30,39,45]},
+  {id:47, hz:'云南', en:'Yunnan', modernHz:'云南',                               x:38,y:528,  terrain:'forest',   allegiance:'Neutral',
+   poly:'0,460 88,460 90,498 88,530 88,545 70,572 28,575 0,565 0,460',    adj:[37,43,44]},
 ]
 // Province territory state: 'neutral'|'player'|'enemy'
 let provState = {};
@@ -1709,14 +2089,23 @@ function renderProvinces() {
     else if (isOwned){ fill='rgba(10,100,45,0.86)'; stroke='rgba(45,210,108,0.88)'; sw=2.0; }
     else if (isAdj)  { fill='rgba(95,72,15,0.82)';  stroke='rgba(235,188,42,0.95)'; sw=2.4; }
     else if (isEnemy){ fill='rgba(90,12,12,0.76)';  stroke='rgba(190,40,40,0.76)';  sw=1.6; }
-    else             { fill='rgba(52,36,8,0.68)';   stroke='rgba(155,120,38,0.45)'; sw=1.2; }
+    else {
+      // Neutral — colour by allegiance
+      const alleg = prov.allegiance || 'Neutral';
+      if      (alleg==='Wei')  { fill='rgba(20,30,80,0.75)';  stroke='rgba(80,110,210,0.65)'; sw=1.4; }
+      else if (alleg==='Wu')   { fill='rgba(90,12,12,0.76)';  stroke='rgba(190,40,40,0.76)';  sw=1.4; }
+      else if (alleg==='Yuan') { fill='rgba(60,15,75,0.72)';  stroke='rgba(160,60,200,0.65)'; sw=1.4; }
+      else if (alleg==='Dong') { fill='rgba(45,45,45,0.72)';  stroke='rgba(140,140,140,0.60)';sw=1.4; }
+      else                     { fill='rgba(52,36,8,0.68)';   stroke='rgba(155,120,38,0.45)'; sw=1.2; }
+    }
 
+    const alleg = prov.allegiance || 'Neutral';
+    const hoverFill = isCur?'rgba(10,148,60,0.96)':isOwned?'rgba(12,118,52,0.94)':isAdj?'rgba(118,90,18,0.94)':isEnemy?'rgba(115,15,15,0.88)':
+      alleg==='Wei'?'rgba(30,45,110,0.92)':alleg==='Wu'?'rgba(115,15,15,0.88)':alleg==='Yuan'?'rgba(85,20,105,0.90)':alleg==='Dong'?'rgba(65,65,65,0.88)':'rgba(78,55,12,0.88)';
     poly.setAttribute('fill', fill);
     poly.setAttribute('stroke', stroke);
     poly.setAttribute('stroke-width', sw);
     poly.setAttribute('style','cursor:pointer;transition:fill 0.2s');
-
-    const hoverFill = isCur?'rgba(10,148,60,0.96)':isOwned?'rgba(12,118,52,0.94)':isAdj?'rgba(118,90,18,0.94)':isEnemy?'rgba(115,15,15,0.88)':'rgba(78,55,12,0.88)';
     poly.addEventListener('mouseenter', ()=>poly.setAttribute('fill',hoverFill));
     poly.addEventListener('mouseleave', ()=>poly.setAttribute('fill',fill));
     poly.addEventListener('touchstart', (e)=>{ e.stopPropagation(); selectProvince(prov.id); }, {passive:true});
@@ -1985,56 +2374,64 @@ function drawFeastSprite(svgEl, course) {
    - Once a general is defeated they stay defeated (saved in campaign)
 ═══════════════════════════════════════════════════════════ */
 
-// 41 generals — one per province, in order of province id 0-40
+// 48 generals — one per province, in order of province id 0-47
 // sprite: 'soldier' | 'general' | 'wizard'
 // soldierName/soldierEn: what the earlier waves are called
 const PROVINCE_GENERALS = [
-  // Northern provinces (0-12) — Cao Cao's realm + rivals
-  {id:0,  name:'公孙度',  nameEn:'Gongsun Du',      sprite:'general', hp:7,  soldierName:'辽东兵',  soldierEn:'Liaodong Soldier'},
-  {id:1,  name:'公孙瓒',  nameEn:'Gongsun Zan',     sprite:'general', hp:8,  soldierName:'白马义从', soldierEn:'White Horse Rider'},
-  {id:2,  name:'袁绍',    nameEn:'Yuan Shao',       sprite:'general', hp:11, soldierName:'冀州精兵', soldierEn:'Jizhou Elite'},
-  {id:3,  name:'张燕',    nameEn:'Zhang Yan',       sprite:'general', hp:7,  soldierName:'黑山贼',  soldierEn:'Black Mountain Bandit'},
-  {id:4,  name:'乌桓王',  nameEn:'Wuhuan Chieftain',sprite:'general', hp:7,  soldierName:'乌桓骑兵', soldierEn:'Wuhuan Cavalry'},
-  {id:5,  name:'袁谭',    nameEn:'Yuan Tan',        sprite:'general', hp:8,  soldierName:'袁军士兵', soldierEn:'Yuan Soldier'},
-  {id:6,  name:'张郃',    nameEn:'Zhang He',        sprite:'general', hp:10, soldierName:'河北兵',  soldierEn:'Hebei Soldier'},
-  {id:7,  name:'颜良',    nameEn:'Yan Liang',       sprite:'general', hp:10, soldierName:'冀州精兵', soldierEn:'Jizhou Elite'},
-  {id:8,  name:'文丑',    nameEn:'Wen Chou',        sprite:'general', hp:10, soldierName:'青州兵',  soldierEn:'Qingzhou Soldier'},
-  {id:9,  name:'吕布',    nameEn:'Lü Bu',           sprite:'general', hp:14, soldierName:'并州铁骑', soldierEn:'Bingzhou Iron Cavalry'},
-  {id:10, name:'张辽',    nameEn:'Zhang Liao',      sprite:'general', hp:11, soldierName:'上党精兵', soldierEn:'Shangdang Elite'},
-  {id:11, name:'夏侯惇',  nameEn:'Xiahou Dun',      sprite:'general', hp:11, soldierName:'曹军士兵', soldierEn:'Cao Soldier'},
-  {id:12, name:'曹仁',    nameEn:'Cao Ren',         sprite:'general', hp:10, soldierName:'徐州兵',  soldierEn:'Xuzhou Soldier'},
-  // Northwest (13-19) — frontier warlords
-  {id:13, name:'高顺',    nameEn:'Gao Shun',        sprite:'general', hp:9,  soldierName:'陷阵营',  soldierEn:'Invincible Guard'},
-  {id:14, name:'郭淮',    nameEn:'Guo Huai',        sprite:'general', hp:8,  soldierName:'晋阳兵',  soldierEn:'Jinyang Soldier'},
-  {id:15, name:'董卓',    nameEn:'Dong Zhuo',       sprite:'general', hp:13, soldierName:'西凉铁骑', soldierEn:'Xiliang Iron Cavalry'},
-  {id:16, name:'曹操',    nameEn:'Cao Cao',         sprite:'wizard',  hp:15, soldierName:'虎豹骑',  soldierEn:'Tiger-Leopard Cavalry'},
-  {id:17, name:'陈登',    nameEn:'Chen Deng',       sprite:'general', hp:7,  soldierName:'广陵水兵', soldierEn:'Guangling Marine'},
-  {id:18, name:'韩遂',    nameEn:'Han Sui',         sprite:'general', hp:8,  soldierName:'羌族骑兵', soldierEn:'Qiang Cavalry'},
-  {id:19, name:'贾诩',    nameEn:'Jia Xu',          sprite:'wizard',  hp:9,  soldierName:'西凉兵',  soldierEn:'Xiliang Soldier'},
-  // Central (20-27) — battle for China's heartland
-  {id:20, name:'马超',    nameEn:'Ma Chao',         sprite:'general', hp:12, soldierName:'凉州铁骑', soldierEn:'Liangzhou Iron Cavalry'},
-  {id:21, name:'司马懿',  nameEn:'Sima Yi',         sprite:'wizard',  hp:13, soldierName:'魏国精兵', soldierEn:'Wei Elite'},
-  {id:22, name:'孙权',    nameEn:'Sun Quan',        sprite:'general', hp:13, soldierName:'江东子弟', soldierEn:'Jiangdong Warriors'},
-  {id:23, name:'李傕',    nameEn:'Li Jue',          sprite:'general', hp:8,  soldierName:'西凉兵',  soldierEn:'Xiliang Soldier'},
-  {id:24, name:'曹洪',    nameEn:'Cao Hong',        sprite:'general', hp:9,  soldierName:'豫州兵',  soldierEn:'Yuzhou Soldier'},
-  {id:25, name:'黄祖',    nameEn:'Huang Zu',        sprite:'general', hp:8,  soldierName:'江夏水兵', soldierEn:'Jiangxia Marine'},
-  {id:26, name:'周瑜',    nameEn:'Zhou Yu',         sprite:'wizard',  hp:12, soldierName:'东吴水军', soldierEn:'Wu Navy'},
-  {id:27, name:'张鲁',    nameEn:'Zhang Lu',        sprite:'wizard',  hp:9,  soldierName:'五斗米兵', soldierEn:'Five Pecks Disciple'},
-  // South-central (28-33) — Jing province battles
-  {id:28, name:'庞统',    nameEn:'Pang Tong',       sprite:'wizard',  hp:10, soldierName:'荆州谋士', soldierEn:'Jing Strategist'},
-  {id:29, name:'蔡瑁',    nameEn:'Cai Mao',         sprite:'general', hp:8,  soldierName:'荆州水军', soldierEn:'Jing Navy'},
-  {id:30, name:'陆逊',    nameEn:'Lu Xun',          sprite:'wizard',  hp:11, soldierName:'吴国精兵', soldierEn:'Wu Elite'},
-  {id:31, name:'法正',    nameEn:'Fa Zheng',        sprite:'wizard',  hp:9,  soldierName:'益州兵',  soldierEn:'Yi Soldier'},
-  {id:32, name:'严颜',    nameEn:'Yan Yan',         sprite:'general', hp:10, soldierName:'蜀中老兵', soldierEn:'Shu Veteran'},
-  {id:33, name:'魏延',    nameEn:'Wei Yan',         sprite:'general', hp:11, soldierName:'汉中精兵', soldierEn:'Hanzhong Elite'},
-  // Southwest & south (34-40) — Shu and far south
-  {id:34, name:'刘璋',    nameEn:'Liu Zhang',       sprite:'general', hp:8,  soldierName:'东州兵',  soldierEn:'Eastern Shu Soldier'},
-  {id:35, name:'孟获',    nameEn:'Meng Huo',        sprite:'general', hp:10, soldierName:'南蛮勇士', soldierEn:'Nanman Warrior'},
-  {id:36, name:'祝融',    nameEn:'Zhu Rong',        sprite:'general', hp:9,  soldierName:'南蛮骑兵', soldierEn:'Nanman Cavalry'},
-  {id:37, name:'木鹿大王',nameEn:'King Muludawang',  sprite:'general', hp:8,  soldierName:'象兵',    soldierEn:'War Elephant Corps'},
-  {id:38, name:'士燮',    nameEn:'Shi Xie',         sprite:'wizard',  hp:8,  soldierName:'交州兵',  soldierEn:'Jiao Soldier'},
-  {id:39, name:'区景',    nameEn:'Ou Jing',         sprite:'general', hp:7,  soldierName:'南海守兵', soldierEn:'Nanhai Guard'},
-  {id:40, name:'征侧',    nameEn:'Trung Trac',      sprite:'general', hp:8,  soldierName:'交趾兵',  soldierEn:'Jiaozhi Soldier'},
+  // Northern provinces (0-12)
+  {id:0,  name:'公孙度',  nameEn:'Gongsun Du',       sprite:'general', hp:7,  soldierName:'辽东兵',   soldierEn:'Liaodong Soldier'},
+  {id:1,  name:'公孙瓒',  nameEn:'Gongsun Zan',      sprite:'general', hp:8,  soldierName:'白马义从',  soldierEn:'White Horse Rider'},
+  {id:2,  name:'乌桓王',  nameEn:'Wuhuan Chieftain', sprite:'general', hp:11, soldierName:'乌桓骑兵',  soldierEn:'Wuhuan Cavalry'},
+  {id:3,  name:'文丑',    nameEn:'Wen Chou',         sprite:'general', hp:10, soldierName:'袁军士兵',  soldierEn:'Yuan Soldier'},
+  {id:4,  name:'袁绍',    nameEn:'Yuan Shao',        sprite:'general', hp:10, soldierName:'冀州精兵',  soldierEn:'Jizhou Elite'},
+  {id:5,  name:'袁谭',    nameEn:'Yuan Tan',         sprite:'general', hp:8,  soldierName:'袁军士兵',  soldierEn:'Yuan Soldier'},
+  {id:6,  name:'张角',    nameEn:'Zhang Jiao',       sprite:'general', hp:10, soldierName:'黄巾贼',    soldierEn:'Yellow Turban'},
+  {id:7,  name:'颜良',    nameEn:'Yan Liang',        sprite:'general', hp:10, soldierName:'冀州精兵',  soldierEn:'Jizhou Elite'},
+  {id:8,  name:'张郃',    nameEn:'Zhang He',         sprite:'general', hp:10, soldierName:'青州兵',    soldierEn:'Qingzhou Soldier'},
+  {id:9,  name:'吕布',    nameEn:'Lu Bu',            sprite:'general', hp:14, soldierName:'并州铁骑',  soldierEn:'Bingzhou Iron Cavalry'},
+  {id:10, name:'董卓',    nameEn:'Dong Zhuo',        sprite:'general', hp:11, soldierName:'西凉铁骑',  soldierEn:'Xiliang Iron Cavalry'},
+  {id:11, name:'夏侯惇',  nameEn:'Xiahou Dun',       sprite:'general', hp:11, soldierName:'曹军士兵',  soldierEn:'Cao Soldier'},
+  {id:12, name:'曹仁',    nameEn:'Cao Ren',          sprite:'general', hp:10, soldierName:'徐州兵',    soldierEn:'Xuzhou Soldier'},
+  // Northwest (13-19)
+  {id:13, name:'王允',    nameEn:'Wang Yun',         sprite:'wizard',  hp:9,  soldierName:'陷阵营',    soldierEn:'Invincible Guard'},
+  {id:14, name:'貂蝉',    nameEn:'Diao Chan',        sprite:'courtlady', hp:8,  soldierName:'晋阳兵',    soldierEn:'Jinyang Soldier'},
+  {id:15, name:'张辽',    nameEn:'Zhang Liao',       sprite:'general', hp:13, soldierName:'西凉铁骑',  soldierEn:'Xiliang Iron Cavalry'},
+  {id:16, name:'曹操',    nameEn:'Cao Cao',          sprite:'general', hp:15, soldierName:'虎豹骑',    soldierEn:'Tiger-Leopard Cavalry'},
+  {id:17, name:'夏侯渊',  nameEn:'Xiahou Yuan',      sprite:'general', hp:7,  soldierName:'广陵水兵',  soldierEn:'Guangling Marine'},
+  {id:18, name:'马岱',    nameEn:'Ma Dai',           sprite:'general', hp:8,  soldierName:'羌族骑兵',  soldierEn:'Qiang Cavalry'},
+  {id:19, name:'贾诩',    nameEn:'Jia Xu',           sprite:'wizard',  hp:9,  soldierName:'西凉兵',    soldierEn:'Xiliang Soldier'},
+  // Central (20-27)
+  {id:20, name:'许褚',    nameEn:'Xu Chu',           sprite:'general', hp:12, soldierName:'凉州铁骑',  soldierEn:'Liangzhou Iron Cavalry'},
+  {id:21, name:'司马懿',  nameEn:'Sima Yi',          sprite:'wizard',  hp:13, soldierName:'魏国精兵',  soldierEn:'Wei Elite'},
+  {id:22, name:'孙权',    nameEn:'Sun Quan',         sprite:'general', hp:13, soldierName:'江东子弟',  soldierEn:'Jiangdong Warriors'},
+  {id:23, name:'华佗',    nameEn:'Hua Tuo',          sprite:'wizard',  hp:8,  soldierName:'西凉兵',    soldierEn:'Xiliang Soldier'},
+  {id:24, name:'曹洪',    nameEn:'Cao Hong',         sprite:'general', hp:9,  soldierName:'豫州兵',    soldierEn:'Yuzhou Soldier'},
+  {id:25, name:'刘表',    nameEn:'Liu Biao',         sprite:'general', hp:8,  soldierName:'江夏水兵',  soldierEn:'Jiangxia Marine'},
+  {id:26, name:'周瑜',    nameEn:'Zhou Yu',          sprite:'wizard',  hp:13, soldierName:'东吴水军',  soldierEn:'Wu Navy'},
+  {id:27, name:'张鲁',    nameEn:'Zhang Lu',         sprite:'wizard',  hp:9,  soldierName:'五斗米兵',  soldierEn:'Five Pecks Disciple'},
+  // South-central (28-33)
+  {id:28, name:'庞统',    nameEn:'Pang Tong',        sprite:'wizard',  hp:10, soldierName:'荆州谋士',  soldierEn:'Jing Strategist'},
+  {id:29, name:'蔡瑁',    nameEn:'Cai Mao',          sprite:'general', hp:8,  soldierName:'荆州水军',  soldierEn:'Jing Navy'},
+  {id:30, name:'陆逊',    nameEn:'Lu Xun',           sprite:'wizard',  hp:12, soldierName:'吴国精兵',  soldierEn:'Wu Elite'},
+  {id:31, name:'孟获',    nameEn:'Meng Huo',         sprite:'general', hp:9,  soldierName:'益州兵',    soldierEn:'Yi Soldier'},
+  {id:32, name:'祝融',    nameEn:'Zhu Rong',         sprite:'courtlady', hp:10, soldierName:'蜀中老兵',  soldierEn:'Shu Veteran'},
+  {id:33, name:'王平',    nameEn:'Wang Ping',        sprite:'general', hp:11, soldierName:'汉中精兵',  soldierEn:'Hanzhong Elite'},
+  // Southwest & south (34-40)
+  {id:34, name:'刘璋',    nameEn:'Liu Zhang',        sprite:'general', hp:8,  soldierName:'东州兵',    soldierEn:'Eastern Shu Soldier'},
+  {id:35, name:'诸葛瑾',  nameEn:'Zhuge Jin',        sprite:'wizard',  hp:7,  soldierName:'南蛮勇士',  soldierEn:'Nanman Warrior'},
+  {id:36, name:'甘宁',    nameEn:'Gan Ning',         sprite:'general', hp:9,  soldierName:'南蛮骑兵',  soldierEn:'Nanman Cavalry'},
+  {id:37, name:'木鹿大王',nameEn:'King Mulu',         sprite:'general', hp:8,  soldierName:'象兵',      soldierEn:'War Elephant Corps'},
+  {id:38, name:'太史慈',  nameEn:'Taishi Ci',        sprite:'general', hp:8,  soldierName:'交州兵',    soldierEn:'Jiao Soldier'},
+  {id:39, name:'区星',    nameEn:'Ou Jing',          sprite:'general', hp:7,  soldierName:'南海守兵',  soldierEn:'Nanhai Guard'},
+  {id:40, name:'征侧',    nameEn:'Trung Trac',       sprite:'general', hp:8,  soldierName:'交趾兵',    soldierEn:'Jiaozhi Soldier'},
+  // New provinces (41-47)
+  {id:41, name:'楼兰王',  nameEn:'King of Loulan',   sprite:'general', hp:9,  soldierName:'西域骑兵',  soldierEn:'Western Region Cavalry'},
+  {id:42, name:'刘焉',    nameEn:'Liu Yan',          sprite:'general', hp:8,  soldierName:'蜀中兵',    soldierEn:'Shu Soldier'},
+  {id:43, name:'沙摩柯',  nameEn:'Shamoke',          sprite:'general', hp:8,  soldierName:'五溪蛮兵',  soldierEn:'Wuxi Tribal Warrior'},
+  {id:44, name:'严白虎',  nameEn:'Yan Baihu',        sprite:'general', hp:7,  soldierName:'南夷战士',  soldierEn:'Southern Yi Warrior'},
+  {id:45, name:'黄盖',    nameEn:'Huang Gai',        sprite:'general', hp:9,  soldierName:'豫章兵',    soldierEn:'Yuzhang Soldier'},
+  {id:46, name:'鲁肃',    nameEn:'Lu Su',            sprite:'wizard',  hp:8,  soldierName:'山越精兵',  soldierEn:'Shanyue Elite'},
+  {id:47, name:'雍闿',    nameEn:'Yong Kai',         sprite:'general', hp:9,  soldierName:'南中蛮兵',  soldierEn:'Nanzhong Tribal Warrior'},
 ]
 
 // Track which generals have been defeated (persisted in campaign save)
@@ -2048,30 +2445,50 @@ function getGeneralForProv(provId) {
 function spawnEnemy(provId) {
   const ctype = G.provConquestType || 'battle';
   let enemy;
+  const general = getGeneralForProv(provId !== undefined ? provId : (G.fort?.provId || 0));
+  const isLastWave = G.wave >= G.totalWaves;
 
   if (ctype === 'build') {
-    // Each wave = one construction activity
-    const pool = BUILD_ACTIVITIES;
-    const act = pool[(G.wave - 1) % pool.length];
-    const bites = 4 + Math.floor((provId||0) / 15); // 4-6 "bites" to complete
-    enemy = {
-      name: act.name, nameEn: act.nameEn,
-      sprite: 'build', buildActivity: act,
-      hp: bites, isGeneral: false, announce: act.announce
-    };
+    if (isLastWave) {
+      // Final wave: debate with the province general
+      enemy = {
+        name: general.name, nameEn: general.nameEn,
+        sprite: general.sprite,
+        hp: general.hp + Math.floor(G.totalWaves / 2),
+        isGeneral: false, isCivilBoss: true,
+        announce: general.name + '，来辩论吧！'
+      };
+    } else {
+      const pool = BUILD_ACTIVITIES;
+      const act = pool[(G.wave - 1) % pool.length];
+      const bites = 4 + Math.floor((provId||0) / 15);
+      enemy = {
+        name: act.name, nameEn: act.nameEn,
+        sprite: 'build', buildActivity: act,
+        hp: bites, isGeneral: false, announce: act.announce
+      };
+    }
   } else if (ctype === 'feast') {
-    // Each wave = one course/dish
-    const pool = FEAST_COURSES;
-    const course = pool[(G.wave - 1 + (provId||0)) % pool.length];
-    enemy = {
-      name: course.name, nameEn: course.nameEn,
-      sprite: 'feast', feastCourse: course,
-      hp: 5, isGeneral: false, announce: course.announce
-    };
+    if (isLastWave) {
+      // Final wave: drinks with the province general
+      enemy = {
+        name: general.name, nameEn: general.nameEn,
+        sprite: general.sprite,
+        hp: general.hp + Math.floor(G.totalWaves / 2),
+        isGeneral: false, isCivilBoss: true,
+        announce: general.name + '，共饮一杯！'
+      };
+    } else {
+      const pool = FEAST_COURSES;
+      const course = pool[(G.wave - 1 + (provId||0)) % pool.length];
+      enemy = {
+        name: course.name, nameEn: course.nameEn,
+        sprite: 'feast', feastCourse: course,
+        hp: 5, isGeneral: false, announce: course.announce
+      };
+    }
   } else {
     // Battle: soldiers then general
-    const general = getGeneralForProv(provId !== undefined ? provId : (G.fort?.provId || 0));
-    const isLastWave = G.wave >= G.totalWaves;
     if (isLastWave) {
       enemy = {
         name: general.name, nameEn: general.nameEn,
@@ -2094,7 +2511,7 @@ function spawnEnemy(provId) {
   renderEnemy();
 }
 
-// All 7 playable heroes
+// All 9 playable heroes
 const ALL_HEROES = [
   {key:'guanyu',     name:'关羽',  nameEn:'Guan Yu',      maxHp:7, desc:'Green Dragon Blade'},
   {key:'zhaoyun',    name:'赵云',  nameEn:'Zhao Yun',     maxHp:6, desc:'Dragon Spear'},
@@ -2103,6 +2520,8 @@ const ALL_HEROES = [
   {key:'machao',     name:'马超',  nameEn:'Ma Chao',      maxHp:7, desc:'Lightning Spear'},
   {key:'liubei',     name:'刘备',  nameEn:'Liu Bei',      maxHp:6, desc:'Twin Swords'},
   {key:'zhugeliang', name:'诸葛亮',nameEn:'Zhuge Liang',  maxHp:5, desc:'Wind Fan Strategist'},
+  {key:'jiangwei',   name:'姜维',  nameEn:'Jiang Wei',    maxHp:7, desc:'Teal Dragon Spear'},
+  {key:'weiyan',     name:'魏延',  nameEn:'Wei Yan',      maxHp:8, desc:'Dark Flame Dao'},
 ];
 
 // Map huangzhong and machao sprites to existing ones (wizard/general) as fallback
@@ -2176,7 +2595,18 @@ const HEROES_DEF = ALL_HEROES.slice(0,3); // fallback, overridden in startBattle
    GAME STATE
 ═══════════════════════════════════════════════════════════ */
 // Province conquest type (deterministic by id)
-function getProvType(provId){ return ['battle','build','feast'][provId%3]; }
+// Fixed conquest type per province (from provinces.xlsx)
+const PROV_CONQUEST_TYPE = {
+  0:'feast', 1:'build', 2:'feast', 3:'battle', 4:'battle', 5:'battle',
+  6:'battle', 7:'battle', 8:'battle', 9:'battle', 10:'battle', 11:'battle',
+  12:'battle', 13:'build', 14:'feast', 15:'battle', 16:'battle', 17:'battle',
+  18:'build', 19:'battle', 20:'battle', 21:'battle', 22:'battle', 23:'build',
+  24:'battle', 25:'feast', 26:'battle', 27:'battle', 28:'build', 29:'build',
+  30:'battle', 31:'battle', 32:'battle', 33:'build', 34:'build', 35:'feast',
+  36:'battle', 37:'build', 38:'battle', 39:'feast', 40:'battle', 41:'feast',
+  42:'feast', 43:'build', 44:'feast', 45:'battle', 46:'battle', 47:'feast'
+};
+function getProvType(provId){ return PROV_CONQUEST_TYPE[provId] || 'battle'; }
 
 let G = {
   mode:'coop', fort:null, provConquestType:'battle',
@@ -2193,6 +2623,7 @@ let G = {
   pendingRetry: null,
   _waitingForAnnounce: false,
   _pendingCharSpeak: null,
+  _announceTimer: null,
 };
 
 const Q_TYPES = ['char_to_meaning','hear_to_char','meaning_to_char'];
@@ -2240,7 +2671,7 @@ function openHeroSelect(mode) {
   const rLen = playerRosters[mode].roster.length;
   document.getElementById('hsm-subtitle').textContent =
     playerRosters[mode].startHero
-      ? rLen + '/7 heroes found · Tap any found hero to lead your army'
+      ? rLen + '/9 heroes found · Tap any found hero to lead your army'
       : '选择你的起始将领 Choose your starting hero';
   grid.innerHTML = ALL_HEROES.map(h => {
     const owned = playerRosters[mode].roster.includes(h.key);
@@ -2418,16 +2849,17 @@ function renderEnemy() {
   _nameLbl.style.color = ctype==='feast' ? '#40c8c8' : ctype==='build' ? '#f0c040' : 'var(--redb)';
   _nameLbl.style.textShadow = ctype==='feast' ? '0 0 14px rgba(40,200,200,.6)' : ctype==='build' ? '0 0 14px rgba(201,162,39,.6)' : '0 0 14px rgba(200,50,50,.6)';
   const hpLabel = document.getElementById('enemy-name-hp2');
-  if (ctype === 'build') hpLabel.textContent = '⚒️ 进度 Progress';
-  else if (ctype === 'feast') hpLabel.textContent = '🍽️ 进度 Progress';
-  else hpLabel.textContent = e.name;
   updateEnemyHp();
-  // Blue HP bar + border for feast/build
-  const isCivil = (e.sprite === 'build' || e.sprite === 'feast');
+  // Blue HP bar + border for any feast/build wave (including civil boss)
+  const isCivil = (ctype !== 'battle');
   const _hpBar = document.getElementById('enemy-hp-bar');
   const _hpWrap = document.getElementById('enemy-hp-wrap');
   if (_hpBar) { _hpBar.className = 'enemy-hp-bar' + (isCivil ? ' blue' : ''); }
   if (_hpWrap) { _hpWrap.className = 'enemy-hp-wrap' + (isCivil ? ' blue' : ''); }
+  // HP label
+  if (ctype === 'build') hpLabel.textContent = e.isCivilBoss ? '🗣️ 辩论 Debate' : '⚒️ 进度 Progress';
+  else if (ctype === 'feast') hpLabel.textContent = e.isCivilBoss ? '🍶 对饮 Drinking' : '🍽️ 进度 Progress';
+  else hpLabel.textContent = e.name;
   const svg = document.getElementById('enemy-svg');
   if (e.sprite === 'build' || e.sprite === 'feast') {
     svg.setAttribute('width','130'); svg.setAttribute('height','130');
@@ -2438,23 +2870,51 @@ function renderEnemy() {
     svg.setAttribute('viewBox','0 0 64 80');
     if (ENEMY_SPRITES[e.sprite]) ENEMY_SPRITES[e.sprite](svg);
   }
-  // Speak announcement; when it ends, speak the question char
+  // Speak announcement then question char — robust sequencing
   const ann = e.announce || (e.name + '，出现！');
-  G._waitingForAnnounce = true; // nextQ will set G._pendingCharSpeak instead of speaking
+  G._waitingForAnnounce = true;
+  G._pendingCharSpeak = null;
+  // Safety: if onend never fires (mobile/iOS bug), clear flag after max 4s
+  if (G._announceTimer) clearTimeout(G._announceTimer);
+  G._announceTimer = setTimeout(() => {
+    if (G._waitingForAnnounce) {
+      G._waitingForAnnounce = false;
+      if (G._pendingCharSpeak) {
+        speakChinese(G._pendingCharSpeak);
+        G._pendingCharSpeak = null;
+      }
+    }
+  }, 4000);
+  // Cancel any current speech, wait a beat, then speak announcement
+  try { window.speechSynthesis.cancel(); } catch(e3) {}
   setTimeout(() => {
     try {
       const annU = new SpeechSynthesisUtterance(ann);
       annU.lang = 'zh-CN'; annU.rate = 0.85; annU.pitch = 1;
       annU.onend = () => {
+        clearTimeout(G._announceTimer);
         G._waitingForAnnounce = false;
         if (G._pendingCharSpeak) {
-          setTimeout(() => { speakChinese(G._pendingCharSpeak); G._pendingCharSpeak = null; }, 250);
+          setTimeout(() => {
+            speakChinese(G._pendingCharSpeak);
+            G._pendingCharSpeak = null;
+          }, 200);
         }
       };
-      window.speechSynthesis.cancel();
+      annU.onerror = () => {
+        clearTimeout(G._announceTimer);
+        G._waitingForAnnounce = false;
+        if (G._pendingCharSpeak) {
+          speakChinese(G._pendingCharSpeak);
+          G._pendingCharSpeak = null;
+        }
+      };
       window.speechSynthesis.speak(annU);
-    } catch(e2) { G._waitingForAnnounce = false; }
-  }, 200);
+    } catch(e2) {
+      clearTimeout(G._announceTimer);
+      G._waitingForAnnounce = false;
+    }
+  }, 300);
   // Update battle badge
   const badge = document.getElementById('btl-badge');
   if (badge) {
@@ -2552,8 +3012,8 @@ function nextQ() {
     // Announcement is playing — store char, onend will speak it
     G._pendingCharSpeak = char.hz;
   } else {
-    // No announcement — speak immediately
-    setTimeout(() => speakChinese(char.hz), 320);
+    // No announcement — speak immediately after short settle
+    setTimeout(() => speakChinese(char.hz), 400);
   }
 }
 
@@ -2771,6 +3231,14 @@ function showVictory(){
   document.getElementById('v-corr').textContent = G.totalCorrect+'/'+G.totalAnswered;
   document.getElementById('v-streak').textContent = G.bestStreak;
   document.getElementById('v-score').textContent = G.score;
+  // Check for campaign completion (all provinces owned)
+  const totalOwned = Object.values(provState).filter(v => v === 'owned').length;
+  const unifBanner = document.getElementById('v-unification');
+  if (unifBanner) unifBanner.style.display = 'none';
+  if (totalOwned >= PROVINCES.length) {
+    if (unifBanner) unifBanner.style.display = 'block';
+    setTimeout(() => speakChinese('恭喜你统一了中国！'), 1200);
+  }
   // Check if a new hero is found
   document.getElementById('v-hero-found').style.display = 'none';
   if (campaignMode !== 'coop') {
@@ -2816,7 +3284,7 @@ function showDefeat(){
 }
 
 function showCampaignVictory() {
-  alert('🏆 天下一统！You have conquered all 41 provinces!\n\nCampaign Complete! You can restart from the profile screen.');
+  alert('🏆 天下一统！You have conquered all ' + PROVINCES.length + ' provinces!\n\nCampaign Complete! You can restart from the profile screen.');
   clearCampaign(campaignMode);
 }
 
