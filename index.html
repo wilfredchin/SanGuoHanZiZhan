@@ -273,13 +273,13 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
     <div class="prof-grid">
       <div class="prof-card" onclick="openHeroSelect('ethan')">
         <svg class="prof-av" width="64" height="80" viewBox="0 0 64 80" id="hero-svg-zhaoyun-prof"></svg>
-        <span class="prof-name">Ethan</span>
+        <span class="prof-name">Ethan 睿翔</span>
         <span class="prof-lv" id="prof-lv-ethan">赵云 Zhao Yun · Level 5</span>
         <div class="prof-stars" id="ethan-stars">⭐⭐⭐</div>
       </div>
       <div class="prof-card" onclick="openHeroSelect('elliot')">
         <svg class="prof-av" width="64" height="80" viewBox="0 0 64 80" id="hero-svg-guanyu-prof"></svg>
-        <span class="prof-name">Elliot</span>
+        <span class="prof-name">Elliot 睿哲</span>
         <span class="prof-lv" id="prof-lv-elliot">关羽 Guan Yu · Level 3</span>
         <div class="prof-stars" id="elliot-stars">⭐⭐⭐</div>
       </div>
@@ -573,8 +573,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;flex-shrink:0">
       <button class="btn-s" onclick="filterStudy('all')" style="font-size:clamp(14px,3.8vw,18px);padding:10px 6px;width:100%">全部 All</button>
       <button class="btn-s" onclick="filterStudy('struggling')" style="font-size:clamp(14px,3.8vw,18px);padding:10px 6px;width:100%">需练习 Needs Work</button>
-      <button class="btn-s" onclick="filterStudy('elliot')" style="font-size:clamp(14px,3.8vw,18px);padding:10px 6px;width:100%" id="study-btn-elliot">Elliot</button>
-      <button class="btn-s" onclick="filterStudy('ethan')" style="font-size:clamp(14px,3.8vw,18px);padding:10px 6px;width:100%" id="study-btn-ethan">Ethan</button>
+      <button class="btn-s" onclick="filterStudy('elliot')" style="font-size:clamp(14px,3.8vw,18px);padding:10px 6px;width:100%" id="study-btn-elliot">Elliot 睿哲</button>
+      <button class="btn-s" onclick="filterStudy('ethan')" style="font-size:clamp(14px,3.8vw,18px);padding:10px 6px;width:100%" id="study-btn-ethan">Ethan 睿翔</button>
     </div>
     <div class="char-grid" id="char-grid" style="width:100%"></div>
     <button class="btn-s" onclick="goHome()" style="margin:4px 0 16px;flex-shrink:0">🏠 主页 Home</button>
@@ -606,7 +606,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
       <div style="font-family:'Ma Shan Zheng',cursive;font-size:17px;color:var(--goldb);margin-bottom:10px">🎓 难度设置 Difficulty Level</div>
       <div style="font-size:13px;color:var(--parch2);margin-bottom:12px;line-height:1.5">Choose the character difficulty for each player. Higher levels include more advanced vocabulary.</div>
       <div style="margin-bottom:12px">
-        <label style="display:block;font-family:'Ma Shan Zheng',cursive;font-size:16px;color:var(--goldb);margin-bottom:6px">🦁 Ethan</label>
+        <label style="display:block;font-family:'Ma Shan Zheng',cursive;font-size:16px;color:var(--goldb);margin-bottom:6px">🦁 Ethan 睿翔</label>
         <select id="diff-ethan" onchange="setDifficulty('ethan',this.value)" style="width:100%;background:rgba(0,0,0,.7);border:1px solid rgba(201,162,39,.5);border-radius:6px;color:var(--parch);font-size:15px;padding:9px 12px;font-family:'Noto Serif SC',serif">
           <option value="1">Level 1 — Age 4-5 · Pictographs (~20 chars)</option>
           <option value="2">Level 2 — Age 5-6 · Basic vocab (~60 chars)</option>
@@ -621,7 +621,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
         </select>
       </div>
       <div>
-        <label style="display:block;font-family:'Ma Shan Zheng',cursive;font-size:16px;color:var(--goldb);margin-bottom:6px">🐯 Elliot</label>
+        <label style="display:block;font-family:'Ma Shan Zheng',cursive;font-size:16px;color:var(--goldb);margin-bottom:6px">🐯 Elliot 睿哲</label>
         <select id="diff-elliot" onchange="setDifficulty('elliot',this.value)" style="width:100%;background:rgba(0,0,0,.7);border:1px solid rgba(201,162,39,.5);border-radius:6px;color:var(--parch);font-size:15px;padding:9px 12px;font-family:'Noto Serif SC',serif">
           <option value="1">Level 1 — Age 4-5 · Pictographs (~20 chars)</option>
           <option value="2">Level 2 — Age 5-6 · Basic vocab (~60 chars)</option>
@@ -640,7 +640,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
 
     <!-- PER-USER SAVE/LOAD/RESET — ETHAN -->
     <div style="margin-bottom:18px;border:1px solid rgba(201,162,39,.25);border-radius:8px;padding:14px">
-      <div style="font-family:'Ma Shan Zheng',cursive;font-size:18px;color:var(--goldb);margin-bottom:10px">🦁 Ethan</div>
+      <div style="font-family:'Ma Shan Zheng',cursive;font-size:18px;color:var(--goldb);margin-bottom:10px">🦁 Ethan 睿翔</div>
 
       <div style="font-size:13px;color:var(--parch2);margin-bottom:6px">📤 Export Ethan's progress to email or share:</div>
       <div style="display:flex;gap:8px;margin-bottom:10px">
@@ -661,7 +661,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
 
     <!-- PER-USER SAVE/LOAD/RESET — ELLIOT -->
     <div style="margin-bottom:18px;border:1px solid rgba(201,162,39,.25);border-radius:8px;padding:14px">
-      <div style="font-family:'Ma Shan Zheng',cursive;font-size:18px;color:var(--goldb);margin-bottom:10px">🐯 Elliot</div>
+      <div style="font-family:'Ma Shan Zheng',cursive;font-size:18px;color:var(--goldb);margin-bottom:10px">🐯 Elliot 睿哲</div>
 
       <div style="font-size:13px;color:var(--parch2);margin-bottom:6px">📤 Export Elliot's progress to email or share:</div>
       <div style="display:flex;gap:8px;margin-bottom:10px">
@@ -2666,7 +2666,7 @@ function goProfile() {
 function openHeroSelect(mode) {
   const modal = document.getElementById('hero-select-modal');
   const grid  = document.getElementById('hsm-grid');
-  const name  = mode==='ethan'?'Ethan (赵云)':'Elliot (关羽)';
+  const name  = mode==='ethan'?'Ethan 睿翔':'Elliot 睿哲';
   document.getElementById('hsm-title').textContent = name + ' — 选择将领';
   const rLen = playerRosters[mode].roster.length;
   document.getElementById('hsm-subtitle').textContent =
@@ -2920,7 +2920,7 @@ function renderEnemy() {
   if (badge) {
     if (ctype==='build') badge.textContent = '⚒️ 建设模式 Build';
     else if (ctype==='feast') badge.textContent = '🍽️ 宴会模式 Feast';
-    else badge.textContent = G.mode==='coop'?'⚔️ 合作 Co-op':G.mode==='ethan'?'⚔️ Ethan':'⚔️ Elliot';
+    else badge.textContent = G.mode==='coop'?'⚔️ 合作 Co-op':G.mode==='ethan'?'🦁 Ethan 睿翔':'🐯 Elliot 睿哲';
   }
 }
 
@@ -2968,9 +2968,9 @@ function updateHeroBars() {
    QUESTION ENGINE
 ═══════════════════════════════════════════════════════════ */
 function getPlayers() {
-  if(G.mode==='ethan')  return [{name:'Ethan', emoji:'⚔️',level:'ethan'}];
-  if(G.mode==='elliot') return [{name:'Elliot',emoji:'🐯',level:'elliot'}];
-  return [{name:'Ethan',emoji:'⚔️',level:'ethan'},{name:'Elliot',emoji:'🐯',level:'elliot'}];
+  if(G.mode==='ethan')  return [{name:'Ethan 睿翔', emoji:'🦁',level:'ethan'}];
+  if(G.mode==='elliot') return [{name:'Elliot 睿哲',emoji:'🐯',level:'elliot'}];
+  return [{name:'Ethan 睿翔',emoji:'🦁',level:'ethan'},{name:'Elliot 睿哲',emoji:'🐯',level:'elliot'}];
 }
 function curPlayer() { return getPlayers()[G.playerIdx%getPlayers().length]; }
 
@@ -2979,12 +2979,12 @@ function pickChar(player) {
   // Only use retry char if it matches the current player's level
   for (let i = 0; i < G.retryQueue.length; i++) {
     const rc = G.retryQueue[i];
-    const _rLvl=player.name==='Elliot'?playerDifficulty.elliot:playerDifficulty.ethan;
+    const _rLvl=player.level==='elliot'?playerDifficulty.elliot:playerDifficulty.ethan;
     if (charToNumericLevel(rc) > _rLvl) continue;
     G.retryQueue.splice(i, 1); // remove from queue
     return rc;
   }
-  const _plvl2=player.name==='Elliot'?playerDifficulty.elliot:playerDifficulty.ethan;
+  const _plvl2=player.level==='elliot'?playerDifficulty.elliot:playerDifficulty.ethan;
   const pool=G.charPool.filter(c=>charToNumericLevel(c)<=_plvl2);
   const weights = pool.map(c=>{
     const s=G.seenChars[c.hz];
@@ -3002,7 +3002,7 @@ function nextQ() {
   const player=curPlayer();
   const char=pickChar(player);
   const qtype=Q_TYPES[Math.floor(Math.random()*Q_TYPES.length)];
-  const _pLvl=player.name==='Elliot'?playerDifficulty.elliot:playerDifficulty.ethan;
+  const _pLvl=player.level==='elliot'?playerDifficulty.elliot:playerDifficulty.ethan;
   const pool=G.charPool.filter(c=>charToNumericLevel(c)<=_pLvl);
   const others=pool.filter(c=>c.hz!==char.hz).sort(()=>Math.random()-.5).slice(0,3);
   const opts=[char,...others].sort(()=>Math.random()-.5);
@@ -3331,8 +3331,8 @@ function speakModal(){speakChinese(document.getElementById('modal-char').textCon
 function updateStudyBtnLabels(){
   const eb=document.getElementById('study-btn-ethan');
   const ob=document.getElementById('study-btn-elliot');
-  if(eb) eb.textContent='Ethan Lv'+playerDifficulty.ethan;
-  if(ob) ob.textContent='Elliot Lv'+playerDifficulty.elliot;
+  if(eb) eb.textContent='Ethan 睿翔 Lv'+playerDifficulty.ethan;
+  if(ob) ob.textContent='Elliot 睿哲 Lv'+playerDifficulty.elliot;
 }
 
 function filterStudy(f){
@@ -3453,7 +3453,7 @@ function _buildUserSave(mode) {
 function doExportUser(mode, method) {
   try {
     const code = _buildUserSave(mode);
-    const name = mode === 'ethan' ? 'Ethan' : 'Elliot';
+    const name = mode === 'ethan' ? 'Ethan 睿翔' : 'Elliot 睿哲';
     const subject = encodeURIComponent('三国汉字战 — ' + name + ' Save Data');
     const body = encodeURIComponent(name + "'s save code:\n\n" + code + "\n\nPaste into Import " + name + " in Settings.");
     if (method === 'email') {
