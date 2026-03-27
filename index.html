@@ -612,8 +612,8 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
       <div class="stat-row"><span>关卡 Waves</span><span class="stat-val" id="d-waves">0</span></div>
       <div class="stat-row"><span>Score</span><span class="stat-val" id="d-score">0</span></div>
     </div>
-    <button class="btn-p" onclick="returnToMap()">🗺️ 再战！ Try Again</button>
-    <button class="btn-s" onclick="goHome()">🏠 主页 Home</button>
+    <button class="btn-p" onclick="rematchBattle()">⚔️ 再战 / Rematch</button>
+    <button class="btn-p" onclick="returnToMap()">🗺️ 返回地图 / Return to Map</button>
   </div>
 </div>
 
@@ -2726,6 +2726,7 @@ let G = {
   _pendingBattleCry: null,
   _battleCrySpeaking: false,
   _announceTimer: null,
+  _nextUnlockTimer: null,
 };
 
 const Q_TYPES = ['char_to_meaning','hear_to_char','meaning_to_char'];
@@ -3003,6 +3004,18 @@ function returnToMap() {
   const total = PROVINCES.length;
   const owned = Object.values(provState).filter(v=>v==='owned'||v==='player').length;
   if (owned === total) setTimeout(() => showCampaignVictory(), 500);
+}
+
+function rematchBattle() {
+  if (!G.fort) {
+    returnToMap();
+    return;
+  }
+  if (RTCOOP.enabled && G.mode === 'coop') {
+    RTCOOP.isHost = true;
+    rtcoopHostStartBattle(G.fort); // async — non-blocking
+  }
+  startBattle(G.fort, G.mode);
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -3353,6 +3366,10 @@ function nextQ() {
 }
 
 function renderQ() {
+  if (G._nextUnlockTimer) {
+    clearTimeout(G._nextUnlockTimer);
+    G._nextUnlockTimer = null;
+  }
   document.getElementById('next-btn').style.display='none';
   const {char,qtype,player,opts}=G.currentQ;
   const showPy=G.pinyinState[char.hz]!==false;
@@ -3448,12 +3465,34 @@ function handleAns(chosen,correct){
   // Show continue button — user must tap to proceed
   const nb = document.getElementById('next-btn');
   nb.style.display = 'block';
-  nb.textContent = ok ? '继续 Continue ▶' : '知道了 Got it ▶';
-  nb.style.background = ok
-    ? 'linear-gradient(135deg,#1a3a1a,#2a5a2a)'
-    : 'linear-gradient(135deg,#3a1a1a,#5a2a2a)';
-  nb.style.borderColor = ok ? '#50cc80' : '#cc5050';
-  nb.style.color = ok ? '#88ffcc' : '#ffaaaa';
+  if (G._nextUnlockTimer) {
+    clearTimeout(G._nextUnlockTimer);
+    G._nextUnlockTimer = null;
+  }
+  if (ok) {
+    nb.disabled = false;
+    nb.textContent = '继续 Continue ▶';
+    nb.style.background = 'linear-gradient(135deg,#1a3a1a,#2a5a2a)';
+    nb.style.borderColor = '#50cc80';
+    nb.style.color = '#88ffcc';
+    nb.style.cursor = 'pointer';
+  } else {
+    nb.disabled = true;
+    nb.textContent = 'Revision...';
+    nb.style.background = 'linear-gradient(135deg,#3a3a3a,#2a2a2a)';
+    nb.style.borderColor = '#777';
+    nb.style.color = '#dddddd';
+    nb.style.cursor = 'not-allowed';
+    G._nextUnlockTimer = setTimeout(() => {
+      nb.disabled = false;
+      nb.textContent = '知道了 Got it ▶';
+      nb.style.background = 'linear-gradient(135deg,#3a1a1a,#5a2a2a)';
+      nb.style.borderColor = '#cc5050';
+      nb.style.color = '#ffaaaa';
+      nb.style.cursor = 'pointer';
+      G._nextUnlockTimer = null;
+    }, 3000);
+  }
 }
 
 function advanceFromAnswer(){
