@@ -1,10 +1,17 @@
-const CACHE = 'sanguozhi-v6-r4';
+const CACHE = 'sanguozhi-v6-r5';
 const BASE = 'https://wilfredchin.github.io/SanGuoHanZiZhan/';
 const FILES = [
   BASE + 'index.html',
   BASE + 'manifest.json',
   BASE + 'icon-192.png',
   BASE + 'icon-512.png',
+  // Music tracks
+  BASE + 'mainscreen.mp3',
+  BASE + 'map.mp3',
+  BASE + 'battle.mp3',
+  BASE + 'feast.mp3',
+  BASE + 'activity.mp3',
+  BASE + 'victory.mp3',
   // Chapter story illustrations — pre-cached so they work offline
   // even before the user has opened each chapter for the first time
   BASE + 'c1_Peach_Garden_Oath.webp',

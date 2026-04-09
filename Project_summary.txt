@@ -1,0 +1,232 @@
+# 三国汉字战 (Sān Guó Hànzì Zhàn) — Project Summary
+
+## What This Is
+A single-file HTML Progressive Web App (PWA) Mandarin learning game for two brothers. Players conquer a map of Han Dynasty China by answering Chinese character questions. Deployed at **https://wilfredchin.github.io/SanGuoHanZiZhan/**
+
+**Players:** Ethan (睿翔, age ~8, Level 5) and Elliot (睿哲, age ~6, Level 3)
+
+---
+
+## Technical Architecture
+- **File:** `index.html` (~1.5MB)
+- **PWA files:** `manifest.json`, `sw.js`, `icon-192.png`, `icon-512.png`, `404.html`
+- **localStorage keys:** `skz_prog`, `skz_campaign_{mode}`, `skz_rosters`, `skz_diff`, `skz_chapters`, `skz_hero_levels`, `skz_campaign_rating_{mode}`, `skz_fb_url`, `skz_fb_key`
+- **External CDNs:** LZ-string (compression), Google Fonts
+- **Firebase Realtime Database** for cloud save sync and networked co-op
+
+---
+
+## Game Structure
+
+### Screens
+`scr-title` → `scr-profile` → `scr-map` → `scr-battle` → `scr-victory` / `scr-defeat` → `scr-story` (Option A) → back to map
+
+Also: `scr-study`, `scr-stories`, `scr-story-chapter`
+
+### Campaign Modes
+- **Ethan solo** — questions at Ethan's difficulty level
+- **Elliot solo** — questions at Elliot's difficulty level
+- **Co-op** — single device alternates questions; OR networked co-op via Firebase (each device gets own questions)
+
+### Map
+48 provinces covering Han Dynasty China. Each province has:
+- ID (0–47), Chinese name, English name, modern Chinese name
+- Terrain, allegiance (Wei/Wu/Yuan/Dong/Neutral — colour-coded on map)
+- Conquest type: ⚔️ Battle / 🍽️ Feast / ⚒️ Build
+- A general with HP, sprite type, soldier name
+- Adjacency list for frontier calculation
+- Pinch-to-zoom enabled
+
+### Battle Loop
+1. Waves of enemies (soldiers → general on final wave)
+2. Player answers multiple-choice character questions
+3. Correct = deals damage; wrong = enemy hits hero
+4. Damage formula: `1 + min(floor(streak/3), 2)` — max bonus +2
+5. On victory → province story card (Option A) → victory screen → return to map
+
+### Question Types
+- `char_to_meaning`: see character, pick English meaning
+- `hear_to_char`: hear character, pick the hanzi
+- `meaning_to_char`: see meaning/pinyin, pick the character
+
+---
+
+## Province & General Data
+
+All 48 provinces defined in `PROVINCE_GENERALS` array. 
+`PROV_CONQUEST_TYPE` lookup maps each province ID to battle/feast/build.
+
+---
+
+## Storytelling Systems
+
+### Option D — General Battle Cries
+- Fires on final wave spawn for named generals
+- Overlay text fades in/out over battle field (`cryfade` CSS animation)
+- Spoken **after** the name announcement ends, **before** the question char
+- **Male voice:** `pitch: 0.5, rate: 0.88` (deepest available via Web Speech API)
+- **Female voice (貂蝉, 祝融):** `pitch: 1.8, rate: 1.05`
+- Browser voice selection: tries to pick matching-gender zh-CN voice by name heuristics
+- **Answers are disabled** (`G._battleCrySpeaking = true`) and grid is dimmed during the cry
+- 22 generals have cries defined in `GENERAL_CRIES`
+
+### Option A — Province Conquest Story Cards
+- Shown between final wave victory and the victory screen
+- `showProvinceStory(provId, callback)` → `scr-story` screen
+- Shows general's sprite, province name, 2–4 sentences Chinese + English
+- Spoken via TTS; **countdown starts only after TTS finishes** (uses `utt.onend`)
+- 5-second countdown then auto-advances; tap Continue to skip; 🔊 to replay
+- 30-second safety fallback in case `onend` never fires (iOS bug)
+- 35 provinces have stories in `PROVINCE_STORIES`
+
+### Option C — Campaign Milestone Story Chapters
+- 15 chapters in `STORY_CHAPTERS`, chronologically ordered 184 AD → 265 AD
+- Unlocked at province counts: 1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 41, 45
+- First chapter (桃园三结义) always unlocked
+- Viewable from 📜 Stories button on title screen
+- Saved to `skz_chapters` in localStorage
+- `closeChapter()` cancels speech immediately when navigating away
+- New chapter unlock banner appears on victory screen
+
+**Chronological chapter order:**
+1. 桃园三结义 (184 AD) — 2. 连环计·美人计 (189) — 3. 三顾茅庐 (207) — 4. 草船借箭 (208) — 5. 火烧赤壁 (208) — 6. 过五关斩六将 (~200) — 7. 长坂之战 (208) — 8. 赵云救主 (208) — 9. 刮骨疗毒 (219) — 10. 水淹七军 (219) — 11. 七擒孟获 concise (225) — 12. 七擒孟获 full (225) — 13. 出师表 (227) — 14. 空城计 (228) — 15. 司马一统 (265)
+
+---
+
+## Progression Systems
+
+### Hero Levelling (Option C)
+- Each hero has XP stored in `skz_hero_levels`
+- XP per battle = `floor(score/10)` × 2 if bestStreak ≥ 6
+- Thresholds: L1→L2: 50, L2→L3: 120, L3→L4: 250, L4→L5: 450
+- **Level 3 passive:** starts every battle with streak = 1
+- Level-up banner shown on victory screen
+- Profile card shows `关羽 Lv3 ★★★☆☆ (95/120 XP)`
+
+### Campaign Rating (Option D)
+- Calculated at full campaign completion (all 48 provinces)
+- Rated 1–5 ⭐ based on: mastery % (0–2 pts) + total score (0–2 pts) + best streak (0–1 pt)
+- Saved to `skz_campaign_rating_{mode}`
+- Shown on profile card as `🏆 Campaign: ⭐⭐⭐☆☆`
+
+### Stars (Mastery)
+- Profile screen shows ⭐⭐⭐ based on character mastery: ⭐ = 10%, ⭐⭐ = 40%, ⭐⭐⭐ = 80% of pool seen correctly 3+ times at ≥70% accuracy
+
+### Score & Streak
+- Streak = consecutive correct answers; resets on wrong answer
+- Combo banners at multiples of 3: 三连击, 六连击, 九连击, 无敌
+- Score = sum of `dmg × 10` per battle
+
+---
+
+## Save / Sync System
+
+### Manual Save Codes
+- LZ-string compressed (prefix `LZ:`), ~75% smaller than old base64
+- Backwards compatible with old format
+- Settings → 💾 Save Management: dropdown selects Ethan/Elliot/Co-op
+- Share button uses native share sheet or clipboard
+- Import pastes compressed code
+
+### Firebase Cloud Sync
+- Settings → ☁️ 云端同步: enter Firebase Database URL + Family Key
+- Upload/Download per player
+- Path: `/sanguo/<familyKey>/<mode>.json`
+- Includes: campaign state, chars, roster, difficulty, hero levels, campaign rating
+
+---
+
+## Networked Co-op (RTCOOP)
+
+Only active when Firebase is configured and mode is co-op. Falls back to single-device co-op silently.
+
+### Roles
+- **Host** = the player whose turn it is to choose the next province (map controller)
+- **Guest** = the other player
+- Map controller rotates after each battle, persisted in Firebase at `coop_map.controller`
+
+### Map Screen
+- Profile screen: two buttons — "🦁 Co-op as Ethan" / "🐯 Co-op as Elliot" — sets `RTCOOP.myRole`
+- Controller sees map normally with "⭐ Your turn" and partner online status
+- Guest sees waiting banner, map interactions disabled
+- Map polls every 2 seconds via `_rtcoopMapPoll()`
+
+### Join Popup
+- When host starts battle, Firebase `coop_map.status = 'waiting_for_guest'`
+- Guest sees popup with province name, conquest type, 10-second countdown
+- Guest can Join or Watch (decline); declining records invite ID so popup doesn't re-show for same battle
+- Each new host battle = new `started_at` timestamp = fresh join opportunity
+
+### Battle Sync — Append-Only Hit Log
+- **Neither device writes absolute HP** — both append hit events to `coop_session.hits`
+- `authHp = enemy_max_hp - sum(all hits[*].dmg)`
+- Both devices compute HP independently from the same log — no write conflicts possible
+- **Only the host calls `checkEnemyDead()`** — guest's `advanceFromAnswer` skips it
+- Guest blocked from advancing waves (`G._wavePending` flag prevents double-advance)
+- Host writes new enemy block + clears `hits: null` when wave advances
+- `rtcoopHostWaveAdvance()` writes new enemy state; guest's `_rtcoopSyncWave()` applies it
+
+### Territory Sync
+- On victory, host writes `prov_state` JSON + `player_prov_id` to `coop_session`
+- Guest reads and applies before showing victory screen
+
+### Retreat
+- **Only host can retreat** — guest's retreat button is faded/disabled
+- Host retreat writes `{status:'retreated'}` to `coop_session` AND resets `coop_map`
+- Guest's battle poll detects `status:'retreated'` and calls `returnToMap()`
+- On return to map: RTCOOP stays enabled, map poll restarts, province interactions restored
+
+### Partner Feedback in Battle
+- Hero bar slot 0 = this device's hero; slot 1 = partner's hero with `(PlayerName)` in brackets
+- Partner status bar shows: `🔗 Elliot 睿哲 🔥×4 HP:5 ✓` updated every 1.5s
+- Partner hero HP synced from Firebase every poll cycle
+
+### Enemy HP in Co-op
+- HP multiplied by 2 when both players active (`G.rtcoopPlayerCount`)
+
+---
+
+## UI / Rendering
+
+### Hero Sprites
+9 playable heroes: 关羽, 赵云, 张飞, 黄忠, 马超, 刘备, 诸葛亮, 姜维, 魏延
+
+**Firefox fix:** Hero bars use `_heroSpriteHTML(key)` which renders sprites into `createElementNS`-created SVG (not HTML-parser SVG) before embedding innerHTML into the template — avoids Firefox's rejection of `.innerHTML` on HTML-parser SVG nodes.
+
+### Hero Token on Map
+
+### Map Features
+- 48 province polygons rendered dynamically
+- Allegiance colour-coding: Wei=dark blue, Wu=dark red, Yuan=purple, Dong=grey, Neutral=brown
+- **Frontier provinces** (可攻打): gold border drawn in a **second pass** on top of all other polygons (so it's never covered)
+- **All owned provinces** are in the frontier set (can practice in any owned province)
+- Pinch-to-zoom on map canvas
+- Map legend top-left, shifted right of 西域
+- Coastline: accurate eastern + southern coast, 会稽 and 建安 correctly on land
+- Rivers: 黄河 and 长江 with uniform stroke, ending at coastline dashes
+- Mountain/lake/river labels at font-size 11–12
+
+### Settings Modal
+- Difficulty section at top
+- 💾 Save Management: single section with Ethan/Elliot/Co-op dropdown
+- ☁️ Cloud Sync section at bottom
+
+---
+
+## Speech
+
+All Chinese speech via Web Speech API (`speakChinese(text)`):
+- Announcement → battle cry → question char: strict sequential chain via `utt.onend`
+- 4-second safety timer clears `_waitingForAnnounce` if `onend` never fires (iOS bug)
+- Battle cry spoken with voice parameters tuned by gender
+- Province story card: speaks on display, countdown starts only after speech ends
+- Chapter reader: `closeChapter()` cancels speech immediately on exit
+
+---
+
+## Known Working State
+- Single-player modes fully working
+- Networked co-op working with Firebase (tested in two browsers)
+- All storytelling options A, C, D implemented and working
+- LZ-string compression active for save codes
+- Firebase cloud sync working
