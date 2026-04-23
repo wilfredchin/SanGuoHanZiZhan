@@ -4767,15 +4767,11 @@ const RTCOOP = {
   battlePollTimer: null,
   joinCountdownTimer: null,
   endTransitionTimer: null,
-  lastSeenDamageSeq: 0,
   _wavePending: false,
   _lastDeclinedInvite: 0,
   _joinData: null,
   _joiningInviteId: 0,
   _defeatBroadcasting: false,
-  _mapPath: null,
-  _sessionPath: null,
-  partnerPresence: 0,     // kept for compat
 };
 
 // Sanitise a player name for use as a Firebase key
@@ -4856,6 +4852,34 @@ function _rtcoopBattleInviteStillJoinable(mapData, session, expectedInviteId) {
   if (mapData.status === 'waiting_for_guest') return true;
   if (mapData.status === 'battle_active') return _rtcoopSessionMatchesMapBattle(mapData, session);
   return false;
+}
+
+function _rtcoopClearJoinPrompt(opts) {
+  opts = opts || {};
+  clearInterval(RTCOOP.joinCountdownTimer);
+  RTCOOP.joinCountdownTimer = null;
+  if (opts.stopMapPoll) {
+    clearInterval(RTCOOP.mapPollTimer);
+    RTCOOP.mapPollTimer = null;
+  }
+  if (opts.clearJoinData) RTCOOP._joinData = null;
+  const popup = document.getElementById('coop-join-popup');
+  if (popup) popup.style.display = 'none';
+}
+
+async function _rtcoopPatchMapIdle(controller, extra) {
+  const patch = {
+    status: 'idle',
+    host: '',
+    battle_prov_id: -1,
+    battle_prov_name: '',
+    started_at: 0,
+    auto_join_guests: false,
+    ..._rtcoopBuildCampaignSnapshot(),
+    ...(extra || {}),
+  };
+  if (controller) patch.controller = controller;
+  await _rtPatch('coop_map', patch);
 }
 
 function _rtcoopApplyCampaignState(source) {
@@ -5110,17 +5134,7 @@ async function _rtcoopMapPoll() {
     const fallbackController = controller || _rtcoopNextControllerName(hostName);
     RTCOOP.mapStatus = 'idle';
     RTCOOP.currentController = fallbackController;
-    await _rtPatch('coop_map', {
-      status: 'idle',
-      controller: fallbackController,
-      host: '',
-      battle_prov_id: -1,
-      battle_prov_name: '',
-      started_at: 0,
-      auto_join_guests: false,
-      stale_cleared_at: Date.now(),
-      ..._rtcoopBuildCampaignSnapshot(),
-    });
+    await _rtcoopPatchMapIdle(fallbackController, { stale_cleared_at: Date.now() });
     _rtcoopUpdateMapUI('idle', fallbackController);
     return;
   }
@@ -5131,17 +5145,7 @@ async function _rtcoopMapPoll() {
     const fallbackController = controller || _rtcoopPreferredControllerName();
     RTCOOP.mapStatus = 'idle';
     RTCOOP.currentController = fallbackController;
-    await _rtPatch('coop_map', {
-      status: 'idle',
-      controller: fallbackController,
-      host: '',
-      battle_prov_id: -1,
-      battle_prov_name: '',
-      started_at: 0,
-      auto_join_guests: false,
-      stale_cleared_at: Date.now(),
-      ..._rtcoopBuildCampaignSnapshot(),
-    });
+    await _rtcoopPatchMapIdle(fallbackController, { stale_cleared_at: Date.now() });
     _rtcoopUpdateMapUI('idle', fallbackController);
     return;
   }
@@ -5166,11 +5170,7 @@ async function _rtcoopMapPoll() {
   }
 
   if (status !== 'waiting_for_guest' && status !== 'battle_active') {
-    clearInterval(RTCOOP.joinCountdownTimer);
-    RTCOOP.joinCountdownTimer = null;
-    RTCOOP._joinData = null;
-    const popup = document.getElementById('coop-join-popup');
-    if (popup) popup.style.display = 'none';
+    _rtcoopClearJoinPrompt({ clearJoinData: true });
   }
 
   // Guest still on battle screen but host retreated
@@ -5186,17 +5186,7 @@ async function _rtcoopMapPoll() {
     const session = liveSession || await _rtGet('coop_session');
     if (!_rtcoopSessionMatchesMapBattle(data, session)) {
       const fallbackController = controller || hostName || _rtcoopPreferredControllerName();
-      await _rtPatch('coop_map', {
-        status: 'idle',
-        controller: fallbackController,
-        host: '',
-        battle_prov_id: -1,
-        battle_prov_name: '',
-        started_at: 0,
-        auto_join_guests: false,
-        stale_cleared_at: Date.now(),
-        ..._rtcoopBuildCampaignSnapshot(),
-      });
+      await _rtcoopPatchMapIdle(fallbackController, { stale_cleared_at: Date.now() });
       RTCOOP.mapStatus = 'idle';
       RTCOOP.currentController = fallbackController;
       RTCOOP.isHost = fallbackController === RTCOOP.myName;
@@ -5314,12 +5304,7 @@ function _rtcoopShowJoinPopup(data) {
 }
 
 async function rtcoopJoinBattle() {
-  clearInterval(RTCOOP.joinCountdownTimer);
-  RTCOOP.joinCountdownTimer = null;
-  clearInterval(RTCOOP.mapPollTimer);
-  RTCOOP.mapPollTimer = null;
-  const popup = document.getElementById('coop-join-popup');
-  if (popup) popup.style.display = 'none';
+  _rtcoopClearJoinPrompt({ stopMapPoll: true });
   const data = RTCOOP._joinData;
   if (!data) return;
   const inviteId = data.started_at || data.battle_prov_id || Date.now();
@@ -5330,7 +5315,7 @@ async function rtcoopJoinBattle() {
   const liveInviteId = liveMap && (liveMap.started_at || liveMap.battle_prov_id || 0);
   const inviteStillOpen = !!(liveMap && liveMap.host === data.host && liveInviteId === inviteId && _rtcoopBattleInviteStillJoinable(liveMap, liveSession, inviteId));
   if (!inviteStillOpen) {
-    RTCOOP._joinData = null;
+    _rtcoopClearJoinPrompt({ clearJoinData: true });
     RTCOOP._joiningInviteId = 0;
     _rtcoopStartMapPoll();
     return;
@@ -5355,10 +5340,7 @@ async function rtcoopJoinBattle() {
 }
 
 async function rtcoopDeclineBattle() {
-  clearInterval(RTCOOP.joinCountdownTimer);
-  RTCOOP.joinCountdownTimer = null;
-  const popup = document.getElementById('coop-join-popup');
-  if (popup) popup.style.display = 'none';
+  _rtcoopClearJoinPrompt();
   RTCOOP._lastDeclinedInvite = (RTCOOP._joinData && RTCOOP._joinData.started_at) || Date.now();
   RTCOOP._joinData = null;
   await _rtPatch('coop_map', {
@@ -5372,7 +5354,6 @@ async function rtcoopDeclineBattle() {
 async function rtcoopHostInitSession(totalWaves, enemyData) {
   if (!RTCOOP.enabled) return;
   RTCOOP._defeatBroadcasting = false;
-  RTCOOP.lastSeenDamageSeq = 0;
   const myKey = _rtNameKey(RTCOOP.myName);
   const session = {
     host: RTCOOP.myName,
@@ -5412,7 +5393,6 @@ async function rtcoopHostInitSession(totalWaves, enemyData) {
 async function rtcoopGuestJoinSession() {
   if (!RTCOOP.enabled) return;
   RTCOOP._defeatBroadcasting = false;
-  RTCOOP.lastSeenDamageSeq = 0;
   const myKey = _rtNameKey(RTCOOP.myName);
   const myHero = G.heroes.find(h => h.level === RTCOOP.myRole);
   // Write own presence + HP immediately so host partner bar sees us
@@ -5614,28 +5594,10 @@ async function rtcoopHostSignalEnd(result) {
       RTCOOP.endTransitionTimer = null;
       return;
     }
-    if (latestMap && (latestMap.status === 'waiting_for_guest' || latestMap.status === 'battle_active')) {
-      RTCOOP.endTransitionTimer = null;
-      return;
-    }
-    await _rtPatch('coop_map', {
-      status: 'idle',
-      controller: nextController,
-      host: '',
-      battle_prov_id: -1,
-      battle_prov_name: '',
-      started_at: 0,
-      auto_join_guests: false,
-      ..._rtcoopBuildCampaignSnapshot(),
-    });
+    await _rtcoopPatchMapIdle(nextController);
     RTCOOP.endTransitionTimer = null;
   }, 1500);
 }
-
-// Stubs kept for compatibility
-async function rtcoopHostApplyDamage(dmg) {}
-async function rtcoopGuestApplyDamage(dmg) {}
-function _rtcoopGuestEnemyDead() {}
 
 // Guest applies a new wave from the host's session write
 function _rtcoopSyncWave(session, opts) {
