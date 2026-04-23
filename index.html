@@ -1306,9 +1306,9 @@ const ENEMY_SPRITES = {
     svg.setAttribute('viewBox','0 0 64 80');
     svg.innerHTML = `<image href="sprites/menghuo.webp" x="0" y="0" width="64" height="80" preserveAspectRatio="xMidYMid meet"/>`;
   },
-  oujing: (svg) => {
+  ouxing: (svg) => {
     svg.setAttribute('viewBox','0 0 64 80');
-    svg.innerHTML = `<image href="sprites/oujing.webp" x="0" y="0" width="64" height="80" preserveAspectRatio="xMidYMid meet"/>`;
+    svg.innerHTML = `<image href="sprites/ouxing.webp" x="0" y="0" width="64" height="80" preserveAspectRatio="xMidYMid meet"/>`;
   },
   pangtong: (svg) => {
     svg.setAttribute('viewBox','0 0 64 80');
@@ -4721,6 +4721,7 @@ const RTCOOP = {
   _wavePending: false,
   _lastDeclinedInvite: 0,
   _joinData: null,
+  _joiningInviteId: 0,
   _mapPath: null,
   _sessionPath: null,
   partnerPresence: 0,     // kept for compat
@@ -5176,15 +5177,20 @@ function _rtcoopShowJoinPopup(data) {
 
 async function rtcoopJoinBattle() {
   clearInterval(RTCOOP.joinCountdownTimer);
+  RTCOOP.joinCountdownTimer = null;
   const popup = document.getElementById('coop-join-popup');
   if (popup) popup.style.display = 'none';
   const data = RTCOOP._joinData;
   if (!data) return;
+  const inviteId = data.started_at || data.battle_prov_id || Date.now();
+  if (RTCOOP._joiningInviteId === inviteId || document.getElementById('scr-battle')?.classList.contains('active')) return;
 
   RTCOOP.isHost = false;
   const provId = data.battle_prov_id;
   const prov = PROVINCES[provId];
   if (!prov) return;
+  RTCOOP._joiningInviteId = inviteId;
+  RTCOOP._joinData = null;
   const fort = {
     id:'p'+provId, name:prov.hz, en:prov.en,
     diff: Math.max(1, Math.floor(provId/10)+1),
@@ -5199,9 +5205,11 @@ async function rtcoopJoinBattle() {
 
 async function rtcoopDeclineBattle() {
   clearInterval(RTCOOP.joinCountdownTimer);
+  RTCOOP.joinCountdownTimer = null;
   const popup = document.getElementById('coop-join-popup');
   if (popup) popup.style.display = 'none';
   RTCOOP._lastDeclinedInvite = (RTCOOP._joinData && RTCOOP._joinData.started_at) || Date.now();
+  RTCOOP._joinData = null;
   await _rtPatch('coop_map', {
     ['p_' + _rtNameKey(RTCOOP.myName) + '_declined']: Date.now(),
   });
