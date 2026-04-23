@@ -3800,6 +3800,7 @@ function enemyHitsHero(){
     t=alive[Math.floor(Math.random()*alive.length)];
   }
   t.hp--;updateHeroBars();
+  if (RTCOOP.enabled && G.mode === 'coop') rtcoopPublishOwnHeroState();
   _rtcoopRefreshQuestionLock();
   const i=G.heroes.indexOf(t);
   const bar=document.getElementById('hb-'+i);
@@ -3821,6 +3822,7 @@ function checkEnemyDead(){
     return true;
   }
   G.heroes.forEach((h)=>{if(h.hp<h.maxHp){h.hp=Math.min(h.maxHp,h.hp+1);updateHeroBars();}});
+  if (RTCOOP.enabled && G.mode === 'coop') rtcoopPublishOwnHeroState();
   if(!musicMuted)playBattleMusic(G.wave);
   setTimeout(()=>{
     spawnEnemy(G.battleProvId);
@@ -3832,8 +3834,16 @@ function checkEnemyDead(){
 }
 
 function checkDefeat(){
-  if(G.heroes.every(h=>h.hp<=0)){showDefeat();return true;}
-  return false;
+  if (!G.heroes.every(h=>h.hp<=0)) return false;
+  if (RTCOOP.enabled && G.mode === 'coop') {
+    if (RTCOOP.isHost) {
+      showDefeat({ skipSignal: true });
+      rtcoopHostSignalEnd('defeat');
+    }
+    return true;
+  }
+  showDefeat();
+  return true;
 }
 
 /* ===========================================================
@@ -3939,7 +3949,8 @@ function _showVictoryScreenInner(provId) {
   showScr('scr-victory');
 }
 
-function showDefeat(){
+function showDefeat(opts){
+  opts = opts || {};
   if(G.retryQueue.length>0) G.pendingRetry=G.retryQueue[0];
   stopMusic();
   saveProgress();
@@ -3947,7 +3958,7 @@ function showDefeat(){
   // In networked co-op: host signals defeat; both stop battle polling
   if(RTCOOP.enabled && G.mode==='coop') {
     clearInterval(RTCOOP.battlePollTimer);
-    if(RTCOOP.isHost) rtcoopHostSignalEnd('defeat');
+    if(RTCOOP.isHost && !opts.skipSignal) rtcoopHostSignalEnd('defeat');
   }
   document.getElementById('d-waves').textContent=G.wave;
   document.getElementById('d-score').textContent=G.score;
@@ -5187,6 +5198,8 @@ function _rtcoopShowJoinPopup(data) {
 async function rtcoopJoinBattle() {
   clearInterval(RTCOOP.joinCountdownTimer);
   RTCOOP.joinCountdownTimer = null;
+  clearInterval(RTCOOP.mapPollTimer);
+  RTCOOP.mapPollTimer = null;
   const popup = document.getElementById('coop-join-popup');
   if (popup) popup.style.display = 'none';
   const data = RTCOOP._joinData;
@@ -5289,6 +5302,29 @@ async function rtcoopGuestJoinSession() {
   _rtcoopStartBattlePoll();
 }
 
+async function rtcoopPublishOwnHeroState() {
+  if (!(RTCOOP.enabled && G.mode === 'coop')) return;
+  const myKey = _rtNameKey(RTCOOP.myName);
+  const myHero = G.heroes.find(h => h.level === RTCOOP.myRole || h.ownerName === RTCOOP.myName);
+  if (!myHero) return;
+  await _rtPatch('coop_session', {
+    ['ts_' + myKey]: Date.now(),
+    ['hp_' + myKey]: Math.max(0, myHero.hp),
+    ['maxhp_' + myKey]: myHero.maxHp,
+    ['streak_' + myKey]: G.streak,
+  });
+}
+
+function _rtcoopAllHeroesDefeatedFromSession(session) {
+  if (!session || typeof session !== 'object') return false;
+  const participants = Object.keys(session).filter(k => k.startsWith('hero_key_') && session[k]);
+  if (!participants.length) return false;
+  return participants.every(k => {
+    const ownerKey = k.slice('hero_key_'.length);
+    return (session['hp_' + ownerKey] || 0) <= 0;
+  });
+}
+
 function _rtcoopStartBattlePoll() {
   clearInterval(RTCOOP.battlePollTimer);
   RTCOOP.battlePollTimer = setInterval(_rtcoopBattlePoll, 1500);
@@ -5337,6 +5373,12 @@ async function _rtcoopBattlePoll() {
   });
   updateHeroBars();
   _rtcoopRefreshQuestionLock();
+  const allHeroesDefeated = _rtcoopAllHeroesDefeatedFromSession(session);
+  if (RTCOOP.isHost && session.status !== 'defeat' && allHeroesDefeated) {
+    showDefeat({ skipSignal: true });
+    rtcoopHostSignalEnd('defeat');
+    return;
+  }
   if (checkDefeat()) return;
 
   // Compute authoritative HP from hit log
@@ -5370,7 +5412,7 @@ async function _rtcoopBattlePoll() {
   }
   if (session.status === 'defeat') {
     clearInterval(RTCOOP.battlePollTimer);
-    if (!RTCOOP.isHost) showDefeat();
+    if (!document.getElementById('scr-defeat')?.classList.contains('active')) showDefeat({ skipSignal: true });
   }
   if ((session.status === 'idle' || session.status === 'retreated') && !RTCOOP.isHost) {
     clearInterval(RTCOOP.battlePollTimer);
@@ -5469,6 +5511,7 @@ function _rtcoopSyncWave(session, opts) {
   if (opts.healHeroes !== false && waveChanged) {
     G.heroes.forEach(h => { if(h.hp<h.maxHp) h.hp=Math.min(h.maxHp,h.hp+1); });
     updateHeroBars();
+    if (RTCOOP.enabled && G.mode === 'coop') rtcoopPublishOwnHeroState();
     _rtcoopRefreshQuestionLock();
   }
   if (!musicMuted) playBattleMusic(G.wave);
