@@ -4970,6 +4970,14 @@ function _rtcoopOnlineOrderedPlayerNamesFromMap(mapData) {
   return ordered;
 }
 
+function _rtcoopNextControllerNameFromMap(mapData, currentName) {
+  const names = _rtcoopOnlineOrderedPlayerNamesFromMap(mapData);
+  if (!names.length) return currentName || RTCOOP.myName || '';
+  const idx = names.indexOf(currentName);
+  if (idx === -1) return names[0];
+  return names[(idx + 1) % names.length] || names[0];
+}
+
 function _rtcoopNextControllerName(currentName) {
   const names = _rtcoopOnlineOrderedPlayerNames();
   if (!names.length) return currentName || RTCOOP.myName || '';
@@ -5655,11 +5663,13 @@ async function rtcoopHostSignalEnd(result) {
   clearInterval(RTCOOP.battlePollTimer);
   const mapSnapshot = await _rtGet('coop_map');
   const endingInviteId = mapSnapshot && (mapSnapshot.started_at || mapSnapshot.battle_prov_id || 0);
+  const nextController = _rtcoopNextControllerNameFromMap(mapSnapshot, RTCOOP.myName);
   await _rtPatch('coop_session', {
     status: result,
     ..._rtcoopBuildCampaignSnapshot(),
   });
   await _rtPatch('coop_map', {
+    controller: nextController,
     ..._rtcoopBuildCampaignSnapshot(),
   });
   clearTimeout(RTCOOP.endTransitionTimer);
@@ -5670,11 +5680,6 @@ async function rtcoopHostSignalEnd(result) {
       RTCOOP.endTransitionTimer = null;
       return;
     }
-    const orderedOnlineNames = _rtcoopOnlineOrderedPlayerNamesFromMap(latestMap);
-    const currentIndex = orderedOnlineNames.indexOf(RTCOOP.myName);
-    const nextController = currentIndex === -1
-      ? (orderedOnlineNames[0] || RTCOOP.myName || '')
-      : (orderedOnlineNames[(currentIndex + 1) % orderedOnlineNames.length] || orderedOnlineNames[0] || RTCOOP.myName || '');
     await _rtcoopPatchMapIdle(nextController);
     RTCOOP.endTransitionTimer = null;
   }, 1500);
