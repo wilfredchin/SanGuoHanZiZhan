@@ -632,7 +632,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
       <div class="stat-row"><span>关卡 Waves</span><span class="stat-val" id="d-waves">0</span></div>
       <div class="stat-row"><span>Score</span><span class="stat-val" id="d-score">0</span></div>
     </div>
-    <button class="btn-p" onclick="rematchBattle()">⚔️ 再战 / Rematch</button>
+    <button class="btn-p" id="defeat-rematch-btn" onclick="rematchBattle()">⚔️ 再战 / Rematch</button>
     <button class="btn-p" onclick="returnToMap()">🗺️ 返回地图 / Return to Map</button>
   </div>
 </div>
@@ -3166,6 +3166,9 @@ function rematchBattle() {
     returnToMap();
     return;
   }
+  if (RTCOOP.enabled && G.mode === 'coop' && !_rtcoopCanRematchAfterDefeat()) {
+    return;
+  }
   if (RTCOOP.enabled && G.mode === 'coop') {
     RTCOOP.isHost = true;
     rtcoopHostStartBattle(G.fort); // async — non-blocking
@@ -3566,6 +3569,41 @@ function renderQ() {
   }
   // Auto-speak char after render (only if no announcement is playing)
   // Announcements handle their own sequencing via speakAnnouncement()
+  _rtcoopRefreshQuestionLock();
+}
+
+function _rtcoopCurrentHero() {
+  if (!(RTCOOP.enabled && G.mode === 'coop')) return null;
+  return G.heroes.find(h => h.level === RTCOOP.myRole || h.ownerName === RTCOOP.myName) || null;
+}
+
+function _rtcoopCurrentHeroDefeated() {
+  const hero = _rtcoopCurrentHero();
+  return !!(hero && hero.hp <= 0);
+}
+
+function _rtcoopRefreshQuestionLock() {
+  const card = document.getElementById('q-card');
+  const grid = document.getElementById('ans-grid');
+  const nextBtn = document.getElementById('next-btn');
+  const prompt = document.getElementById('q-prompt');
+  if (!card || !grid || !nextBtn || !prompt) return;
+  const locked = _rtcoopCurrentHeroDefeated();
+  if (!locked) {
+    card.style.opacity = '';
+    card.style.filter = '';
+    grid.style.pointerEvents = '';
+    grid.style.opacity = '';
+    return;
+  }
+  card.style.opacity = '0.45';
+  card.style.filter = 'grayscale(85%)';
+  grid.style.pointerEvents = 'none';
+  grid.style.opacity = '0.35';
+  nextBtn.style.display = 'none';
+  nextBtn.disabled = true;
+  prompt.textContent = '💀 将领已倒下，只能观战。 Hero defeated - you can no longer answer.';
+  document.querySelectorAll('.ans-btn').forEach(b => { b.disabled = true; });
 }
 
 /* ===========================================================
@@ -3573,6 +3611,7 @@ function renderQ() {
 =========================================================== */
 function handleAns(chosen,correct){
   if (G._battleCrySpeaking) return; // Don't accept answers during general's battle cry
+  if (_rtcoopCurrentHeroDefeated()) return;
   const ok=chosen===correct;
   G.totalAnswered++;
   if(!G.seenChars[correct])G.seenChars[correct]={seen:0,correct:0};
@@ -3744,10 +3783,17 @@ function dealDmg(dmg){
 }
 
 function enemyHitsHero(){
-  const alive=G.heroes.filter(h=>h.hp>0);
-  if(!alive.length)return;
-  const t=alive[Math.floor(Math.random()*alive.length)];
+  let t = null;
+  if (RTCOOP.enabled && G.mode === 'coop') {
+    t = G.heroes.find(h => h.hp > 0 && (h.level === RTCOOP.myRole || h.ownerName === RTCOOP.myName)) || null;
+  }
+  if (!t) {
+    const alive=G.heroes.filter(h=>h.hp>0);
+    if(!alive.length)return;
+    t=alive[Math.floor(Math.random()*alive.length)];
+  }
   t.hp--;updateHeroBars();
+  _rtcoopRefreshQuestionLock();
   const i=G.heroes.indexOf(t);
   const bar=document.getElementById('hb-'+i);
   if(bar){bar.style.transform='translateX(-5px)';setTimeout(()=>bar.style.transform='',200);}
@@ -3898,6 +3944,13 @@ function showDefeat(){
   }
   document.getElementById('d-waves').textContent=G.wave;
   document.getElementById('d-score').textContent=G.score;
+  const rematchBtn = document.getElementById('defeat-rematch-btn');
+  if (rematchBtn) {
+    const canRematch = _rtcoopCanRematchAfterDefeat();
+    rematchBtn.disabled = !canRematch;
+    rematchBtn.style.opacity = canRematch ? '1' : '0.4';
+    rematchBtn.style.pointerEvents = canRematch ? '' : 'none';
+  }
   showScr('scr-defeat');
 }
 
@@ -4697,6 +4750,13 @@ function _rtcoopCanReceiveInvite() {
   return id === 'scr-map' || id === 'scr-story' || id === 'scr-victory' || id === 'scr-defeat';
 }
 
+function _rtcoopCanRematchAfterDefeat() {
+  if (!(RTCOOP.enabled && G.mode === 'coop')) return true;
+  const baseController = RTCOOP.currentController || RTCOOP.myName || '';
+  const nextController = _rtcoopNextControllerName(baseController);
+  return nextController === RTCOOP.myName;
+}
+
 function _rtcoopBuildCampaignSnapshot() {
   return {
     prov_state: JSON.stringify(provState),
@@ -5252,6 +5312,7 @@ async function _rtcoopBattlePoll() {
     if (h.level === RTCOOP.myRole) h._online = true;
   });
   updateHeroBars();
+  _rtcoopRefreshQuestionLock();
 
   // Compute authoritative HP from hit log
   const hits = session.hits || {};
@@ -5378,6 +5439,7 @@ function _rtcoopSyncWave(session, opts) {
   if (opts.healHeroes !== false && waveChanged) {
     G.heroes.forEach(h => { if(h.hp<h.maxHp) h.hp=Math.min(h.maxHp,h.hp+1); });
     updateHeroBars();
+    _rtcoopRefreshQuestionLock();
   }
   if (!musicMuted) playBattleMusic(G.wave);
 }
