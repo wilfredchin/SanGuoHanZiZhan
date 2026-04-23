@@ -4421,11 +4421,11 @@ function doImportUser(mode) {
 }
 
 /* == Firebase Cloud Sync == */
-const FIREBASE_DB_URL = 'https://url.us.m.mimecastprotect.com/s/9QPUC73AL7tyREv2iBi1To-8IA';
+const FIREBASE_DB_URL = 'https://hanzizhan-default-rtdb.europe-west1.firebasedatabase.app';
 
 function _getFirebaseConfig() {
   return {
-    url: FIREBASE_DB_URL,
+    url: (FIREBASE_DB_URL || '').replace(/\/+$/, ''),
     key: localStorage.getItem('skz_fb_key') || '',
   };
 }
