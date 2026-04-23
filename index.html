@@ -3889,6 +3889,7 @@ function checkDefeat(){
   if (!G.heroes.every(h=>h.hp<=0)) return false;
   if (RTCOOP.enabled && G.mode === 'coop') {
     if (RTCOOP.isHost) {
+      RTCOOP.currentController = _rtcoopNextControllerName(RTCOOP.myName);
       rtcoopHostSignalEnd('defeat');
     } else {
       rtcoopBroadcastDefeat();
@@ -5601,6 +5602,7 @@ async function _rtcoopBattlePoll() {
   _rtcoopRefreshQuestionLock();
   const allHeroesDefeated = _rtcoopAllHeroesDefeatedFromSession(session);
   if (session.status !== 'defeat' && allHeroesDefeated) {
+    if (RTCOOP.isHost) RTCOOP.currentController = _rtcoopNextControllerName(RTCOOP.myName);
     rtcoopBroadcastDefeat();
     if (!document.getElementById('scr-defeat')?.classList.contains('active')) showDefeat({ skipSignal: true });
     return;
