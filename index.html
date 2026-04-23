@@ -4901,28 +4901,32 @@ function _rtcoopApplyCampaignState(source) {
 }
 
 function _rtcoopPreferredControllerName() {
-  return _rtcoopOrderedPlayerNames()[0] || RTCOOP.myName || '';
+  return _rtcoopOnlineOrderedPlayerNames()[0] || RTCOOP.myName || '';
 }
 
 function _rtcoopOrderedPlayerNames() {
-  const online = new Set(_rtcoopOnlineNames());
   const ordered = [];
   const seen = new Set();
   const push = (name) => {
     if (typeof name !== 'string') return;
     const clean = name.trim();
-    if (!clean || seen.has(clean) || !online.has(clean)) return;
+    if (!clean || seen.has(clean)) return;
     seen.add(clean);
     ordered.push(clean);
   };
   (RTCOOP.playerOrder || []).forEach(push);
   Object.keys(RTCOOP.connectedPlayers || {}).forEach(push);
-  if (RTCOOP.myName && !seen.has(RTCOOP.myName)) ordered.push(RTCOOP.myName);
+  push(RTCOOP.myName);
   return ordered;
 }
 
+function _rtcoopOnlineOrderedPlayerNames() {
+  const online = new Set(_rtcoopOnlineNames());
+  return _rtcoopOrderedPlayerNames().filter(name => online.has(name));
+}
+
 function _rtcoopNextControllerName(currentName) {
-  const names = _rtcoopOrderedPlayerNames();
+  const names = _rtcoopOnlineOrderedPlayerNames();
   if (!names.length) return currentName || RTCOOP.myName || '';
   const idx = names.indexOf(currentName);
   if (idx === -1) return names[0];
