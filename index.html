@@ -3169,6 +3169,8 @@ function returnToMap() {
         host: '',
         battle_prov_id: -1,
         battle_prov_name: '',
+        started_at: 0,
+        auto_join_guests: false,
         retreated_at: Date.now(),
         ..._rtcoopBuildCampaignSnapshot(),
       });
@@ -5082,6 +5084,8 @@ async function _rtcoopMapPoll() {
       host: '',
       battle_prov_id: -1,
       battle_prov_name: '',
+      started_at: 0,
+      auto_join_guests: false,
       stale_cleared_at: Date.now(),
       ..._rtcoopBuildCampaignSnapshot(),
     });
@@ -5103,6 +5107,14 @@ async function _rtcoopMapPoll() {
     return;
   }
 
+  if (status !== 'waiting_for_guest') {
+    clearInterval(RTCOOP.joinCountdownTimer);
+    RTCOOP.joinCountdownTimer = null;
+    RTCOOP._joinData = null;
+    const popup = document.getElementById('coop-join-popup');
+    if (popup) popup.style.display = 'none';
+  }
+
   // Guest still on battle screen but host retreated
   if (status === 'idle' && document.getElementById('scr-battle')?.classList.contains('active')) {
     clearInterval(RTCOOP.battlePollTimer);
@@ -5110,6 +5122,30 @@ async function _rtcoopMapPoll() {
     RTCOOP._wavePending = false;
     returnToMap();
     return;
+  }
+
+  if (status === 'battle_active' && !document.getElementById('scr-battle')?.classList.contains('active')) {
+    const session = await _rtGet('coop_session');
+    const sessionStatus = session && session.status;
+    if (sessionStatus !== 'active') {
+      const fallbackController = controller || hostName || _rtcoopPreferredControllerName();
+      await _rtPatch('coop_map', {
+        status: 'idle',
+        controller: fallbackController,
+        host: '',
+        battle_prov_id: -1,
+        battle_prov_name: '',
+        started_at: 0,
+        auto_join_guests: false,
+        stale_cleared_at: Date.now(),
+        ..._rtcoopBuildCampaignSnapshot(),
+      });
+      RTCOOP.mapStatus = 'idle';
+      RTCOOP.currentController = fallbackController;
+      RTCOOP.isHost = fallbackController === RTCOOP.myName;
+      _rtcoopUpdateMapUI('idle', fallbackController);
+      return;
+    }
   }
 
   if (status === 'battle_active') {
@@ -5231,6 +5267,16 @@ async function rtcoopJoinBattle() {
   if (!data) return;
   const inviteId = data.started_at || data.battle_prov_id || Date.now();
   if (RTCOOP._joiningInviteId === inviteId || document.getElementById('scr-battle')?.classList.contains('active')) return;
+
+  const liveMap = await _rtGet('coop_map');
+  const liveInviteId = liveMap && (liveMap.started_at || liveMap.battle_prov_id || 0);
+  const inviteStillOpen = !!(liveMap && liveMap.status === 'waiting_for_guest' && liveMap.host === data.host && liveInviteId === inviteId);
+  if (!inviteStillOpen) {
+    RTCOOP._joinData = null;
+    RTCOOP._joiningInviteId = 0;
+    _rtcoopStartMapPoll();
+    return;
+  }
 
   RTCOOP.isHost = false;
   const provId = data.battle_prov_id;
