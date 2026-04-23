@@ -2441,6 +2441,31 @@ function drawFeastSprite(svgEl, course) {
   const emoji = course ? course.emoji : '🍽️';
   const label = course ? course.name : '佳肴';
   svgEl.setAttribute('viewBox','0 0 120 120');
+  if (label === '麻婆豆腐') {
+    svgEl.innerHTML = `<g>
+      <circle cx="60" cy="55" r="52" fill="rgba(60,40,10,0.28)" stroke="rgba(220,160,40,0.35)" stroke-width="2"/>
+      <ellipse cx="60" cy="66" rx="34" ry="12" fill="#f7f1df"/>
+      <path d="M26 63 Q60 28 94 63 L88 79 Q60 91 32 79 Z" fill="#b73a24" stroke="#6b2013" stroke-width="2"/>
+      <ellipse cx="60" cy="62" rx="28" ry="8" fill="#d44d2c" opacity="0.85"/>
+      <rect x="39" y="49" width="11" height="11" rx="2" fill="#f4e6c8" transform="rotate(-8 44.5 54.5)"/>
+      <rect x="52" y="45" width="12" height="12" rx="2" fill="#f7ead0" transform="rotate(6 58 51)"/>
+      <rect x="66" y="50" width="11" height="11" rx="2" fill="#f5e8cb" transform="rotate(-5 71.5 55.5)"/>
+      <rect x="47" y="58" width="12" height="12" rx="2" fill="#f1e3c1" transform="rotate(7 53 64)"/>
+      <rect x="61" y="60" width="12" height="12" rx="2" fill="#f6e8cc" transform="rotate(-6 67 66)"/>
+      <rect x="74" y="57" width="10" height="10" rx="2" fill="#f4e6c8" transform="rotate(9 79 62)"/>
+      <circle cx="41" cy="61" r="2.4" fill="#6a3217"/>
+      <circle cx="53" cy="56" r="2.2" fill="#6a3217"/>
+      <circle cx="69" cy="59" r="2.3" fill="#6a3217"/>
+      <circle cx="79" cy="64" r="2.1" fill="#6a3217"/>
+      <circle cx="58" cy="68" r="2.2" fill="#6a3217"/>
+      <path d="M24 69 Q60 95 96 69" fill="none" stroke="#f2f0ea" stroke-width="7" stroke-linecap="round"/>
+      <path d="M25 70 Q60 96 95 70" fill="none" stroke="#8f8f95" stroke-width="3" stroke-linecap="round"/>
+      <text x="60" y="112" text-anchor="middle" font-size="15"
+        font-family="'Ma Shan Zheng',cursive" fill="#ffd966"
+        stroke="rgba(0,0,0,0.95)" stroke-width="3" paint-order="stroke">${label}</text>
+    </g>`;
+    return;
+  }
   svgEl.innerHTML = `<g>
     <circle cx="60" cy="55" r="52" fill="rgba(60,40,10,0.28)" stroke="rgba(220,160,40,0.35)" stroke-width="2"/>
     <text x="60" y="80" text-anchor="middle" font-size="80">${emoji}</text>
@@ -3836,10 +3861,8 @@ function checkEnemyDead(){
 function checkDefeat(){
   if (!G.heroes.every(h=>h.hp<=0)) return false;
   if (RTCOOP.enabled && G.mode === 'coop') {
-    if (RTCOOP.isHost) {
-      showDefeat({ skipSignal: true });
-      rtcoopHostSignalEnd('defeat');
-    }
+    rtcoopBroadcastDefeat();
+    if (!document.getElementById('scr-defeat')?.classList.contains('active')) showDefeat({ skipSignal: true });
     return true;
   }
   showDefeat();
@@ -4734,6 +4757,7 @@ const RTCOOP = {
   _lastDeclinedInvite: 0,
   _joinData: null,
   _joiningInviteId: 0,
+  _defeatBroadcasting: false,
   _mapPath: null,
   _sessionPath: null,
   partnerPresence: 0,     // kept for compat
@@ -4943,6 +4967,7 @@ function rtcoopDisable() {
   RTCOOP.playerOrder = [];
   RTCOOP.mapStatus = 'idle';
   RTCOOP.currentController = '';
+  RTCOOP._defeatBroadcasting = false;
   clearInterval(RTCOOP.mapPollTimer);
   clearInterval(RTCOOP.battlePollTimer);
   clearTimeout(RTCOOP.joinCountdownTimer);
@@ -5242,6 +5267,7 @@ async function rtcoopDeclineBattle() {
 
 async function rtcoopHostInitSession(totalWaves, enemyData) {
   if (!RTCOOP.enabled) return;
+  RTCOOP._defeatBroadcasting = false;
   RTCOOP.lastSeenDamageSeq = 0;
   const myKey = _rtNameKey(RTCOOP.myName);
   const session = {
@@ -5281,6 +5307,7 @@ async function rtcoopHostInitSession(totalWaves, enemyData) {
 
 async function rtcoopGuestJoinSession() {
   if (!RTCOOP.enabled) return;
+  RTCOOP._defeatBroadcasting = false;
   RTCOOP.lastSeenDamageSeq = 0;
   const myKey = _rtNameKey(RTCOOP.myName);
   const myHero = G.heroes.find(h => h.level === RTCOOP.myRole);
@@ -5313,6 +5340,25 @@ async function rtcoopPublishOwnHeroState() {
     ['maxhp_' + myKey]: myHero.maxHp,
     ['streak_' + myKey]: G.streak,
   });
+}
+
+async function rtcoopBroadcastDefeat() {
+  if (!(RTCOOP.enabled && G.mode === 'coop')) return;
+  if (RTCOOP._defeatBroadcasting) return;
+  RTCOOP._defeatBroadcasting = true;
+  try {
+    await _rtPatch('coop_session', {
+      status: 'defeat',
+      ..._rtcoopBuildCampaignSnapshot(),
+    });
+    if (RTCOOP.isHost) {
+      await _rtPatch('coop_map', {
+        ..._rtcoopBuildCampaignSnapshot(),
+      });
+    }
+  } finally {
+    RTCOOP._defeatBroadcasting = false;
+  }
 }
 
 function _rtcoopAllHeroesDefeatedFromSession(session) {
@@ -5374,9 +5420,9 @@ async function _rtcoopBattlePoll() {
   updateHeroBars();
   _rtcoopRefreshQuestionLock();
   const allHeroesDefeated = _rtcoopAllHeroesDefeatedFromSession(session);
-  if (RTCOOP.isHost && session.status !== 'defeat' && allHeroesDefeated) {
-    showDefeat({ skipSignal: true });
-    rtcoopHostSignalEnd('defeat');
+  if (session.status !== 'defeat' && allHeroesDefeated) {
+    rtcoopBroadcastDefeat();
+    if (!document.getElementById('scr-defeat')?.classList.contains('active')) showDefeat({ skipSignal: true });
     return;
   }
   if (checkDefeat()) return;
