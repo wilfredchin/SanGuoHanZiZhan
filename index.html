@@ -240,7 +240,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
         var host = location.hostname;
-        var ok = host.indexOf('github.io') !== -1 || host === 'localhost' || host === 'http://127.0.0.1' || host.indexOf('192.168.') === 0;
+        var ok = host.indexOf('github.io') !== -1 || host === 'localhost' || host === 'https://url.us.m.mimecastprotect.com/s/EClfC5yW9EhRlgo3IzfwTk9ZL-' || host.indexOf('192.168.') === 0;
         if (!ok) return;
         var path = location.pathname;
         var base = path.substring(0, path.lastIndexOf('/') + 1);
@@ -2037,7 +2037,7 @@ const TERRAIN_STROKES = {
 function renderProvinces() {
   const layer = document.getElementById('forts-layer');
   layer.innerHTML = '';
-  const SVG_NS = 'http://www.w3.org/2000/svg';
+  const SVG_NS = 'https://url.us.m.mimecastprotect.com/s/FPZgC680R7HMWVE7S6h5T5u9iP';
   const frontier = getFrontier();
 
   PROVINCES.forEach(prov => {
@@ -3109,6 +3109,8 @@ function updateMapInfo() {
 }
 
 function returnToMap() {
+  const activeScreen = document.querySelector('.screen.active');
+  const wasBattleScreen = !!(activeScreen && activeScreen.id === 'scr-battle');
   if (G.launchProvId !== null) {
     playerProvId = G.launchProvId;
   }
@@ -3127,7 +3129,7 @@ function returnToMap() {
       el.style.pointerEvents = '';
       el.style.opacity = '';
     });
-    if (RTCOOP.isHost) {
+    if (RTCOOP.isHost && wasBattleScreen) {
       // Host retreated — tell guests to return to map too
       _rtPatch('coop_session', {status: 'retreated'});
       _rtPatch('coop_map', {
@@ -4419,7 +4421,7 @@ function doImportUser(mode) {
 }
 
 /* == Firebase Cloud Sync == */
-const FIREBASE_DB_URL = 'https://hanzizhan-default-rtdb.europe-west1.firebasedatabase.app';
+const FIREBASE_DB_URL = 'https://url.us.m.mimecastprotect.com/s/9QPUC73AL7tyREv2iBi1To-8IA';
 
 function _getFirebaseConfig() {
   return {
@@ -4886,6 +4888,8 @@ async function _rtcoopMapPoll() {
 
   let controller = data.controller || data.host || '';
   const status = data.status || 'idle';
+  const hostName = data.host || '';
+  const hostOnline = !!(hostName && connected[hostName] && connected[hostName] > cutoff);
   if (!controller && status === 'idle') {
     controller = _rtcoopPreferredControllerName();
     if (controller) await _rtPatch('coop_map', { controller });
@@ -4895,8 +4899,23 @@ async function _rtcoopMapPoll() {
   // Determine host status: controller == me means it's my turn
   RTCOOP.isHost = amController;
 
+  if ((status === 'waiting_for_guest' || status === 'battle_active') && hostName && !hostOnline) {
+    const fallbackController = controller || _rtcoopNextControllerName(hostName);
+    await _rtPatch('coop_map', {
+      status: 'idle',
+      controller: fallbackController,
+      host: '',
+      battle_prov_id: -1,
+      battle_prov_name: '',
+      stale_cleared_at: Date.now(),
+      ..._rtcoopBuildCampaignSnapshot(),
+    });
+    _rtcoopUpdateMapUI('idle', fallbackController);
+    return;
+  }
+
   // Show join popup to non-host when host started a battle
-  if (status === 'waiting_for_guest' && data.host && data.host !== RTCOOP.myName) {
+  if (status === 'waiting_for_guest' && hostName && hostName !== RTCOOP.myName && hostOnline) {
     const inviteId = data.started_at || 0;
     if (RTCOOP._lastDeclinedInvite !== inviteId && _rtcoopCanReceiveInvite()) {
       _rtcoopShowJoinPopup(data);
@@ -5967,5 +5986,4 @@ setTimeout(() => { try { window.speechSynthesis.getVoices(); } catch(e) {} }, 50
 <button id="mute-btn" title="Toggle Music" onclick="toggleMute()">♪</button>
 </body>
 </html>
-
 
