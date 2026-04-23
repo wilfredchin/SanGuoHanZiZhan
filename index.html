@@ -3244,7 +3244,7 @@ function startBattle(fort, mode) {
       rtcoopGuestJoinSession();
     }
     const pb = document.getElementById('coop-partner-bar');
-    if (pb) pb.style.display = 'block';
+    if (pb) pb.style.display = 'none';
   } else {
     const pb = document.getElementById('coop-partner-bar');
     if (pb) pb.style.display = 'none';
@@ -3605,7 +3605,8 @@ function handleAns(chosen,correct){
     G.streak=0;
     document.getElementById('streak-n').textContent='0';
     const _ctW = G.provConquestType || 'battle';
-    if (_ctW === 'battle') { enemyHitsHero(); flashField('flash-r'); }
+    enemyHitsHero();
+    if (_ctW === 'battle') flashField('flash-r');
     else { shakeBuildFeast(); flashField('flash-b'); }
     speakChinese(correct);
     // Queue this char for retry later in the battle (or carry to next if battle ends)
@@ -4794,9 +4795,13 @@ function _rtcoopSyncHeroesFromSession(session) {
       level: current ? current.level : (isSelf ? RTCOOP.myRole : ownerName),
       ownerId: current ? current.ownerId : (isSelf ? RTCOOP.myRole : ownerName),
       ownerName,
-      hp: remoteHp !== undefined ? Math.max(0, remoteHp) : (current ? current.hp : def.maxHp),
-      maxHp: remoteMaxHp || (current ? current.maxHp : def.maxHp),
-      _online: current ? current._online !== false : true,
+      hp: isSelf
+        ? (current ? current.hp : (remoteHp !== undefined ? Math.max(0, remoteHp) : def.maxHp))
+        : (remoteHp !== undefined ? Math.max(0, remoteHp) : (current ? current.hp : def.maxHp)),
+      maxHp: isSelf
+        ? (current ? current.maxHp : (remoteMaxHp || def.maxHp))
+        : (remoteMaxHp || (current ? current.maxHp : def.maxHp)),
+      _online: isSelf ? true : (current ? current._online !== false : true),
     };
   }).filter(Boolean);
 
@@ -4863,6 +4868,15 @@ function rtcoopDisable() {
   clearTimeout(RTCOOP.joinCountdownTimer);
   RTCOOP.mapPollTimer = null;
   RTCOOP.battlePollTimer = null;
+
+  const waitingBanner = document.getElementById('coop-map-waiting');
+  if (waitingBanner) waitingBanner.style.display = 'none';
+  const joinPopup = document.getElementById('coop-join-popup');
+  if (joinPopup) joinPopup.style.display = 'none';
+  document.querySelectorAll('[data-prov]').forEach(el => {
+    el.style.pointerEvents = '';
+    el.style.opacity = '';
+  });
 }
 
 // -- MAP POLLING ------------------------------------------
@@ -5372,7 +5386,9 @@ function _rtcoopUpdatePartnerBar(session) {
   const bar = document.getElementById('coop-partner-bar');
   const statusEl = document.getElementById('coop-partner-status');
   if (!bar || !statusEl) return;
-  bar.style.display = 'block';
+  bar.style.display = 'none';
+  statusEl.textContent = '';
+  return;
 
   // Build partner list from session ts_ keys (populated by all players during battle)
   const myKey = _rtNameKey(RTCOOP.myName);
