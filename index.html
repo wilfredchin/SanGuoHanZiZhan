@@ -2170,7 +2170,8 @@ function moveHeroToken(x, y) {
 function updateHeroTokenSprite() {
   const svg = document.getElementById('hero-token-svg');
   if (!svg) return;
-  const roster = playerRosters[campaignMode];
+  const rosterKey = (campaignMode === 'coop' && RTCOOP.myRole) ? RTCOOP.myRole : campaignMode;
+  const roster = playerRosters[rosterKey];
   const key = (roster && roster.startHero) || ALL_HEROES[0].key;
   // Write sprite directly — the svg viewBox="0 0 64 80" handles all scaling
   const tmp = document.createElementNS('http://www.w3.org/2000/svg','svg');
@@ -3645,6 +3646,7 @@ function handleAns(chosen,correct){
     document.getElementById('streak-n').textContent='0';
     const _ctW = G.provConquestType || 'battle';
     enemyHitsHero();
+    if (checkDefeat()) return;
     if (_ctW === 'battle') flashField('flash-r');
     else { shakeBuildFeast(); flashField('flash-b'); }
     speakChinese(correct);
@@ -5313,6 +5315,7 @@ async function _rtcoopBattlePoll() {
   });
   updateHeroBars();
   _rtcoopRefreshQuestionLock();
+  if (checkDefeat()) return;
 
   // Compute authoritative HP from hit log
   const hits = session.hits || {};
