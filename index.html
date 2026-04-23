@@ -4933,6 +4933,20 @@ function _rtcoopNextControllerName(currentName) {
   return names[(idx + 1) % names.length] || names[0];
 }
 
+function _rtcoopOwnerNameFromKey(ownerKey, existingByOwner) {
+  if (!ownerKey) return '';
+  for (const ownerName of existingByOwner.keys()) {
+    if (_rtNameKey(ownerName) === ownerKey) return ownerName;
+  }
+  for (const ownerName of _rtcoopOrderedPlayerNames()) {
+    if (_rtNameKey(ownerName) === ownerKey) return ownerName;
+  }
+  for (const player of PLAYERS) {
+    if (_rtNameKey(player.name) === ownerKey) return player.name;
+  }
+  return ownerKey;
+}
+
 function _rtcoopSyncHeroesFromSession(session) {
   if (!session || !Array.isArray(G.heroes)) return;
   const existingByOwner = new Map();
@@ -4941,14 +4955,23 @@ function _rtcoopSyncHeroesFromSession(session) {
     if (ownerName) existingByOwner.set(ownerName, hero);
   });
 
-  const orderedOwners = _rtcoopOrderedPlayerNames();
-  const owners = [
-    ...(RTCOOP.myName ? [RTCOOP.myName] : []),
-    ...orderedOwners.filter(name => name && name !== RTCOOP.myName),
-  ];
+  const sessionOwnerKeys = Object.keys(session)
+    .filter(key => key.startsWith('hero_key_') && session[key])
+    .map(key => key.slice('hero_key_'.length));
+  const orderedKeys = [];
+  const seenOwnerKeys = new Set();
+  const pushOwnerKey = (ownerKey) => {
+    if (!ownerKey || seenOwnerKeys.has(ownerKey)) return;
+    seenOwnerKeys.add(ownerKey);
+    orderedKeys.push(ownerKey);
+  };
 
-  const nextHeroes = owners.map(ownerName => {
-    const ownerKey = _rtNameKey(ownerName);
+  pushOwnerKey(_rtNameKey(RTCOOP.myName));
+  _rtcoopOrderedPlayerNames().forEach(name => pushOwnerKey(_rtNameKey(name)));
+  sessionOwnerKeys.forEach(pushOwnerKey);
+
+  const nextHeroes = orderedKeys.map(ownerKey => {
+    const ownerName = _rtcoopOwnerNameFromKey(ownerKey, existingByOwner);
     const remoteKey = session['hero_key_' + ownerKey];
     const current = existingByOwner.get(ownerName);
     if (!remoteKey) return current || null;
