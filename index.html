@@ -3888,7 +3888,11 @@ function checkEnemyDead(){
 function checkDefeat(){
   if (!G.heroes.every(h=>h.hp<=0)) return false;
   if (RTCOOP.enabled && G.mode === 'coop') {
-    rtcoopBroadcastDefeat();
+    if (RTCOOP.isHost) {
+      rtcoopHostSignalEnd('defeat');
+    } else {
+      rtcoopBroadcastDefeat();
+    }
     if (!document.getElementById('scr-defeat')?.classList.contains('active')) showDefeat({ skipSignal: true });
     return true;
   }
@@ -4819,7 +4823,8 @@ function _rtcoopCanReceiveInvite() {
 
 function _rtcoopCanRematchAfterDefeat() {
   if (!(RTCOOP.enabled && G.mode === 'coop')) return true;
-  const baseController = RTCOOP.currentController || RTCOOP.myName || '';
+  if (RTCOOP.currentController) return RTCOOP.currentController === RTCOOP.myName;
+  const baseController = RTCOOP.myName || '';
   const nextController = _rtcoopNextControllerName(baseController);
   return nextController === RTCOOP.myName;
 }
@@ -5509,6 +5514,10 @@ async function rtcoopPublishOwnHeroState() {
 
 async function rtcoopBroadcastDefeat() {
   if (!(RTCOOP.enabled && G.mode === 'coop')) return;
+  if (RTCOOP.isHost) {
+    await rtcoopHostSignalEnd('defeat');
+    return;
+  }
   if (RTCOOP._defeatBroadcasting) return;
   RTCOOP._defeatBroadcasting = true;
   try {
@@ -5587,6 +5596,7 @@ async function _rtcoopBattlePoll() {
   G.heroes.forEach(h => {
     if (h.level === RTCOOP.myRole) h._online = true;
   });
+  if (session.next_controller) RTCOOP.currentController = session.next_controller;
   updateHeroBars();
   _rtcoopRefreshQuestionLock();
   const allHeroesDefeated = _rtcoopAllHeroesDefeatedFromSession(session);
@@ -5664,8 +5674,10 @@ async function rtcoopHostSignalEnd(result) {
   const mapSnapshot = await _rtGet('coop_map');
   const endingInviteId = mapSnapshot && (mapSnapshot.started_at || mapSnapshot.battle_prov_id || 0);
   const nextController = _rtcoopNextControllerNameFromMap(mapSnapshot, RTCOOP.myName);
+  RTCOOP.currentController = nextController;
   await _rtPatch('coop_session', {
     status: result,
+    next_controller: nextController,
     ..._rtcoopBuildCampaignSnapshot(),
   });
   await _rtPatch('coop_map', {
