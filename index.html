@@ -3172,7 +3172,7 @@ function rematchBattle() {
   }
   if (RTCOOP.enabled && G.mode === 'coop') {
     RTCOOP.isHost = true;
-    rtcoopHostStartBattle(G.fort); // async — non-blocking
+    rtcoopHostStartBattle(G.fort, { autoJoinGuests: true }); // async — non-blocking
   }
   startBattle(G.fort, G.mode);
 }
@@ -5056,7 +5056,10 @@ async function _rtcoopMapPoll() {
   // Show join popup to non-host when host started a battle
   if (status === 'waiting_for_guest' && hostName && hostName !== RTCOOP.myName && hostOnline) {
     const inviteId = data.started_at || 0;
-    if (RTCOOP._lastDeclinedInvite !== inviteId && _rtcoopCanReceiveInvite()) {
+    if (data.auto_join_guests && _rtcoopCanReceiveInvite()) {
+      RTCOOP._joinData = data;
+      rtcoopJoinBattle();
+    } else if (RTCOOP._lastDeclinedInvite !== inviteId && _rtcoopCanReceiveInvite()) {
       _rtcoopShowJoinPopup(data);
     } else {
       _rtcoopUpdateMapUI(status, controller || hostName);
@@ -5131,7 +5134,7 @@ function _rtcoopUpdateMapUI(status, controller) {
 }
 
 // Called when the HOST presses attack
-async function rtcoopHostStartBattle(fort) {
+async function rtcoopHostStartBattle(fort, opts) {
   if (!RTCOOP.enabled) return;
   clearTimeout(RTCOOP.endTransitionTimer);
   RTCOOP.endTransitionTimer = null;
@@ -5144,6 +5147,7 @@ async function rtcoopHostStartBattle(fort) {
     battle_ctype: getProvType(fort.provId),
     host: RTCOOP.myName,
     started_at: Date.now(),
+    auto_join_guests: !!(opts && opts.autoJoinGuests),
     ['p_' + _rtNameKey(RTCOOP.myName)]: Date.now(),
     ..._rtcoopBuildCampaignSnapshot(),
   });
