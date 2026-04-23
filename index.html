@@ -859,14 +859,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
 let currentMusicMode = null;
 let currentAudio = null;  // active HTMLAudioElement
 
-// MP3 sources — files must be in same folder as this HTML
+// MP3 sources
 const MP3_TRACKS = {
-  mainscreen: 'mainscreen.mp3',
-  map:        'map.mp3',
-  battle:     'battle.mp3',
-  feast:      'feast.mp3',
-  activity:   'activity.mp3',
-  victory:    'victory.mp3',
+  mainscreen: 'sounds/mainscreen.mp3',
+  map:        'sounds/map.mp3',
+  battle:     'sounds/battle.mp3',
+  feast:      'sounds/feast.mp3',
+  activity:   'sounds/activity.mp3',
+  victory:    'sounds/victory.mp3',
 };
 
 function stopMusic() {
@@ -4835,6 +4835,16 @@ function _rtcoopSessionMatchesMapBattle(mapData, session) {
   return true;
 }
 
+function _rtcoopBattleInviteStillJoinable(mapData, session, expectedInviteId) {
+  if (!mapData) return false;
+  const inviteId = mapData.started_at || mapData.battle_prov_id || 0;
+  if (expectedInviteId && inviteId !== expectedInviteId) return false;
+  if (inviteId && mapData.retreated_at && mapData.retreated_at >= inviteId) return false;
+  if (mapData.status === 'waiting_for_guest') return true;
+  if (mapData.status === 'battle_active') return _rtcoopSessionMatchesMapBattle(mapData, session);
+  return false;
+}
+
 function _rtcoopApplyCampaignState(source) {
   if (!source || source.prov_state == null) return;
   try {
@@ -5123,20 +5133,26 @@ async function _rtcoopMapPoll() {
     return;
   }
 
-  // Show join popup to non-host when host started a battle
-  if (status === 'waiting_for_guest' && hostName && hostName !== RTCOOP.myName && hostOnline) {
-    if (data.auto_join_guests && _rtcoopCanReceiveInvite()) {
-      RTCOOP._joinData = data;
-      rtcoopJoinBattle();
-    } else if (RTCOOP._lastDeclinedInvite !== inviteId && _rtcoopCanReceiveInvite()) {
-      _rtcoopShowJoinPopup(data);
-    } else {
-      _rtcoopUpdateMapUI(status, controller || hostName);
+  let liveSession = null;
+  const canReceiveInvite = _rtcoopCanReceiveInvite();
+  if ((status === 'waiting_for_guest' || status === 'battle_active') && hostName && hostName !== RTCOOP.myName && hostOnline && canReceiveInvite) {
+    liveSession = await _rtGet('coop_session');
+    const battleJoinable = _rtcoopBattleInviteStillJoinable(data, liveSession, inviteId);
+    if (battleJoinable) {
+      if (data.auto_join_guests) {
+        RTCOOP._joinData = data;
+        rtcoopJoinBattle();
+      } else if (RTCOOP._lastDeclinedInvite !== inviteId) {
+        RTCOOP._joinData = data;
+        _rtcoopShowJoinPopup(data);
+      } else {
+        _rtcoopUpdateMapUI(status, controller || hostName);
+      }
+      return;
     }
-    return;
   }
 
-  if (status !== 'waiting_for_guest') {
+  if (status !== 'waiting_for_guest' && status !== 'battle_active') {
     clearInterval(RTCOOP.joinCountdownTimer);
     RTCOOP.joinCountdownTimer = null;
     RTCOOP._joinData = null;
@@ -5154,7 +5170,7 @@ async function _rtcoopMapPoll() {
   }
 
   if (status === 'battle_active' && !document.getElementById('scr-battle')?.classList.contains('active')) {
-    const session = await _rtGet('coop_session');
+    const session = liveSession || await _rtGet('coop_session');
     if (!_rtcoopSessionMatchesMapBattle(data, session)) {
       const fallbackController = controller || hostName || _rtcoopPreferredControllerName();
       await _rtPatch('coop_map', {
@@ -5297,9 +5313,9 @@ async function rtcoopJoinBattle() {
   if (RTCOOP._joiningInviteId === inviteId || document.getElementById('scr-battle')?.classList.contains('active')) return;
 
   const liveMap = await _rtGet('coop_map');
+  const liveSession = await _rtGet('coop_session');
   const liveInviteId = liveMap && (liveMap.started_at || liveMap.battle_prov_id || 0);
-  const inviteRetreated = !!(liveMap && liveInviteId && liveMap.retreated_at && liveMap.retreated_at >= liveInviteId);
-  const inviteStillOpen = !!(liveMap && liveMap.status === 'waiting_for_guest' && liveMap.host === data.host && liveInviteId === inviteId && !inviteRetreated);
+  const inviteStillOpen = !!(liveMap && liveMap.host === data.host && liveInviteId === inviteId && _rtcoopBattleInviteStillJoinable(liveMap, liveSession, inviteId));
   if (!inviteStillOpen) {
     RTCOOP._joinData = null;
     RTCOOP._joiningInviteId = 0;
@@ -6009,46 +6025,46 @@ const PROVINCE_STORIES = {
 const CHAPTER_ART = {
 
 // c1 - Oath of Peach Garden: Liu Bei, Guan Yu, Zhang Fei under peach blossoms
-'c1': `<img src="c1_Peach_Garden_Oath.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c1">`,
+'c1': `<img src="sprites/c1_Peach_Garden_Oath.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c1">`,
 
 // c2 - Chain Stratagem: Diao Chan (courtlady) between Lu Bu and Dong Zhuo at Phoenix Pavilion
-'c2': `<img src="c2_Chain_Stratagem.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c2">`,
+'c2': `<img src="sprites/c2_Chain_Stratagem.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c2">`,
 
 // c3 - Three Visits: Liu Bei bowing at thatched cottage in snow, Zhuge Liang inside
-'c3': `<img src="c3_Three_Visits.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c3">`,
+'c3': `<img src="sprites/c3_Three_Visits.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c3">`,
 
 // c4 - Straw Boat Arrows: Zhuge Liang on boat in fog, arrows raining in
-'c4': `<img src="c4_Straw_Boat_Arrows.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c4">`,
+'c4': `<img src="sprites/c4_Straw_Boat_Arrows.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c4">`,
 
 // c5 - Red Cliff Fire: massive fire, Zhou Yu commanding, Huang Gai's fire ships
-'c5': `<img src="c5_Red_Cliff_Fire.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c5">`,
+'c5': `<img src="sprites/c5_Red_Cliff_Fire.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c5">`,
 
 // c6 - Five Passes Six Generals: Guan Yu on Red Hare cutting through gate
-'c6': `<img src="c6_Five_Passes_Six_Generals.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c6">`,
+'c6': `<img src="sprites/c6_Five_Passes_Six_Generals.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c6">`,
 
 // c7 - Battle of Changban: Zhang Fei at bridge roaring, Zhao Yun with baby
-'c7': `<img src="c7_Battle_of_Changban.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c7">`,
+'c7': `<img src="sprites/c7_Battle_of_Changban.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c7">`,
 
 // c8 - Zhao Yun Rescues Lord: seven times in, seven times out, baby strapped to chest
-'c8': `<img src="c8_Zhao_Yun_Rescues.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c8">`,
+'c8': `<img src="sprites/c8_Zhao_Yun_Rescues.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c8">`,
 
 // c9 - Bone Scraping: Hua Tuo, Guan Yu playing chess, arm extended
-'c9': `<img src="c9_Scraping_the_Bone.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c9">`,
+'c9': `<img src="sprites/c9_Scraping_the_Bone.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c9">`,
 
 // c10 - Flooding Seven Armies: Guan Yu on high ground, floods below, Yu Jin surrendering
-'c10': `<img src="c10_Flooding_Seven_Armies.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c10">`,
+'c10': `<img src="sprites/c10_Flooding_Seven_Armies.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c10">`,
 
 // c11 - Seven Captures: Zhuge Liang releasing Meng Huo with dignity
-'c11': `<img src="c11_Seven_Captures.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c11">`,
+'c11': `<img src="sprites/c11_Seven_Captures.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c11">`,
 
 // c13 - Memorial Before Campaign: Zhuge Liang writing the Chu Shi Biao
-'c13': `<img src="c13_Memorial.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c13">`,
+'c13': `<img src="sprites/c13_Memorial.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c13">`,
 
 // c14 - Empty City: Zhuge Liang on ramparts playing zither, Sima Yi's army below
-'c14': `<img src="c14_Empty_City.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c14">`,
+'c14': `<img src="sprites/c14_Empty_City.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c14">`,
 
 // c15 - Sima Prevails: Jin dynasty throne, era of unification
-'c15': `<img src="c15_Sima_Prevails.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c15">`,
+'c15': `<img src="sprites/c15_Sima_Prevails.webp" style="width:100%;max-width:800px;display:block;border-radius:8px" alt="c15">`,
 
 };
 ;
