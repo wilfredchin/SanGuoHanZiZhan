@@ -3589,12 +3589,17 @@ function _rtcoopRefreshQuestionLock() {
   const nextBtn = document.getElementById('next-btn');
   const prompt = document.getElementById('q-prompt');
   if (!card || !grid || !nextBtn || !prompt) return;
+  const wasLocked = !!RTCOOP._questionLocked;
   const locked = _rtcoopCurrentHeroDefeated();
+  RTCOOP._questionLocked = locked;
   if (!locked) {
     card.style.opacity = '';
     card.style.filter = '';
     grid.style.pointerEvents = '';
     grid.style.opacity = '';
+    if (wasLocked && document.getElementById('scr-battle')?.classList.contains('active')) {
+      nextQ();
+    }
     return;
   }
   card.style.opacity = '0.45';
