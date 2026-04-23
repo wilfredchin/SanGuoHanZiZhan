@@ -4717,6 +4717,7 @@ const RTCOOP = {
   mapPollTimer: null,
   battlePollTimer: null,
   joinCountdownTimer: null,
+  endTransitionTimer: null,
   lastSeenDamageSeq: 0,
   _wavePending: false,
   _lastDeclinedInvite: 0,
@@ -4934,8 +4935,10 @@ function rtcoopDisable() {
   clearInterval(RTCOOP.mapPollTimer);
   clearInterval(RTCOOP.battlePollTimer);
   clearTimeout(RTCOOP.joinCountdownTimer);
+  clearTimeout(RTCOOP.endTransitionTimer);
   RTCOOP.mapPollTimer = null;
   RTCOOP.battlePollTimer = null;
+  RTCOOP.endTransitionTimer = null;
 
   const waitingBanner = document.getElementById('coop-map-waiting');
   if (waitingBanner) waitingBanner.style.display = 'none';
@@ -5130,6 +5133,8 @@ function _rtcoopUpdateMapUI(status, controller) {
 // Called when the HOST presses attack
 async function rtcoopHostStartBattle(fort) {
   if (!RTCOOP.enabled) return;
+  clearTimeout(RTCOOP.endTransitionTimer);
+  RTCOOP.endTransitionTimer = null;
   const prov = PROVINCES[fort.provId];
   await _rtPatch('coop_map', {
     controller: RTCOOP.myName,
@@ -5398,9 +5403,13 @@ async function rtcoopHostSignalEnd(result) {
     status: result,
     ..._rtcoopBuildCampaignSnapshot(),
   });
+  await _rtPatch('coop_map', {
+    ..._rtcoopBuildCampaignSnapshot(),
+  });
   // Rotate controller to next online player
   const nextController = _rtcoopNextControllerName(RTCOOP.myName);
-  setTimeout(async () => {
+  clearTimeout(RTCOOP.endTransitionTimer);
+  RTCOOP.endTransitionTimer = setTimeout(async () => {
     await _rtPatch('coop_map', {
       status: 'idle',
       controller: nextController,
@@ -5409,6 +5418,7 @@ async function rtcoopHostSignalEnd(result) {
       battle_prov_name: '',
       ..._rtcoopBuildCampaignSnapshot(),
     });
+    RTCOOP.endTransitionTimer = null;
   }, 1500);
 }
 
