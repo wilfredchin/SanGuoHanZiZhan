@@ -4826,6 +4826,15 @@ function _rtcoopBuildEnemySnapshot(enemy) {
   };
 }
 
+function _rtcoopSessionMatchesMapBattle(mapData, session) {
+  if (!mapData || !session || typeof session !== 'object') return false;
+  if (session.status !== 'active') return false;
+  if ((session.host || '') !== (mapData.host || '')) return false;
+  if ((session.prov_id ?? -1) !== (mapData.battle_prov_id ?? -1)) return false;
+  if ((session.battle_at || 0) < (mapData.started_at || 0)) return false;
+  return true;
+}
+
 function _rtcoopApplyCampaignState(source) {
   if (!source || source.prov_state == null) return;
   try {
@@ -5093,9 +5102,29 @@ async function _rtcoopMapPoll() {
     return;
   }
 
+  const inviteId = data.started_at || 0;
+  const inviteRetreated = !!(inviteId && data.retreated_at && data.retreated_at >= inviteId);
+  if (status === 'waiting_for_guest' && inviteRetreated) {
+    const fallbackController = controller || _rtcoopPreferredControllerName();
+    RTCOOP.mapStatus = 'idle';
+    RTCOOP.currentController = fallbackController;
+    await _rtPatch('coop_map', {
+      status: 'idle',
+      controller: fallbackController,
+      host: '',
+      battle_prov_id: -1,
+      battle_prov_name: '',
+      started_at: 0,
+      auto_join_guests: false,
+      stale_cleared_at: Date.now(),
+      ..._rtcoopBuildCampaignSnapshot(),
+    });
+    _rtcoopUpdateMapUI('idle', fallbackController);
+    return;
+  }
+
   // Show join popup to non-host when host started a battle
   if (status === 'waiting_for_guest' && hostName && hostName !== RTCOOP.myName && hostOnline) {
-    const inviteId = data.started_at || 0;
     if (data.auto_join_guests && _rtcoopCanReceiveInvite()) {
       RTCOOP._joinData = data;
       rtcoopJoinBattle();
@@ -5126,8 +5155,7 @@ async function _rtcoopMapPoll() {
 
   if (status === 'battle_active' && !document.getElementById('scr-battle')?.classList.contains('active')) {
     const session = await _rtGet('coop_session');
-    const sessionStatus = session && session.status;
-    if (sessionStatus !== 'active') {
+    if (!_rtcoopSessionMatchesMapBattle(data, session)) {
       const fallbackController = controller || hostName || _rtcoopPreferredControllerName();
       await _rtPatch('coop_map', {
         status: 'idle',
@@ -5270,7 +5298,8 @@ async function rtcoopJoinBattle() {
 
   const liveMap = await _rtGet('coop_map');
   const liveInviteId = liveMap && (liveMap.started_at || liveMap.battle_prov_id || 0);
-  const inviteStillOpen = !!(liveMap && liveMap.status === 'waiting_for_guest' && liveMap.host === data.host && liveInviteId === inviteId);
+  const inviteRetreated = !!(liveMap && liveInviteId && liveMap.retreated_at && liveMap.retreated_at >= liveInviteId);
+  const inviteStillOpen = !!(liveMap && liveMap.status === 'waiting_for_guest' && liveMap.host === data.host && liveInviteId === inviteId && !inviteRetreated);
   if (!inviteStillOpen) {
     RTCOOP._joinData = null;
     RTCOOP._joiningInviteId = 0;
