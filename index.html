@@ -4767,23 +4767,46 @@ function _rtcoopNextControllerName(currentName) {
 
 function _rtcoopSyncHeroesFromSession(session) {
   if (!session || !Array.isArray(G.heroes)) return;
-  G.heroes = G.heroes.map(hero => {
+  const existingByOwner = new Map();
+  G.heroes.forEach(hero => {
     const ownerName = hero.ownerName || getPlayerById(hero.level)?.name || hero.name;
+    if (ownerName) existingByOwner.set(ownerName, hero);
+  });
+
+  const orderedOwners = _rtcoopOrderedPlayerNames();
+  const owners = [
+    ...(RTCOOP.myName ? [RTCOOP.myName] : []),
+    ...orderedOwners.filter(name => name && name !== RTCOOP.myName),
+  ];
+
+  const nextHeroes = owners.map(ownerName => {
     const ownerKey = _rtNameKey(ownerName);
     const remoteKey = session['hero_key_' + ownerKey];
-    if (!remoteKey || remoteKey === hero.key) return hero;
+    const current = existingByOwner.get(ownerName);
+    if (!remoteKey) return current || null;
     const def = ALL_HEROES.find(h => h.key === remoteKey);
-    if (!def) return hero;
+    if (!def) return current || null;
+    const remoteHp = session['hp_' + ownerKey];
+    const remoteMaxHp = session['maxhp_' + ownerKey];
+    const isSelf = ownerName === RTCOOP.myName;
     return {
       ...def,
-      level: hero.level,
-      ownerId: hero.ownerId || hero.level,
+      level: current ? current.level : (isSelf ? RTCOOP.myRole : ownerName),
+      ownerId: current ? current.ownerId : (isSelf ? RTCOOP.myRole : ownerName),
       ownerName,
-      hp: hero.hp,
-      maxHp: hero.maxHp,
-      _online: hero._online !== false,
+      hp: remoteHp !== undefined ? Math.max(0, remoteHp) : (current ? current.hp : def.maxHp),
+      maxHp: remoteMaxHp || (current ? current.maxHp : def.maxHp),
+      _online: current ? current._online !== false : true,
     };
+  }).filter(Boolean);
+
+  const changed = nextHeroes.length !== G.heroes.length || nextHeroes.some((hero, index) => {
+    const prev = G.heroes[index];
+    return !prev || prev.ownerName !== hero.ownerName || prev.key !== hero.key;
   });
+
+  G.heroes = nextHeroes;
+  if (changed) renderHeroBars();
 }
 
 // Called from startCampaign when mode === 'coop'
@@ -4950,6 +4973,8 @@ async function _rtcoopMapPoll() {
     const inviteId = data.started_at || 0;
     if (RTCOOP._lastDeclinedInvite !== inviteId && _rtcoopCanReceiveInvite()) {
       _rtcoopShowJoinPopup(data);
+    } else {
+      _rtcoopUpdateMapUI(status, controller || hostName);
     }
     return;
   }
