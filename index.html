@@ -2717,6 +2717,18 @@ function saveRosters() {
 // Get battle party: startHero + 1 random other from roster (no cap on total roster)
 function getActiveHeroes(mode) {
   if (mode === 'coop') {
+    if (RTCOOP.enabled && RTCOOP.myRole) {
+      const heroKey = playerRosters[RTCOOP.myRole] && playerRosters[RTCOOP.myRole].startHero;
+      const heroDef = heroKey ? ALL_HEROES.find(h => h.key === heroKey) : null;
+      const owner = getPlayerById(RTCOOP.myRole);
+      return heroDef ? [{
+        ...heroDef,
+        level: RTCOOP.myRole,
+        ownerId: RTCOOP.myRole,
+        ownerName: owner ? owner.name : RTCOOP.myName || RTCOOP.myRole,
+        _online: true,
+      }] : [ALL_HEROES[0]];
+    }
     // Co-op: use each participating player's startHero
     let pairs = PLAYERS.map(p => ({key: playerRosters[p.id] && playerRosters[p.id].startHero, level: p.id}))
       .filter(p => p.key);
@@ -4925,6 +4937,39 @@ function _rtcoopOnlineOrderedPlayerNames() {
   return _rtcoopOrderedPlayerNames().filter(name => online.has(name));
 }
 
+function _rtcoopOnlineOrderedPlayerNamesFromMap(mapData) {
+  if (!mapData || typeof mapData !== 'object') return _rtcoopOnlineOrderedPlayerNames();
+  const now = Date.now();
+  const cutoff = now - 8000;
+  const connected = {};
+  for (const [key, value] of Object.entries(mapData)) {
+    if (key.startsWith('p_') && !key.endsWith('_declined') && typeof value === 'number' && value > cutoff) {
+      connected[key.slice(2)] = value;
+    }
+  }
+  if (mapData.player_names) {
+    for (const [key, name] of Object.entries(mapData.player_names)) {
+      if (connected[key] !== undefined) {
+        connected[name] = connected[key];
+        if (key !== name) delete connected[key];
+      }
+    }
+  }
+
+  const ordered = [];
+  const seen = new Set();
+  const push = (name) => {
+    if (typeof name !== 'string') return;
+    const clean = name.trim();
+    if (!clean || seen.has(clean) || connected[clean] === undefined) return;
+    seen.add(clean);
+    ordered.push(clean);
+  };
+  (RTCOOP.playerOrder || []).forEach(push);
+  Object.keys(connected).forEach(push);
+  return ordered;
+}
+
 function _rtcoopNextControllerName(currentName) {
   const names = _rtcoopOnlineOrderedPlayerNames();
   if (!names.length) return currentName || RTCOOP.myName || '';
@@ -5502,6 +5547,11 @@ async function _rtcoopBattlePoll() {
   const myKey = _rtNameKey(RTCOOP.myName);
   const myHero = G.heroes.find(h => h.level === RTCOOP.myRole);
 
+  await _rtPatch('coop_map', {
+    ['p_' + myKey]: Date.now(),
+    ['player_names/' + myKey]: RTCOOP.myName,
+  });
+
   // Write own heartbeat + hero HP + streak
   await _rtPatch('coop_session', {
     ['ts_' + myKey]: Date.now(),
@@ -5612,8 +5662,6 @@ async function rtcoopHostSignalEnd(result) {
   await _rtPatch('coop_map', {
     ..._rtcoopBuildCampaignSnapshot(),
   });
-  // Rotate controller to next online player
-  const nextController = _rtcoopNextControllerName(RTCOOP.myName);
   clearTimeout(RTCOOP.endTransitionTimer);
   RTCOOP.endTransitionTimer = setTimeout(async () => {
     const latestMap = await _rtGet('coop_map');
@@ -5622,6 +5670,11 @@ async function rtcoopHostSignalEnd(result) {
       RTCOOP.endTransitionTimer = null;
       return;
     }
+    const orderedOnlineNames = _rtcoopOnlineOrderedPlayerNamesFromMap(latestMap);
+    const currentIndex = orderedOnlineNames.indexOf(RTCOOP.myName);
+    const nextController = currentIndex === -1
+      ? (orderedOnlineNames[0] || RTCOOP.myName || '')
+      : (orderedOnlineNames[(currentIndex + 1) % orderedOnlineNames.length] || orderedOnlineNames[0] || RTCOOP.myName || '');
     await _rtcoopPatchMapIdle(nextController);
     RTCOOP.endTransitionTimer = null;
   }, 1500);
