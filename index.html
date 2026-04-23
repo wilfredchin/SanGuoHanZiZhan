@@ -3605,6 +3605,20 @@ function _rtcoopCurrentHero() {
   return G.heroes.find(h => h.level === RTCOOP.myRole || h.ownerName === RTCOOP.myName) || null;
 }
 
+function _healHeroesBetweenWaves() {
+  if (RTCOOP.enabled && G.mode === 'coop') {
+    const hero = _rtcoopCurrentHero();
+    if (hero && hero.hp < hero.maxHp) hero.hp = Math.min(hero.maxHp, hero.hp + 1);
+    updateHeroBars();
+    rtcoopPublishOwnHeroState();
+    return;
+  }
+  G.heroes.forEach(h => {
+    if (h.hp < h.maxHp) h.hp = Math.min(h.maxHp, h.hp + 1);
+  });
+  updateHeroBars();
+}
+
 function _rtcoopCurrentHeroDefeated() {
   const hero = _rtcoopCurrentHero();
   return !!(hero && hero.hp <= 0);
@@ -3848,8 +3862,7 @@ function checkEnemyDead(){
     if(RTCOOP.enabled && G.mode==='coop') rtcoopHostSignalEnd('victory');
     return true;
   }
-  G.heroes.forEach((h)=>{if(h.hp<h.maxHp){h.hp=Math.min(h.maxHp,h.hp+1);updateHeroBars();}});
-  if (RTCOOP.enabled && G.mode === 'coop') rtcoopPublishOwnHeroState();
+  _healHeroesBetweenWaves();
   if(!musicMuted)playBattleMusic(G.wave);
   setTimeout(()=>{
     spawnEnemy(G.battleProvId);
@@ -5582,6 +5595,8 @@ async function rtcoopHostWaveAdvance() {
 async function rtcoopHostSignalEnd(result) {
   if (!RTCOOP.enabled || !RTCOOP.isHost) return;
   clearInterval(RTCOOP.battlePollTimer);
+  const mapSnapshot = await _rtGet('coop_map');
+  const endingInviteId = mapSnapshot && (mapSnapshot.started_at || mapSnapshot.battle_prov_id || 0);
   await _rtPatch('coop_session', {
     status: result,
     ..._rtcoopBuildCampaignSnapshot(),
@@ -5593,12 +5608,24 @@ async function rtcoopHostSignalEnd(result) {
   const nextController = _rtcoopNextControllerName(RTCOOP.myName);
   clearTimeout(RTCOOP.endTransitionTimer);
   RTCOOP.endTransitionTimer = setTimeout(async () => {
+    const latestMap = await _rtGet('coop_map');
+    const latestInviteId = latestMap && (latestMap.started_at || latestMap.battle_prov_id || 0);
+    if (latestMap && latestInviteId && endingInviteId && latestInviteId !== endingInviteId) {
+      RTCOOP.endTransitionTimer = null;
+      return;
+    }
+    if (latestMap && (latestMap.status === 'waiting_for_guest' || latestMap.status === 'battle_active')) {
+      RTCOOP.endTransitionTimer = null;
+      return;
+    }
     await _rtPatch('coop_map', {
       status: 'idle',
       controller: nextController,
       host: '',
       battle_prov_id: -1,
       battle_prov_name: '',
+      started_at: 0,
+      auto_join_guests: false,
       ..._rtcoopBuildCampaignSnapshot(),
     });
     RTCOOP.endTransitionTimer = null;
@@ -5646,9 +5673,7 @@ function _rtcoopSyncWave(session, opts) {
     renderEnemy();
   }
   if (opts.healHeroes !== false && waveChanged) {
-    G.heroes.forEach(h => { if(h.hp<h.maxHp) h.hp=Math.min(h.maxHp,h.hp+1); });
-    updateHeroBars();
-    if (RTCOOP.enabled && G.mode === 'coop') rtcoopPublishOwnHeroState();
+    _healHeroesBetweenWaves();
     _rtcoopRefreshQuestionLock();
   }
   if (!musicMuted) playBattleMusic(G.wave);
