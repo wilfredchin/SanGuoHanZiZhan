@@ -112,7 +112,7 @@ html,body{width:100%;height:100%;overflow:hidden;background:#0d0a08;font-family:
 .btl-wave{font-family:'Ma Shan Zheng',cursive;color:var(--goldb);font-size:clamp(17px,4.5vw,24px);letter-spacing:.1em}
 .btl-badge{background:rgba(139,26,26,.55);border:1px solid var(--gold);border-radius:20px;padding:5px 14px;font-size:clamp(13px,3vw,16px);color:var(--parch);letter-spacing:.09em}
 /* Hero bars */
-.hero-bars{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:6px 10px;background:rgba(0,0,0,.32);flex-shrink:0}
+.hero-bars{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:6px 10px;background:rgba(0,0,0,.32);flex-shrink:0}
 .hero-bar{background:rgba(0,0,0,.42);border:1px solid rgba(201,162,39,.28);border-radius:6px;padding:6px 9px}
 .hero-bar-top{display:flex;align-items:center;gap:7px;margin-bottom:4px}
 .hb-icon{width:44px;height:44px;flex-shrink:0}
@@ -2342,6 +2342,12 @@ function replayProvStory() {
 
 function startBattleFromMap() {
   if (selectedProvId === null) return;
+  if (RTCOOP.enabled && campaignMode === 'coop') {
+    if (RTCOOP.mapStatus !== 'idle' || RTCOOP.currentController !== RTCOOP.myName) {
+      closeFortPanel();
+      return;
+    }
+  }
   const _sp = provState[selectedProvId] || 'neutral';
   if (_sp !== 'owned' && selectedProvId !== playerProvId) {
     const _ct = getProvType(selectedProvId);
@@ -3425,7 +3431,6 @@ function _heroSpriteHTML(key) {
 
 function renderHeroBars() {
   const cont = document.getElementById('hero-bars');
-  const isRtCoop = RTCOOP.enabled && G.mode === 'coop';
   // Embed sprite HTML inline in the template — avoids setting innerHTML on HTML-parser SVG nodes
   // which Firefox rejects
   cont.innerHTML = G.heroes.map((h,i)=>{
@@ -3436,7 +3441,7 @@ function renderHeroBars() {
       <div class="hero-bar-top">
         <svg class="hb-icon" viewBox="0 0 64 80" id="hb-svg-${i}">${spriteHTML}</svg>
         <span class="hb-name">${label}</span>
-        <span class="hb-hp" id="hb-hp-${i}" style="display:${isRtCoop ? 'none' : 'inline'}">${h.hp}/${h.maxHp}</span>
+        <span class="hb-hp" id="hb-hp-${i}">${h.hp}/${h.maxHp}</span>
       </div>
       <div class="hp-bg"><div class="hp-fill" id="hb-fill-${i}" style="width:${h.hp/h.maxHp*100}%"></div></div>
     </div>`;
@@ -3452,10 +3457,7 @@ function updateHeroBars() {
     if(!fill) return;
     fill.style.width=pct+'%';
     fill.className='hp-fill'+(pct<25?' low':pct<55?' mid':'');
-    if (hp) {
-      if (RTCOOP.enabled && G.mode === 'coop') hp.textContent='';
-      else hp.textContent=Math.max(0,h.hp)+'/'+h.maxHp;
-    }
+    if (hp) hp.textContent=Math.max(0,h.hp)+'/'+h.maxHp;
     if (name && RTCOOP.enabled && G.mode === 'coop') name.textContent = rtcoopHeroBarLabel(h, i);
   });
 }
@@ -4647,7 +4649,10 @@ const RTCOOP = {
   myName: null,           // this player's entered name (the identity key)
   myRole: null,           // kept for backward compat (= myName)
   connectedPlayers: {},   // { name: lastTimestamp } — all players seen online
+  playerOrder: [],
   isHost: false,
+  mapStatus: 'idle',
+  currentController: '',
   mapPollTimer: null,
   battlePollTimer: null,
   joinCountdownTimer: null,
@@ -4733,15 +4738,28 @@ function _rtcoopApplyCampaignState(source) {
 }
 
 function _rtcoopPreferredControllerName() {
-  return PLAYERS[0]?.name || RTCOOP.myName || '';
+  return _rtcoopOrderedPlayerNames()[0] || RTCOOP.myName || '';
+}
+
+function _rtcoopOrderedPlayerNames() {
+  const ordered = [];
+  const seen = new Set();
+  const push = (name) => {
+    if (typeof name !== 'string') return;
+    const clean = name.trim();
+    if (!clean || seen.has(clean)) return;
+    seen.add(clean);
+    ordered.push(clean);
+  };
+  (RTCOOP.playerOrder || []).forEach(push);
+  Object.keys(RTCOOP.connectedPlayers || {}).forEach(push);
+  push(RTCOOP.myName);
+  return ordered;
 }
 
 function _rtcoopNextControllerName(currentName) {
-  const online = new Set(_rtcoopOnlineNames());
-  const ordered = PLAYERS.map(p => p.name).filter(Boolean);
-  const eligible = ordered.filter(name => !online.size || online.has(name));
-  const names = eligible.length ? eligible : (ordered.length ? ordered : _rtcoopOnlineNames());
-  if (!names.length) return currentName || RTCOOP.myName;
+  const names = _rtcoopOrderedPlayerNames();
+  if (!names.length) return currentName || RTCOOP.myName || '';
   const idx = names.indexOf(currentName);
   if (idx === -1) return names[0];
   return names[(idx + 1) % names.length] || names[0];
@@ -4796,6 +4814,7 @@ async function rtcoopInit(playerId) {
   RTCOOP.myName = name;
   RTCOOP.myRole = playerId; // keep for battle engine compat
   RTCOOP.connectedPlayers = {};
+  RTCOOP.playerOrder = [name];
   RTCOOP._wavePending = false;
   RTCOOP._lastDeclinedInvite = 0;
   RTCOOP.isHost = false;
@@ -4813,6 +4832,9 @@ function rtcoopDisable() {
   RTCOOP.enabled = false;
   RTCOOP.myName = null;
   RTCOOP.connectedPlayers = {};
+  RTCOOP.playerOrder = [];
+  RTCOOP.mapStatus = 'idle';
+  RTCOOP.currentController = '';
   clearInterval(RTCOOP.mapPollTimer);
   clearInterval(RTCOOP.battlePollTimer);
   clearTimeout(RTCOOP.joinCountdownTimer);
@@ -4867,7 +4889,7 @@ async function _rtcoopMapPoll() {
   const cutoff = now - 8000;
   const connected = {};
   for (const [k, v] of Object.entries(data)) {
-    if (k.startsWith('p_') && typeof v === 'number' && v > cutoff) {
+    if (k.startsWith('p_') && !k.endsWith('_declined') && typeof v === 'number' && v > cutoff) {
       // Find the actual display name — we store it as the Firebase field value too
       connected[k.slice(2)] = v; // key without 'p_' prefix
     }
@@ -4885,6 +4907,11 @@ async function _rtcoopMapPoll() {
   }
 
   RTCOOP.connectedPlayers = connected;
+  RTCOOP.playerOrder = [
+    ...(data.player_names ? Object.values(data.player_names) : []),
+    ...Object.keys(connected),
+    RTCOOP.myName,
+  ].filter((name, index, arr) => typeof name === 'string' && name.trim() && arr.indexOf(name) === index);
 
   let controller = data.controller || data.host || '';
   const status = data.status || 'idle';
@@ -4895,12 +4922,16 @@ async function _rtcoopMapPoll() {
     if (controller) await _rtPatch('coop_map', { controller });
   }
   const amController = controller === RTCOOP.myName;
+  RTCOOP.mapStatus = status;
+  RTCOOP.currentController = controller;
 
   // Determine host status: controller == me means it's my turn
   RTCOOP.isHost = amController;
 
   if ((status === 'waiting_for_guest' || status === 'battle_active') && hostName && !hostOnline) {
     const fallbackController = controller || _rtcoopNextControllerName(hostName);
+    RTCOOP.mapStatus = 'idle';
+    RTCOOP.currentController = fallbackController;
     await _rtPatch('coop_map', {
       status: 'idle',
       controller: fallbackController,
@@ -4950,12 +4981,11 @@ function _rtcoopUpdateMapUI(status, controller) {
 
   const now = Date.now();
   const cutoff = now - 8000;
-  const onlineNames = _rtcoopOnlineNames();
-  const count = onlineNames.length;
+  const others = Object.entries(RTCOOP.connectedPlayers).filter(([name]) => name !== RTCOOP.myName);
+  const count = others.length + 1;
 
   // Build per-player status dots: 🟢 online, 🔴 disconnected
-  const allKnown = Object.entries(RTCOOP.connectedPlayers);
-  const playerDots = allKnown.map(([name, ts]) => {
+  const playerDots = others.map(([name, ts]) => {
     const dot = ts > cutoff ? '🟢' : '🔴';
     return `${dot} ${name}`;
   }).join('  ');
@@ -4967,7 +4997,7 @@ function _rtcoopUpdateMapUI(status, controller) {
     if (mi) {
       const owned = Object.values(provState).filter(v=>v==='owned').length;
       const waitingStr = count < 2 ? '  ⏳ Waiting for players…' : '';
-      mi.textContent = `已占${owned}/${PROVINCES.length}郡  ⭐ Your turn${waitingStr}  ${playerDots}`;
+      mi.textContent = `已占${owned}/${PROVINCES.length}郡  ⭐ Your turn${waitingStr}${playerDots ? '  ' + playerDots : ''}`;
     }
     document.querySelectorAll('[data-prov]').forEach(el => {
       el.style.pointerEvents = '';
@@ -4985,7 +5015,7 @@ function _rtcoopUpdateMapUI(status, controller) {
     if (fp) fp.style.display = 'none';
     if (mi) {
       const owned = Object.values(provState).filter(v=>v==='owned').length;
-      mi.textContent = `已占${owned}/${PROVINCES.length}郡  ${playerDots}`;
+      mi.textContent = `已占${owned}/${PROVINCES.length}郡${playerDots ? '  ' + playerDots : ''}`;
     }
   }
 }
